@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const d=require\\('/c/Users/murat/projects/bolena2/i18n/messages/tr.json'\\); console.log\\(JSON.stringify\\(d.extras, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('C:/Users/murat/projects/bolena2/i18n/messages/tr.json'\\); console.log\\(JSON.stringify\\(d.extras, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('C:/Users/murat/projects/bolena2/i18n/messages/en.json'\\); console.log\\(JSON.stringify\\(d.extras, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('C:/Users/murat/projects/bolena2/i18n/messages/tr.json'\\); console.log\\(JSON.stringify\\({orders: d.orders?.required, extras: d.extras}, null, 2\\)\\)\")",
+      "Bash(grep -r \"session\\\\|visit\\\\|order.*close\\\\|payment.*order\" /c/Users/murat/projects/bolena2/supabase/migrations/*.sql)",
+      "Bash(grep -r \"completed\\\\|closed\\\\|session\" /c/Users/murat/projects/bolena2/supabase/migrations/*.sql)",
+      "Bash(ls /c/Users/murat/projects/bolena2/app/qr/[token]/)"
+    ]
+  }
+}

@@ -1,184 +1,36 @@
-# Bolena Cafe — Mimari Kararlar
+# Bolena Cafe — Mimari
 
-## Genel Mimari
+## Genel
 
-```
-┌─────────────────────────────────────────────────┐
-│                  Next.js 16.2                    │
-│                                                  │
-│  ┌──────────────┐    ┌─────────────────────────┐ │
-│  │ Public Pages │    │    Admin Panel (CSR)    │ │
-│  │ (SSR / SEO)  │    │  Role & Module Guards   │ │
-│  └──────────────┘    └─────────────────────────┘ │
-│          │                      │                │
-│          └──────────┬───────────┘                │
-│                     ▼                            │
-│           ┌──────────────────┐                   │
-│           │  Supabase Client │                   │
-│           │  (browser/server)│                   │
-│           └──────────────────┘                   │
-└─────────────────────┬───────────────────────────┘
-                      │
-          ┌───────────▼──────────┐
-          │      Supabase        │
-          │  ┌────────────────┐  │
-          │  │  PostgreSQL 17 │  │
-          │  │      RLS       │  │
-          │  ├────────────────┤  │
-          │  │    Realtime    │  │
-          │  ├────────────────┤  │
-          │  │    Storage     │  │
-          │  ├────────────────┤  │
-          │  │      Auth      │  │
-          │  └────────────────┘  │
-          └──────────────────────┘
-```
-
----
-
-## Auth Akışı
+Next.js 16 App Router: **public** (SSR/SEO, `/[locale]/(public)`) + **admin** (CSR ağırlıklı, `/[locale]/admin`). Veri: Supabase (Postgres, RLS, Auth, Realtime, Storage). İstemci önbellek: TanStack Query v5; global UI state: Zustand.
 
 ```
-Browser Request
-     │
-     ▼
-middleware.ts (next-intl locale + Supabase session check)
-     │
-     ├── /[locale]/(public)/* → session gerekmez
-     │
-     └── /[locale]/(admin)/* → session yoksa /login'e yönlendir
-              │
-              ▼
-         layout.tsx (admin)
-              │
-              ├── role = admin → tüm modüller açık
-              │
-              └── role = employee → module_permissions kontrol
-                        │
-                        ├── can_access = true → sayfa render
-                        └── can_access = false → 403 sayfası
+Browser → proxy.ts (locale + session) → RSC / Client
+       → Supabase (server.ts | client.ts); ağır admin işi → admin.ts (service role, yalnız sunucu)
 ```
 
----
+## Auth / yetki
 
-## Veri Katmanı Mimarisi
+`proxy.ts` → admin rotalarında session yoksa login. `(admin)/layout.tsx` → aktif kullanıcı. Client’ta `auth.store` + `usePermission()`; sunucuda `requireModuleAccess()`. RLS son hat.
 
-### Server Components (RSC)
-- İlk sayfa yüklemesi ve SEO gerektiren içerikler
-- `lib/supabase/server.ts` kullanır
-- Cookie tabanlı session
+## Veri erişimi
 
-### Client Components
-- Realtime, etkileşimli sipariş ekranları
-- `lib/supabase/client.ts` kullanır
-- TanStack Query ile cache + invalidate
+- RSC / Server Actions: `lib/supabase/server.ts`
+- Client + Realtime: `lib/supabase/client.ts`
+- Her modül: `lib/queries/*Keys` factory + `useQuery` / `useMutation` — **fetch için `useEffect` kullanma.**
 
-### TanStack Query Yapısı
-```typescript
-// lib/queries/menu.queries.ts
-export const menuKeys = {
-  all: ['menu'] as const,
-  categories: () => [...menuKeys.all, 'categories'] as const,
-  products: (categoryId?: string) => [...menuKeys.all, 'products', categoryId] as const,
-}
+## Realtime
 
-// Her modülün kendi query key factory'si var
-```
+Yalnızca: masa detay, rezervasyonlar, platform siparişleri. Kanal aç → unmount’ta `removeChannel`.
 
-### Zustand Store'ları
-```typescript
-// lib/stores/order.store.ts  → aktif masa siparişleri
-// lib/stores/cart.store.ts   → ürün ekleme sepeti (sipariş öncesi)
-// lib/stores/auth.store.ts   → kullanıcı profili + izinler
-```
+## Sipariş UI
 
----
+Ortak: `components/modules/orders/` — `AddProductModal`, `PaymentModal` / `PaymentModalSimple` (platform), `OrderItemList`, `OrderSummary`.
 
-## Realtime Stratejisi
+## i18n
 
-Supabase Realtime **sadece** aktif sipariş ekranlarında kullanılır:
+`next-intl`; metinler `i18n/messages/tr.json` & `en.json`. Admin pratikte TR; public TR+EN.
 
-```typescript
-// Masa açıkken subscribe, kapanınca unsubscribe
-useEffect(() => {
-  const channel = supabase
-    .channel(`order:${tableId}`)
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'order_items',
-      filter: `order_id=eq.${orderId}`
-    }, handleChange)
-    .subscribe()
+## Storage
 
-  return () => { supabase.removeChannel(channel) }
-}, [tableId, orderId])
-```
-
----
-
-## i18n Stratejisi
-
-- URL bazlı locale: `/tr/*` ve `/en/*`
-- `next-intl` v4 ile middleware routing
-- Admin paneli TR'de sabit kalabilir (kullanıcı tercihi ile değiştirilebilir)
-- Public site tam çift dilli
-
-```
-i18n/messages/
-├── tr.json    → { "menu": { "title": "Menümüz" }, ... }
-└── en.json    → { "menu": { "title": "Our Menu" }, ... }
-```
-
----
-
-## Sipariş Mimarisi
-
-Tüm sipariş tipleri tek `orders` tablosunda birleşir.
-`type` alanı ile ayrılır: `table | reservation | takeaway | platform`
-
-**Ortak sipariş UI bileşeni** tüm tiplerde kullanılır:
-```
-components/modules/orders/
-├── OrderItemList.tsx      → sipariş kalemlerini göster
-├── AddProductModal.tsx    → ürün ekleme (içerik çıkarma + ekstra)
-├── PaymentModal.tsx       → ödeme al (masa/gel-al: parçalı; platform: tek seferlik)
-└── OrderSummary.tsx       → toplam + indirim
-```
-
----
-
-## Görsel Ürün Depolama
-
-```
-Supabase Storage
-└── bolena-cafe (bucket)
-    └── products/
-        └── {product_id}/{timestamp}.{ext}
-```
-
-- Public bucket — CDN üzerinden serve
-- `next/image` ile optimize render
-- Upload sırasında dosya boyutu limiti: 2MB
-- Format: JPEG/WebP/PNG
-
----
-
-## Performans Hedefleri
-
-| Metrik | Hedef |
-|--------|-------|
-| Admin panel ilk yüklenme | < 2s |
-| Masa sipariş ekranı update | < 500ms (realtime) |
-| Menü listeleme | < 1s |
-| Stok güncellemesi | Atomik (RPC) |
-
----
-
-## Güvenlik Katmanları
-
-1. **Middleware** → oturum kontrolü (her istek)
-2. **Layout Guards** → rol/modül kontrolü (React)
-3. **Supabase RLS** → veritabanı seviyesi (her sorgu)
-4. **Zod Validation** → input sanitization (her form)
-5. **Service Role** → sadece server-side, asla client'a expose edilmez
+Bucket `bolena-cafe`; ürün path: `products/{id}/{timestamp}.{ext}` (bkz. `docs/DECISIONS.md` K-08).

@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bolena2
 
-## Getting Started
+Next.js 16 + Supabase ile glutensiz kafe operasyon paneli (public site + admin).
 
-First, run the development server:
+## Stack
+
+Next 16 (App Router), React 19, TypeScript, Supabase (Auth, Postgres, RLS, Realtime, Storage), TanStack Query, Zustand, Tailwind + shadcn, Vitest + RTL + Playwright.
+
+## Kurulum
+
+```bash
+npm ci
+```
+
+`.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+→ `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scriptler
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`dev` | `build` | `start` | `lint` | `typecheck` | `test` | `test:e2e` | `ci:verify` (lint + typecheck + unit)
 
-## Learn More
+## Veritabanı
 
-To learn more about Next.js, take a look at the following resources:
+Şema ve RLS: `supabase/migrations/`. Detay özeti: `docs/DATABASE.md`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## CI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`.github/workflows/ci.yml` — lint, typecheck, unit; PR’de E2E.
 
-## Deploy on Vercel
+## Dokümantasyon
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`docs/` — mimari: `ARCHITECTURE.md`; kararlar: `DECISIONS.md`; güvenlik: `SECURITY.md`; deploy: `DEPLOYMENT.md`. AI oturum rehberi: `CLAUDE.md`.

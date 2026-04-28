@@ -1,0 +1,237 @@
+'use client'
+
+import { useCallback, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { Search } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import type { Category, MenuCampaign, Product } from '@/types'
+import { QrCategoryPills } from './QrCategoryPills'
+import { QrProductCard } from './QrProductCard'
+import { QrProductSheet } from './QrProductSheet'
+import { QrLocaleToggle } from './QrLocaleToggle'
+
+interface QrMenuTabProps {
+  categories: Category[]
+  products: Product[]
+  campaigns: MenuCampaign[]
+  tableName: string
+  qrEnabled: boolean
+  token: string
+  sessionToken: string
+  orderId: string
+  onDirectOrderSuccess?: () => void
+}
+
+export function QrMenuTab({
+  categories,
+  products,
+  campaigns,
+  tableName,
+  qrEnabled,
+  token,
+  sessionToken,
+  orderId,
+  onDirectOrderSuccess,
+}: QrMenuTabProps) {
+  const t = useTranslations('qr')
+  const locale = useLocale()
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const [sheetInstanceKey, setSheetInstanceKey] = useState(0)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  const labelCategory = useCallback(
+    (category: Pick<Category, 'name_tr' | 'name_en'>) =>
+      locale === 'en' && category.name_en ? category.name_en : category.name_tr,
+    [locale]
+  )
+
+  const groupedProducts = useMemo(
+    () =>
+      categories
+      .map((category) => ({
+        id: category.id,
+        label: labelCategory(category),
+        products: products.filter((product) => product.category_id === category.id),
+      }))
+      .filter((group) => group.products.length > 0),
+    [categories, labelCategory, products]
+  )
+
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
+    groupedProducts[0]?.id ?? null
+  )
+  const resolvedActiveCategoryId =
+    activeCategoryId && groupedProducts.some((group) => group.id === activeCategoryId)
+      ? activeCategoryId
+      : groupedProducts[0]?.id ?? null
+
+  const handleScroll = useCallback(() => {
+    const container = scrollRef.current
+    if (!container) return
+
+    setIsScrolled(container.scrollTop > 12)
+
+    const currentScrollTop = container.scrollTop
+    let currentCategoryId = groupedProducts[0]?.id ?? null
+
+    for (const group of groupedProducts) {
+      const section = sectionRefs.current[group.id]
+      if (!section) continue
+
+      const sectionTop = section.offsetTop - 130
+      if (currentScrollTop >= sectionTop) {
+        currentCategoryId = group.id
+      } else {
+        break
+      }
+    }
+
+    if (currentCategoryId && currentCategoryId !== resolvedActiveCategoryId) {
+      setActiveCategoryId(currentCategoryId)
+    }
+  }, [groupedProducts, resolvedActiveCategoryId])
+
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    const container = scrollRef.current
+    const section = sectionRefs.current[categoryId]
+    if (!container || !section) return
+
+    container.scrollTo({
+      top: Math.max(0, section.offsetTop - 110),
+      behavior: 'smooth',
+    })
+    setActiveCategoryId(categoryId)
+  }, [])
+
+  const handleProductOpen = useCallback((product: Product) => {
+    setSheetInstanceKey((value) => value + 1)
+    setSelectedProduct(product)
+    setSheetOpen(true)
+  }, [])
+
+  return (
+    <div className="relative flex h-full min-h-0 flex-1 flex-col">
+      <motion.div
+        className="sticky top-0 z-30 shrink-0 px-2 pb-2 pt-2 transition-all duration-300"
+      >
+        <div
+          className={`transition-all duration-300 ${
+            isScrolled
+              ? 'rounded-[28px] border border-white/60 bg-[rgba(255,255,255,0.88)] px-3 py-3 shadow-[0_20px_55px_-28px_rgba(27,60,42,0.45)] backdrop-blur-xl'
+              : 'rounded-[34px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,248,235,0.82))] px-4 py-4 shadow-[0_30px_80px_-36px_rgba(27,60,42,0.55)]'
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex items-center justify-center rounded-[22px] border border-[#1B3C2A]/10 bg-[#1B3C2A]/5 transition-all duration-300 ${
+                  isScrolled ? 'h-11 w-11' : 'h-14 w-14'
+                }`}
+              >
+                <Image
+                  src="/images/bolena_logo.png"
+                  alt={t('brand')}
+                  width={42}
+                  height={42}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+
+              <div className="min-w-0">
+                <p className="font-heading text-[1.55rem] leading-none text-[#173322]">
+                  {t('brand')}
+                </p>
+                <p className="mt-1 truncate text-sm font-medium text-[#1B3C2A]/65">{tableName}</p>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <QrLocaleToggle />
+              {!qrEnabled && (
+                <span className="rounded-full border border-amber-300/70 bg-amber-100/90 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.24em] text-amber-900 shadow-sm">
+                  {t('orderClosed')}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <QrCategoryPills
+              categories={categories.filter((category) =>
+                groupedProducts.some((group) => group.id === category.id)
+              )}
+              activeId={resolvedActiveCategoryId}
+              onSelect={handleCategorySelect}
+            />
+          </div>
+        </div>
+      </motion.div>
+
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="qr-scrollbar flex-1 overflow-y-auto overscroll-contain px-2 pb-8 pt-3 touch-pan-y sm:px-4"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        <section className="space-y-4">
+          {groupedProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-[30px] border border-dashed border-[#1B3C2A]/15 bg-white/55 px-6 py-20 text-center shadow-[0_25px_55px_-42px_rgba(27,60,42,0.55)]">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#1B3C2A]/6 text-[#1B3C2A]/60">
+                <Search className="h-6 w-6" />
+              </div>
+              <p className="font-heading text-2xl text-[#173322]">{t('emptyCategory')}</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {groupedProducts.map((group) => (
+                <section
+                  key={group.id}
+                  ref={(element) => {
+                    sectionRefs.current[group.id] = element
+                  }}
+                  className="space-y-3"
+                >
+                  <div className="px-1">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#1B3C2A]/42">
+                      {group.label}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {group.products.map((product, idx) => (
+                      <QrProductCard
+                        key={product.id}
+                        product={product}
+                        campaigns={campaigns}
+                        qrEnabled={qrEnabled}
+                        priority={idx < 2}
+                        onClick={() => handleProductOpen(product)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      <QrProductSheet
+        key={sheetInstanceKey}
+        product={selectedProduct}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        campaigns={campaigns}
+        qrEnabled={qrEnabled}
+        token={token}
+        sessionToken={sessionToken}
+        orderId={orderId}
+        onDirectOrderSuccess={onDirectOrderSuccess}
+      />
+    </div>
+  )
+}
