@@ -221,6 +221,7 @@ export interface TableActiveOrder {
   payment_status: PaymentStatus
   items_count: number
   paid_amount: number
+  is_qr_order: boolean
   created_at: string
 }
 
