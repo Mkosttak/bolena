@@ -34,7 +34,8 @@ export function QrCartTab({
   const { data: fullOrder, isPending: isOrderPending } = useQuery({
     queryKey: qrKeys.order(sessionToken),
     queryFn: () => fetchFullOrder(orderId),
-    staleTime: 30_000,
+    staleTime: 0,           // Realtime invalidasyon anında yansısın
+    refetchInterval: 60_000, // Realtime bağlantısı kesilirse 60s fallback polling
   })
 
   const placedItems = (fullOrder?.items ?? []).filter((i) => i.quantity > 0)
@@ -103,9 +104,9 @@ export function QrCartTab({
                 <AlertCircle className="h-5 w-5 text-amber-600" />
               </div>
               <div className="flex-1">
-                <h3 className="text-[14px] font-bold text-amber-900">İletilmemiş ürünleriniz var</h3>
+                <h3 className="text-[14px] font-bold text-amber-900">{t('draftAlertTitle')}</h3>
                 <p className="mt-1 text-[13px] text-amber-700/80 leading-relaxed">
-                  Sepetinize eklediğiniz <strong>{localItems.length}</strong> adet ürün henüz mutfağa iletilmedi.
+                  {t('draftAlertDesc', { count: localItems.length })}
                 </p>
                 <button
                   type="button"
@@ -113,7 +114,7 @@ export function QrCartTab({
                   className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-[13px] font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-amber-600"
                 >
                   <Send className="h-4 w-4" />
-                  Siparişi İlet
+                  {t('draftAlertCta')}
                 </button>
               </div>
             </div>

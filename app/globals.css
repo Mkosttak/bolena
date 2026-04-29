@@ -249,6 +249,11 @@
   .qr-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: rgba(27, 60, 42, 0.32);
   }
+
+  /* QR sayfası bottom bar'ları için home indicator safe area padding */
+  .safe-area-padding-bottom {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* ── Raporlar (dark) — mutfak ekranı ile uyumlu yüzey + kartlar ── */

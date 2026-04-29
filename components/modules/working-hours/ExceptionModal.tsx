@@ -36,6 +36,7 @@ interface ExceptionModalProps {
 }
 
 export function ExceptionModal({ open, onClose, exception }: ExceptionModalProps) {
+  'use no memo'
   const t = useTranslations('workingHours')
   const tCommon = useTranslations('common')
   const queryClient = useQueryClient()

@@ -83,28 +83,49 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
       key: 'p1',
       name: t('platform1Name'),
       cta: t('platform1Cta'),
-      color: '#E10600',
-      bg: '#FFF0F0',
+      accent: '#E10600',
+      gradFrom: '#FFF0F0',
+      gradTo: '#FFE0E0',
+      borderColor: 'rgba(225,6,0,0.15)',
       href: 'https://www.yemeksepeti.com',
       initial: 'Y',
+      tagline: 'En hızlı teslimat',
     },
     {
       key: 'p2',
       name: t('platform2Name'),
       cta: t('platform2Cta'),
-      color: '#5D3EBC',
-      bg: '#F3F0FF',
+      accent: '#5D3EBC',
+      gradFrom: '#F3F0FF',
+      gradTo: '#E8E2FF',
+      borderColor: 'rgba(93,62,188,0.15)',
       href: 'https://getir.com',
       initial: 'G',
+      tagline: 'Anında kapıda',
     },
     {
       key: 'p3',
       name: t('platform3Name'),
       cta: t('platform3Cta'),
-      color: '#F27A1A',
-      bg: '#FFF5EC',
+      accent: '#F27A1A',
+      gradFrom: '#FFF5EC',
+      gradTo: '#FFE8D0',
+      borderColor: 'rgba(242,122,26,0.15)',
       href: 'https://www.trendyol.com/yemek',
       initial: 'T',
+      tagline: 'Avantajlı fiyatlar',
+    },
+    {
+      key: 'p4',
+      name: t('platform4Name'),
+      cta: t('platform4Cta'),
+      accent: '#E3000B',
+      gradFrom: '#FFF0F1',
+      gradTo: '#FFE0E2',
+      borderColor: 'rgba(227,0,11,0.15)',
+      href: 'https://www.migroskurye.com',
+      initial: 'M',
+      tagline: 'Migros güvencesiyle',
     },
   ]
 
@@ -375,173 +396,204 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
       {/* ─── ONLINE ORDER ─────────────────────────────────────── */}
       <section style={{ background: '#F5EFE0', padding: 'clamp(4rem,9vh,7rem) clamp(1.25rem,5vw,3rem)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          {/* Header row */}
           <Reveal>
-            <p
-              className="font-sans"
-              style={{
-                fontSize: 10.5,
-                fontWeight: 700,
-                letterSpacing: '0.26em',
-                textTransform: 'uppercase',
-                color: '#C4841A',
-                marginBottom: '0.75rem',
-              }}
-            >
-              {t('orderEyebrow')}
-            </p>
-            <h2
-              className="font-heading"
-              style={{
-                fontSize: 'clamp(1.75rem,4vw,3rem)',
-                fontWeight: 700,
-                lineHeight: 1.08,
-                letterSpacing: '-0.03em',
-                color: '#1C1C1A',
-                maxWidth: 560,
-                marginBottom: '0.75rem',
-              }}
-            >
-              {t('orderTitle')}
-            </h2>
-            <p
-              className="font-sans"
-              style={{
-                fontSize: 'clamp(0.875rem,1.8vw,1rem)',
-                lineHeight: 1.72,
-                color: 'rgba(28,28,26,0.58)',
-                maxWidth: 540,
-                marginBottom: 0,
-              }}
-            >
-              {t('orderSubtitle')}
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" style={{ marginBottom: 'clamp(2.5rem,5vh,3.5rem)' }}>
+              <div>
+                <p
+                  className="font-sans"
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: '#C4841A',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  {t('orderEyebrow')}
+                </p>
+                <h2
+                  className="font-heading"
+                  style={{
+                    fontSize: 'clamp(1.75rem,4vw,3rem)',
+                    fontWeight: 700,
+                    lineHeight: 1.08,
+                    letterSpacing: '-0.03em',
+                    color: '#1C1C1A',
+                    maxWidth: 560,
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  {t('orderTitle')}
+                </h2>
+                <p
+                  className="font-sans"
+                  style={{
+                    fontSize: 'clamp(0.875rem,1.8vw,1rem)',
+                    lineHeight: 1.72,
+                    color: 'rgba(28,28,26,0.58)',
+                    maxWidth: 520,
+                    marginBottom: 0,
+                  }}
+                >
+                  {t('orderSubtitle')}
+                </p>
+              </div>
+
+              {/* Phone CTA — visible on sm+ next to header */}
+              <a
+                href={`tel:${t('orderCallNumber').replace(/\s/g, '')}`}
+                className="group hidden sm:inline-flex items-center gap-3 rounded-2xl flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                style={{
+                  background: '#1A3524',
+                  padding: '1rem 1.5rem',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 2px 16px rgba(26,53,36,0.18)',
+                }}
+              >
+                <div
+                  className="inline-flex items-center justify-center rounded-xl flex-shrink-0"
+                  style={{ width: 38, height: 38, background: 'rgba(255,255,255,0.1)', color: '#D5AD5C' }}
+                >
+                  <Phone className="w-4 h-4" strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="font-heading" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FDFCF8', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+                    {t('orderCallLabel')}
+                  </p>
+                  <p className="font-sans" style={{ fontSize: 12, color: 'rgba(253,252,248,0.52)', lineHeight: 1 }}>
+                    {t('orderCallNumber')}
+                  </p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 ml-1 text-amber-400 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={2.5} />
+              </a>
+            </div>
           </Reveal>
 
           {/* Platform cards grid */}
           <div
-            className="mt-10 grid gap-4"
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
+            className="grid gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}
           >
             {platforms.map((p, i) => (
-              <Reveal key={p.key} delay={i * 0.08}>
+              <Reveal key={p.key} delay={i * 0.07}>
                 <a
                   href={p.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block rounded-2xl border border-transparent transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  className="group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1.5"
                   style={{
-                    background: '#fff',
+                    background: `linear-gradient(145deg, ${p.gradFrom} 0%, ${p.gradTo} 100%)`,
+                    border: `1px solid ${p.borderColor}`,
                     padding: 'clamp(1.25rem,3vw,1.75rem)',
                     textDecoration: 'none',
-                    boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
-                    borderColor: 'rgba(28,28,26,0.07)',
+                    boxShadow: `0 4px 20px ${p.borderColor}`,
+                    minHeight: 170,
                   }}
                 >
-                  {/* Platform icon */}
-                  <div
-                    className="inline-flex items-center justify-center rounded-xl font-sans mb-4"
-                    style={{
-                      width: 48,
-                      height: 48,
-                      background: p.bg,
-                      color: p.color,
-                      fontSize: 20,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {p.initial}
+                  {/* Brand initial badge */}
+                  <div className="flex items-start justify-between mb-auto">
+                    <div
+                      className="inline-flex items-center justify-center rounded-xl font-sans"
+                      style={{
+                        width: 52,
+                        height: 52,
+                        background: '#fff',
+                        color: p.accent,
+                        fontSize: 22,
+                        fontWeight: 900,
+                        boxShadow: `0 2px 10px ${p.borderColor}`,
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      {p.initial}
+                    </div>
+                    <ArrowUpRight
+                      className="w-4 h-4 opacity-30 group-hover:opacity-80 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 flex-shrink-0"
+                      style={{ color: p.accent }}
+                      strokeWidth={2.5}
+                    />
                   </div>
-                  <p
-                    className="font-heading"
-                    style={{
-                      fontSize: '1.15rem',
-                      fontWeight: 700,
-                      letterSpacing: '-0.02em',
-                      color: '#1C1C1A',
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    {p.name}
-                  </p>
-                  <span
-                    className="inline-flex items-center gap-1.5 font-sans transition-all duration-200 group-hover:gap-2"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      color: p.color,
-                    }}
-                  >
-                    {p.cta}
-                    <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  </span>
+
+                  <div style={{ marginTop: '1.1rem' }}>
+                    <p
+                      className="font-heading"
+                      style={{
+                        fontSize: '1.1rem',
+                        fontWeight: 700,
+                        letterSpacing: '-0.02em',
+                        color: '#1C1C1A',
+                        marginBottom: '0.2rem',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {p.name}
+                    </p>
+                    <p
+                      className="font-sans"
+                      style={{ fontSize: 12, color: 'rgba(28,28,26,0.42)', marginBottom: '0.75rem', lineHeight: 1.4 }}
+                    >
+                      {p.tagline}
+                    </p>
+                    <span
+                      className="inline-flex items-center gap-1 font-sans transition-all duration-200"
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 800,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        color: p.accent,
+                      }}
+                    >
+                      {p.cta}
+                      <ArrowUpRight className="w-3 h-3" strokeWidth={3} />
+                    </span>
+                  </div>
                 </a>
               </Reveal>
             ))}
+          </div>
 
-            {/* Phone card */}
-            <Reveal delay={0.24}>
-              <a
-                href={`tel:${t('orderCallNumber').replace(/\s/g, '')}`}
-                className="group block rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{
-                  background: '#1A3524',
-                  padding: 'clamp(1.25rem,3vw,1.75rem)',
-                  textDecoration: 'none',
-                  borderColor: 'rgba(255,255,255,0.08)',
-                  boxShadow: '0 2px 16px rgba(26,53,36,0.22)',
-                }}
+          {/* Phone CTA — mobile only (full width) */}
+          <Reveal delay={0.32}>
+            <a
+              href={`tel:${t('orderCallNumber').replace(/\s/g, '')}`}
+              className="group flex sm:hidden items-center gap-4 rounded-2xl mt-4 transition-all duration-200 hover:shadow-lg"
+              style={{
+                background: '#1A3524',
+                padding: 'clamp(1.1rem,3vw,1.5rem)',
+                textDecoration: 'none',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 2px 16px rgba(26,53,36,0.22)',
+              }}
+            >
+              <div
+                className="inline-flex items-center justify-center rounded-xl flex-shrink-0"
+                style={{ width: 48, height: 48, background: 'rgba(255,255,255,0.1)', color: '#D5AD5C' }}
               >
-                <div
-                  className="inline-flex items-center justify-center rounded-xl mb-4"
-                  style={{
-                    width: 48,
-                    height: 48,
-                    background: 'rgba(255,255,255,0.1)',
-                    color: '#D5AD5C',
-                  }}
-                >
-                  <Phone className="w-5 h-5" strokeWidth={1.75} />
-                </div>
-                <p
-                  className="font-heading"
-                  style={{
-                    fontSize: '1.15rem',
-                    fontWeight: 700,
-                    letterSpacing: '-0.02em',
-                    color: '#FDFCF8',
-                    marginBottom: '0.35rem',
-                  }}
-                >
+                <Phone className="w-5 h-5" strokeWidth={1.75} />
+              </div>
+              <div className="flex-1">
+                <p className="font-heading" style={{ fontSize: '1rem', fontWeight: 700, color: '#FDFCF8', marginBottom: '0.2rem', letterSpacing: '-0.01em' }}>
                   {t('orderCallLabel')}
                 </p>
-                <p
-                  className="font-sans"
-                  style={{
-                    fontSize: 13,
-                    color: 'rgba(253,252,248,0.55)',
-                    marginBottom: '0.75rem',
-                  }}
-                >
+                <p className="font-sans" style={{ fontSize: 13, color: 'rgba(253,252,248,0.5)' }}>
                   {t('orderCallNumber')}
                 </p>
-                <span
-                  className="inline-flex items-center gap-1.5 font-sans transition-all duration-200 group-hover:gap-2"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: '#D5AD5C',
-                  }}
-                >
-                  {t('orderCallCta')}
-                  <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                </span>
-              </a>
-            </Reveal>
-          </div>
+              </div>
+              <span
+                className="inline-flex items-center gap-1 font-sans flex-shrink-0"
+                style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#D5AD5C' }}
+              >
+                {t('orderCallCta')}
+                <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </span>
+            </a>
+          </Reveal>
+
         </div>
       </section>
 

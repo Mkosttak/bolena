@@ -54,6 +54,7 @@ function formatPhoneInput(raw: string): string {
 }
 
 export function PlatformOrderModal({ open, onClose, onCreated }: PlatformOrderModalProps) {
+  'use no memo'
   const t = useTranslations('platformOrders')
   const tCommon = useTranslations('common')
   const queryClient = useQueryClient()

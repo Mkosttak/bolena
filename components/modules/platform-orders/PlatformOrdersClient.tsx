@@ -40,7 +40,6 @@ const PLATFORM_LABELS: Record<string, string> = {
 
 export function PlatformOrdersClient() {
   const t = useTranslations('platformOrders')
-  const tCommon = useTranslations('common')
   const queryClient = useQueryClient()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)

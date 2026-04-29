@@ -47,7 +47,7 @@ export async function fetchQrOrder(token: string): Promise<FullOrder | null> {
 }
 
 /** QR menü verisi: kategoriler + ürünler (extra_groups dahil) */
-export async function fetchQrMenuData(token: string): Promise<QrMenuData> {
+export async function fetchQrMenuData(_token: string): Promise<QrMenuData> {
   const supabase = createClient()
 
   // Token geçerliyse anon RLS kategorilere erişime izin verir

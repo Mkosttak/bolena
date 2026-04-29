@@ -10,11 +10,10 @@ interface TableCardFinancialsProps {
 
 export function TableCardFinancials({
   totalAmount,
-  paidAmount,
+  paidAmount: _paidAmount,
   remainingAmount,
 }: TableCardFinancialsProps) {
   const t = useTranslations('orders')
-  const progress = totalAmount > 0 ? (paidAmount / totalAmount) * 100 : 0
 
   return (
     <div className="space-y-2 animate-in fade-in duration-500">

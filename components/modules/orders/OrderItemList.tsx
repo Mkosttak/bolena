@@ -92,6 +92,22 @@ export function OrderItemList({ items, orderId, onEdit, variant = 'default' }: O
     },
   })
 
+  const sortedItems = [...items].sort((a, b) => {
+    // 1. İptal Durumu (Miktar 0 ise en sona)
+    const aCancelled = a.quantity === 0 ? 1 : 0
+    const bCancelled = b.quantity === 0 ? 1 : 0
+    if (aCancelled !== bCancelled) return aCancelled - bCancelled
+
+    // 2. KDS Durumu (Hazırlanıyor < Hazırlandı)
+    // pending (0) < ready (1)
+    const aStatus = a.kds_status === 'ready' ? 1 : 0
+    const bStatus = b.kds_status === 'ready' ? 1 : 0
+    if (aStatus !== bStatus) return aStatus - bStatus
+
+    // 3. Zaman (Eskiden yeniye)
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  })
+
   if (!items.length) {
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
@@ -133,7 +149,7 @@ export function OrderItemList({ items, orderId, onEdit, variant = 'default' }: O
     return (
       <>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-3">
-          {items.map((item) => {
+          {sortedItems.map((item) => {
             const isCancelled = item.quantity === 0
             const modLine = !isCancelled ? formatDenseModifiers(item) : null
 
@@ -321,7 +337,7 @@ export function OrderItemList({ items, orderId, onEdit, variant = 'default' }: O
   return (
     <>
     <div className="relative divide-y">
-      {items.map((item) => {
+      {sortedItems.map((item) => {
         const isCancelled = item.quantity === 0
         return (
           <div 

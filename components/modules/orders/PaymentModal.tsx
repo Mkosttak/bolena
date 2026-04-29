@@ -302,113 +302,125 @@ export function PaymentModal({
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-1">
-              {items.map((item) => {
-                const isLocallyPaid = localPaidItemIds.has(item.id)
-                const isSelected = selectedItemIds.has(item.id)
-                const isCancelled = item.quantity === 0
+              {(() => {
+                const sortedItems = [...items].sort((a, b) => {
+                  const aCancelled = a.quantity === 0 ? 1 : 0
+                  const bCancelled = b.quantity === 0 ? 1 : 0
+                  if (aCancelled !== bCancelled) return aCancelled - bCancelled
+                  const aStatus = a.kds_status === 'ready' ? 1 : 0
+                  const bStatus = b.kds_status === 'ready' ? 1 : 0
+                  if (aStatus !== bStatus) return aStatus - bStatus
+                  return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                })
 
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => splitMode && !isCancelled && toggleItem(item.id)}
-                    className={`
-                      flex justify-between items-center py-2.5 px-2 rounded-md transition-all
-                      border border-transparent
-                      ${splitMode && !isLocallyPaid && !isCancelled ? 'cursor-pointer' : ''}
-                      ${isLocallyPaid
-                        ? 'opacity-40 bg-muted/20'
-                        : isCancelled
-                          ? 'opacity-30 bg-muted/10'
-                          : isSelected && splitMode
-                            ? 'bg-primary/8 border-primary/30 shadow-sm'
-                            : splitMode
-                              ? 'hover:bg-muted/30 hover:border-border/50'
-                              : 'hover:bg-muted/20 border-b border-border/30 last:border-0'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {splitMode && (
-                        <span className={`shrink-0 transition-colors ${isSelected ? 'text-primary' : 'text-muted-foreground/40'}`}>
-                          {isLocallyPaid
-                            ? <CheckSquare className="h-4 w-4 text-green-600" />
-                            : isCancelled
-                              ? <Square className="h-4 w-4 opacity-20" />
-                              : isSelected
-                                ? <CheckSquare className="h-4 w-4" />
-                                : <Square className="h-4 w-4" />
-                          }
-                        </span>
-                      )}
+                return sortedItems.map((item) => {
+                  const isLocallyPaid = localPaidItemIds.has(item.id)
+                  const isSelected = selectedItemIds.has(item.id)
+                  const isCancelled = item.quantity === 0
 
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {!isCancelled && (
-                            <span className="font-semibold tabular-nums text-xs text-muted-foreground min-w-[20px]">
-                              {item.quantity}x
-                            </span>
-                          )}
-                          <span className={`text-sm font-medium ${isLocallyPaid || isCancelled ? 'line-through' : ''}`}>
-                            {item.product_name_tr}
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => splitMode && !isCancelled && toggleItem(item.id)}
+                      className={`
+                        flex justify-between items-center py-2.5 px-2 rounded-md transition-all
+                        border border-transparent
+                        ${splitMode && !isLocallyPaid && !isCancelled ? 'cursor-pointer' : ''}
+                        ${isLocallyPaid
+                          ? 'opacity-40 bg-muted/20'
+                          : isCancelled
+                            ? 'opacity-30 bg-muted/10'
+                            : isSelected && splitMode
+                              ? 'bg-primary/8 border-primary/30 shadow-sm'
+                              : splitMode
+                                ? 'hover:bg-muted/30 hover:border-border/50'
+                                : 'hover:bg-muted/20 border-b border-border/30 last:border-0'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {splitMode && (
+                          <span className={`shrink-0 transition-colors ${isSelected ? 'text-primary' : 'text-muted-foreground/40'}`}>
+                            {isLocallyPaid
+                              ? <CheckSquare className="h-4 w-4 text-green-600" />
+                              : isCancelled
+                                ? <Square className="h-4 w-4 opacity-20" />
+                                : isSelected
+                                  ? <CheckSquare className="h-4 w-4" />
+                                  : <Square className="h-4 w-4" />
+                            }
                           </span>
-                          {item.is_complimentary && !isCancelled && (
-                            <span className="text-[10px] text-green-600 font-bold uppercase">
-                              {t('complimentary')}
+                        )}
+
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {!isCancelled && (
+                              <span className="font-semibold tabular-nums text-xs text-muted-foreground min-w-[20px]">
+                                {item.quantity}x
+                              </span>
+                            )}
+                            <span className={`text-sm font-medium ${isLocallyPaid || isCancelled ? 'line-through' : ''}`}>
+                              {item.product_name_tr}
                             </span>
-                          )}
-                          {isCancelled && (
-                            <Badge variant="destructive" className="h-4 px-1.5 py-0 text-[8px] font-bold uppercase border-none shadow-none">
-                              İptal
-                            </Badge>
-                          )}
-                          {isLocallyPaid && (
-                            <span className="text-[10px] text-green-700 font-bold uppercase flex items-center gap-0.5">
-                              <CheckCircle2 className="h-3 w-3" />
-                              {t('splitItemPaid')}
+                            {item.is_complimentary && !isCancelled && (
+                              <span className="text-[10px] text-green-600 font-bold uppercase">
+                                {t('complimentary')}
+                              </span>
+                            )}
+                            {isCancelled && (
+                              <Badge variant="destructive" className="h-4 px-1.5 py-0 text-[8px] font-bold uppercase border-none shadow-none">
+                                İptal
+                              </Badge>
+                            )}
+                            {isLocallyPaid && (
+                              <span className="text-[10px] text-green-700 font-bold uppercase flex items-center gap-0.5">
+                                <CheckCircle2 className="h-3 w-3" />
+                                {t('splitItemPaid')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {!splitMode && !isCancelled && (
+                          <Button
+                            size="icon"
+                            variant={item.is_complimentary ? 'default' : 'ghost'}
+                            className={`h-7 w-7 rounded-full transition-colors ${item.is_complimentary ? 'bg-green-600 hover:bg-green-700' : 'text-muted-foreground hover:bg-muted'}`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              complimentaryMutation.mutate({ itemId: item.id, isComplimentary: !item.is_complimentary })
+                            }}
+                            disabled={complimentaryMutation.isPending}
+                            title={item.is_complimentary ? 'İkramı İptal Et' : 'İkram Yap'}
+                          >
+                            <Gift className="h-3 w-3" />
+                          </Button>
+                        )}
+
+                        <div className="flex flex-col items-end">
+                          <span className={`text-sm tracking-tight tabular-nums font-semibold ${
+                            item.is_complimentary || isLocallyPaid || isCancelled
+                              ? 'line-through text-muted-foreground'
+                              : isSelected && splitMode
+                                ? 'text-primary'
+                                : 'text-foreground'
+                          }`}>
+                            ₺{Number(item.total_price).toFixed(2)}
+                          </span>
+                          {/* Split modda indirimli tutar göster */}
+                          {splitMode && isSelected && !item.is_complimentary && !isLocallyPaid && !isCancelled && effectiveDiscountPct > 0 && (
+                            <span className="text-[11px] text-primary font-semibold tabular-nums">
+                              ₺{(Number(item.total_price) * (1 - effectiveDiscountPct / 100)).toFixed(2)}
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      {!splitMode && !isCancelled && (
-                        <Button
-                          size="icon"
-                          variant={item.is_complimentary ? 'default' : 'ghost'}
-                          className={`h-7 w-7 rounded-full transition-colors ${item.is_complimentary ? 'bg-green-600 hover:bg-green-700' : 'text-muted-foreground hover:bg-muted'}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            complimentaryMutation.mutate({ itemId: item.id, isComplimentary: !item.is_complimentary })
-                          }}
-                          disabled={complimentaryMutation.isPending}
-                          title={item.is_complimentary ? 'İkramı İptal Et' : 'İkram Yap'}
-                        >
-                          <Gift className="h-3 w-3" />
-                        </Button>
-                      )}
-
-                      <div className="flex flex-col items-end">
-                        <span className={`text-sm tracking-tight tabular-nums font-semibold ${
-                          item.is_complimentary || isLocallyPaid || isCancelled
-                            ? 'line-through text-muted-foreground'
-                            : isSelected && splitMode
-                              ? 'text-primary'
-                              : 'text-foreground'
-                        }`}>
-                          ₺{Number(item.total_price).toFixed(2)}
-                        </span>
-                        {/* Split modda indirimli tutar göster */}
-                        {splitMode && isSelected && !item.is_complimentary && !isLocallyPaid && !isCancelled && effectiveDiscountPct > 0 && (
-                          <span className="text-[11px] text-primary font-semibold tabular-nums">
-                            ₺{(Number(item.total_price) * (1 - effectiveDiscountPct / 100)).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              })()}
             </div>
 
             {/* Left Footer Summary */}

@@ -23,7 +23,6 @@ interface QrDraftPopupProps {
 function DraftRow({ item }: { item: QrCartItem }) {
   const locale = useLocale()
   const updateQuantity = useQrSessionStore((s) => s.updateQuantity)
-  const removeItem = useQrSessionStore((s) => s.removeItem)
 
   const extras = item.selected_extras as SelectedExtra[]
   const removed = item.removed_ingredients as RemovedIngredient[]

@@ -1,8 +1,7 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import type { Category, MenuCampaign, Product } from '@/types'
@@ -38,6 +37,8 @@ export function QrMenuTab({
   const locale = useLocale()
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const rafIdRef = useRef(0)
+  const activeCategoryRef = useRef<string | null>(null)
   const [sheetInstanceKey, setSheetInstanceKey] = useState(0)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -69,31 +70,41 @@ export function QrMenuTab({
       ? activeCategoryId
       : groupedProducts[0]?.id ?? null
 
+  // Ref her render'dan sonra güncellenir; handleScroll closure'ının dep listesine girmez
+  useEffect(() => {
+    activeCategoryRef.current = resolvedActiveCategoryId
+  })
+
   const handleScroll = useCallback(() => {
-    const container = scrollRef.current
-    if (!container) return
+    cancelAnimationFrame(rafIdRef.current)
+    rafIdRef.current = requestAnimationFrame(() => {
+      const container = scrollRef.current
+      if (!container) return
 
-    setIsScrolled(container.scrollTop > 12)
+      setIsScrolled(container.scrollTop > 12)
 
-    const currentScrollTop = container.scrollTop
-    let currentCategoryId = groupedProducts[0]?.id ?? null
+      const currentScrollTop = container.scrollTop
+      let currentCategoryId = groupedProducts[0]?.id ?? null
 
-    for (const group of groupedProducts) {
-      const section = sectionRefs.current[group.id]
-      if (!section) continue
+      for (const group of groupedProducts) {
+        const section = sectionRefs.current[group.id]
+        if (!section) continue
 
-      const sectionTop = section.offsetTop - 130
-      if (currentScrollTop >= sectionTop) {
-        currentCategoryId = group.id
-      } else {
-        break
+        const sectionTop = section.offsetTop - 130
+        if (currentScrollTop >= sectionTop) {
+          currentCategoryId = group.id
+        } else {
+          break
+        }
       }
-    }
 
-    if (currentCategoryId && currentCategoryId !== resolvedActiveCategoryId) {
-      setActiveCategoryId(currentCategoryId)
-    }
-  }, [groupedProducts, resolvedActiveCategoryId])
+      if (currentCategoryId && currentCategoryId !== activeCategoryRef.current) {
+        setActiveCategoryId(currentCategoryId)
+      }
+    })
+  }, [groupedProducts])
+
+  useEffect(() => () => cancelAnimationFrame(rafIdRef.current), [])
 
   const handleCategorySelect = useCallback((categoryId: string) => {
     const container = scrollRef.current
@@ -107,6 +118,11 @@ export function QrMenuTab({
     setActiveCategoryId(categoryId)
   }, [])
 
+  const filteredCategoriesForPills = useMemo(
+    () => categories.filter((c) => groupedProducts.some((g) => g.id === c.id)),
+    [categories, groupedProducts]
+  )
+
   const handleProductOpen = useCallback((product: Product) => {
     setSheetInstanceKey((value) => value + 1)
     setSelectedProduct(product)
@@ -115,9 +131,7 @@ export function QrMenuTab({
 
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col">
-      <motion.div
-        className="sticky top-0 z-30 shrink-0 px-2 pb-2 pt-2 transition-all duration-300"
-      >
+      <div className="sticky top-0 z-30 shrink-0 px-2 pb-2 pt-2 transition-all duration-300">
         <div
           className={`transition-all duration-300 ${
             isScrolled
@@ -162,15 +176,13 @@ export function QrMenuTab({
 
           <div className="mt-4">
             <QrCategoryPills
-              categories={categories.filter((category) =>
-                groupedProducts.some((group) => group.id === category.id)
-              )}
+              categories={filteredCategoriesForPills}
               activeId={resolvedActiveCategoryId}
               onSelect={handleCategorySelect}
             />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div
         ref={scrollRef}
@@ -209,7 +221,7 @@ export function QrMenuTab({
                         campaigns={campaigns}
                         qrEnabled={qrEnabled}
                         priority={idx < 2}
-                        onClick={() => handleProductOpen(product)}
+                        onOpen={handleProductOpen}
                       />
                     ))}
                   </div>

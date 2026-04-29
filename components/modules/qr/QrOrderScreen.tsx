@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useQrSessionStore } from '@/lib/stores/qr-session.store'
 import { qrKeys } from '@/lib/queries/qr.queries'
@@ -50,7 +50,7 @@ export function QrOrderScreen({
   const lastInsertCountRef = useRef(0)
   const isFirstLoadRef = useRef(true)
   const suppressNextInsertToastRef = useRef(false)
-  const reduceMotion = useReducedMotion()
+  const _reduceMotion = useReducedMotion()
 
   useEffect(() => {
     initSession(token, sessionToken, initialOrderId)
@@ -65,17 +65,17 @@ export function QrOrderScreen({
   useEffect(() => {
     const supabase = createClient()
 
+    // NOT: filter: parametresi Supabase'de REPLICA IDENTITY FULL olmadan sessizce başarısız olur.
+    // Filtresiz abone olup client-side payload kontrolü yapıyoruz — bu production'da da güvenilir çalışır.
     const channel = supabase
       .channel(`qr-screen-${initialOrderId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'order_items',
-          filter: `order_id=eq.${initialOrderId}`,
-        },
-        () => {
+        { event: 'INSERT', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = payload.new as { order_id?: string }
+          if (row.order_id !== initialOrderId) return
+
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
 
           if (isFirstLoadRef.current) {
@@ -100,14 +100,12 @@ export function QrOrderScreen({
       )
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `id=eq.${initialOrderId}`,
-        },
+        { event: 'UPDATE', schema: 'public', table: 'orders' },
         (payload) => {
-          const newStatus = (payload.new as { status?: string })?.status
+          const row = payload.new as { id?: string; status?: string }
+          if (row.id !== initialOrderId) return
+
+          const newStatus = row.status
           if (newStatus && newStatus !== 'active') {
             setIsSessionExpired(true)
           }
@@ -116,21 +114,16 @@ export function QrOrderScreen({
       )
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'payments',
-          filter: `order_id=eq.${initialOrderId}`,
-        },
-        () => {
+        { event: '*', schema: 'public', table: 'payments' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== initialOrderId) return
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
         }
       )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          setTimeout(() => {
-            isFirstLoadRef.current = false
-          }, 2000)
+          isFirstLoadRef.current = false
         }
       })
 
@@ -155,12 +148,15 @@ export function QrOrderScreen({
   return (
     <div className="relative min-h-dvh overflow-hidden bg-[#efe4cf]">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-8%] top-[-8%] h-64 w-64 rounded-full bg-[#c4841a]/16 blur-3xl" />
-        <div className="absolute right-[-10%] top-[15%] h-72 w-72 rounded-full bg-[#1b3c2a]/14 blur-3xl" />
-        <div className="absolute bottom-[-12%] left-[20%] h-80 w-80 rounded-full bg-white/20 blur-3xl" />
+        <div className="absolute left-[-8%] top-[-8%] h-64 w-64" style={{ background: 'radial-gradient(circle, rgba(196,132,26,0.16) 0%, transparent 70%)' }} />
+        <div className="absolute right-[-10%] top-[15%] h-72 w-72" style={{ background: 'radial-gradient(circle, rgba(27,60,42,0.14) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-12%] left-[20%] h-80 w-80" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.20) 0%, transparent 70%)' }} />
       </div>
 
-      <div className="relative mx-auto flex h-dvh max-h-dvh min-h-0 w-full max-w-6xl flex-col overflow-hidden px-3 sm:px-6 lg:px-8">
+      <div
+        className="relative mx-auto flex h-dvh max-h-dvh min-h-0 w-full max-w-6xl flex-col overflow-hidden px-3 sm:px-6 lg:px-8"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden min-w-0">
           <div
             className={`absolute top-0 inset-x-0 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${

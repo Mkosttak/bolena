@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useLocale } from 'next-intl'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -16,10 +16,16 @@ export function QrCategoryPills({ categories, activeId, onSelect }: QrCategoryPi
   const scrollRef = useRef<HTMLDivElement>(null)
   const locale = useLocale()
 
-  const label = (c: { name_tr: string; name_en: string }) =>
-    locale === 'en' && c.name_en ? c.name_en : c.name_tr
+  const label = useCallback(
+    (c: { name_tr: string; name_en: string }) =>
+      locale === 'en' && c.name_en ? c.name_en : c.name_tr,
+    [locale]
+  )
 
-  const allItems = categories.map((c) => ({ id: c.id, label: label(c) }))
+  const allItems = useMemo(
+    () => categories.map((c) => ({ id: c.id, label: label(c) })),
+    [categories, label]
+  )
 
   useEffect(() => {
     const el = scrollRef.current

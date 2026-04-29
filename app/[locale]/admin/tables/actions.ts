@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { tableSchema, tableCategorySchema } from '@/lib/validations/tables.schema'
 import type { TableInput, TableCategoryInput } from '@/lib/validations/tables.schema'
@@ -121,6 +122,10 @@ export async function transferTableOrder(sourceTableId: string, targetTableId: s
   })
 
   if (error) return { error: error.message }
+
+  // Next.js router cache'ini temizle — masalar listesi güncel veriyi göstersin
+  revalidatePath('/[locale]/admin/tables', 'page')
+
   return { success: true }
 }
 

@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { SubmitQrOrderSchema } from '@/lib/validations/qr.schema'
+import { logger } from '@/lib/utils/logger'
 import type { QrCartItem } from '@/types'
 
 export async function submitQrOrder(
@@ -70,7 +71,7 @@ export async function submitQrOrder(
   if (!parse.success) {
     const issues = parse.error.issues
     const firstError = issues[0]
-    console.error('[submitQrOrder] Zod validation failed:', issues)
+    logger.error('[submitQrOrder] Zod validation failed', issues)
     return { success: false, error: `Geçersiz sipariş: ${firstError?.message ?? 'Bilinmeyen hata'}` }
   }
 
@@ -94,7 +95,7 @@ export async function submitQrOrder(
     })
 
     if (error) {
-      console.error('[submitQrOrder] RPC error:', error)
+      logger.error('[submitQrOrder] RPC error', error)
       return { success: false, error: error.message }
     }
   }

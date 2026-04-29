@@ -1,3 +1,5 @@
+'use no memo'
+
 import { useTranslations } from 'next-intl'
 import { Clock, ChefHat, Calendar, AlertCircle } from 'lucide-react'
 import { isAfter, startOfTomorrow, parseISO } from 'date-fns'

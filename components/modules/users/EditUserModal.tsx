@@ -90,26 +90,6 @@ export function EditUserModal({ user, onClose }: EditUserModalProps) {
   const [selectedModules, setSelectedModules] = useState<string[]>([])
   const [role, setRole] = useState<'admin' | 'employee'>(user?.role ?? 'employee')
 
-  const { data: currentPerms, isLoading: isLoadingPerms } = useQuery({
-    queryKey: usersKeys.permissions(user?.id ?? ''),
-    queryFn: () => fetchUserPermissions(user!.id),
-    enabled: !!user && user.role === 'employee',
-  })
-
-  useEffect(() => {
-    if (currentPerms) setSelectedModules(currentPerms)
-  }, [currentPerms])
-
-  // Kullanıcı değişince formu sıfırla
-  useEffect(() => {
-    if (user) {
-      reset({ fullName: user.full_name, email: user.email, role: user.role })
-      setRole(user.role)
-      setShowPasswordSection(false)
-      setDeleteConfirmOpen(false)
-    }
-  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
   const {
     register,
     handleSubmit,
@@ -124,6 +104,28 @@ export function EditUserModal({ user, onClose }: EditUserModalProps) {
       role: user?.role ?? 'employee',
     },
   })
+
+  const { data: currentPerms, isLoading: isLoadingPerms } = useQuery({
+    queryKey: usersKeys.permissions(user?.id ?? ''),
+    queryFn: () => fetchUserPermissions(user!.id),
+    enabled: !!user && user.role === 'employee',
+  })
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (currentPerms) setSelectedModules(currentPerms)
+  }, [currentPerms])
+
+  // Kullanıcı değişince formu sıfırla
+  useEffect(() => {
+    if (user) {
+      reset({ fullName: user.full_name, email: user.email, role: user.role })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRole(user.role)
+      setShowPasswordSection(false)
+      setDeleteConfirmOpen(false)
+    }
+  }, [user?.id, reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveMutation = useMutation({
     mutationFn: async (data: EditForm) => {

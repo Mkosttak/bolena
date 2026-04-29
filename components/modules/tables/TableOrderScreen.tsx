@@ -50,6 +50,11 @@ interface TableOrderScreenProps {
   initialOrderId?: string | null
   /** Server'da orderId alınamadıysa hata mesajı */
   initialOrderError?: string
+  /**
+   * Mobil inline kullanımda "geri" aksiyonu.
+   * Sağlanırsa router.push yerine bu çağrılır; embedded header'da geri butonu gösterir.
+   */
+  onBack?: () => void
 }
 
 export function TableOrderScreen({
@@ -59,6 +64,7 @@ export function TableOrderScreen({
   embedded = false,
   initialOrderId = null,
   initialOrderError,
+  onBack,
 }: TableOrderScreenProps) {
   const t = useTranslations('tables')
   const tOrders = useTranslations('orders')
@@ -196,9 +202,14 @@ export function TableOrderScreen({
       }
       toast.success(t('transferSuccess'))
       setTransferModalOpen(false)
-      // Yeni masaya yönlendir
-      router.push(`/${locale}/admin/tables/${targetId}`)
       queryClient.invalidateQueries({ queryKey: tablesKeys.list() })
+      if (onBack) {
+        // Mobil embedded mod: masalar listesine geri dön (liste zaten invalidate edildi)
+        onBack()
+      } else {
+        // Masaüstü: hedef masanın sipariş sayfasına yönlendir
+        router.push(`/${locale}/admin/tables/${targetId}`)
+      }
     },
   })
 
@@ -215,9 +226,12 @@ export function TableOrderScreen({
 
 
   function handleOrderClosed() {
-    // Masa listesini güncelle ve geri dön
     queryClient.invalidateQueries({ queryKey: tablesKeys.list() })
-    router.push(`/${locale}/admin/tables`)
+    if (onBack) {
+      onBack()
+    } else {
+      router.push(`/${locale}/admin/tables`)
+    }
   }
 
 
@@ -232,7 +246,7 @@ export function TableOrderScreen({
         <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-3">
           <div className={cn('flex justify-between gap-3', embedded ? 'flex-col sm:flex-row sm:items-start' : 'items-center')}>
             <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-              {!embedded && (
+              {!embedded ? (
                 <Link href={`/${locale}/admin/tables`}>
                   <Button
                     variant="ghost"
@@ -242,7 +256,16 @@ export function TableOrderScreen({
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                 </Link>
-              )}
+              ) : onBack ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 rounded-full hover:bg-muted"
+                  onClick={onBack}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              ) : null}
               <div className="min-w-0">
                 <h1 className="truncate text-lg font-black tracking-tight text-foreground sm:text-xl">
                   {tableName}

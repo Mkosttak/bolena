@@ -1023,6 +1023,9 @@
     "sessionExpiredScanHint": "Scan the QR code again for a new order",
     "sessionExpiredReviewTitle": "Share your experience",
     "sessionExpiredReviewDesc": "Leave us a Google review and help other guests discover us.",
-    "sessionExpiredReviewBtn": "Review on Google"
+    "sessionExpiredReviewBtn": "Review on Google",
+    "draftAlertTitle": "You have unsent items",
+    "draftAlertDesc": "{count} item(s) in your cart haven't been sent to the kitchen yet.",
+    "draftAlertCta": "Send Order"
   }
 }

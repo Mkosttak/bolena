@@ -11,7 +11,6 @@ function log(level: LogLevel, message: string, extra?: unknown) {
     // e.g. import * as Sentry from '@sentry/nextjs'; Sentry.captureException(extra)
     return
   }
-  // eslint-disable-next-line no-console
   console[level](`[${level.toUpperCase()}] ${message}`, extra ?? '')
 }
 

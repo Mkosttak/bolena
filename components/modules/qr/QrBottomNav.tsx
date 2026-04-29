@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { ShoppingBag, UtensilsCrossed } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
@@ -16,33 +17,36 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
   const t = useTranslations('qr')
   const itemCount = useQrSessionStore((s) => s.itemCount())
 
-  const tabs: { id: QrTab; label: string; icon: React.ReactNode }[] = [
-    {
-      id: 'menu',
-      label: t('navMenu'),
-      icon: <UtensilsCrossed className="w-[22px] h-[22px]" strokeWidth={2} />,
-    },
-    {
-      id: 'cart',
-      label: t('navCart'),
-      icon: (
-        <div className="relative">
-          <ShoppingBag className="w-[22px] h-[22px]" strokeWidth={2} />
-          {itemCount > 0 && (
-            <motion.span
-              key={itemCount}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center leading-none px-1 shadow-md border-2 border-white"
-            >
-              <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-30 animate-ping" />
-              <span className="relative z-10">{itemCount > 9 ? '9+' : itemCount}</span>
-            </motion.span>
-          )}
-        </div>
-      ),
-    },
-  ]
+  const tabs = useMemo<{ id: QrTab; label: string; icon: React.ReactNode }[]>(
+    () => [
+      {
+        id: 'menu',
+        label: t('navMenu'),
+        icon: <UtensilsCrossed className="w-[22px] h-[22px]" strokeWidth={2} />,
+      },
+      {
+        id: 'cart',
+        label: t('navCart'),
+        icon: (
+          <div className="relative">
+            <ShoppingBag className="w-[22px] h-[22px]" strokeWidth={2} />
+            {itemCount > 0 && (
+              <motion.span
+                key={itemCount}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center leading-none px-1 shadow-md border-2 border-white"
+              >
+                <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-30 animate-ping" />
+                <span className="relative z-10">{itemCount > 9 ? '9+' : itemCount}</span>
+              </motion.span>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [t, itemCount]
+  )
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none pb-[env(safe-area-inset-bottom,0px)]">

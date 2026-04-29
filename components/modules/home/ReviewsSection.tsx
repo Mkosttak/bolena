@@ -1,5 +1,7 @@
 'use client'
 
+'use no memo'
+
 import { useTranslations } from 'next-intl'
 import { Reveal } from '@/components/shared/Reveal'
 
@@ -131,7 +133,7 @@ export function ReviewsSection() {
               <Reveal key={review.author} delay={i * 0.1}>
                 <article className="review-item" role="listitem">
                   <Stars />
-                  <blockquote className="review-quote">"{review.text}"</blockquote>
+                  <blockquote className="review-quote">&ldquo;{review.text}&rdquo;</blockquote>
                   <div className="review-author">
                     <span className="review-author-name">{review.author}</span>
                     <span className="review-verified">

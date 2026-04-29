@@ -55,6 +55,7 @@ export function ReservationModal({
   defaultType = 'reservation',
   onCreated,
 }: ReservationModalProps) {
+  'use no memo'
   const t = useTranslations('reservations')
   const tCommon = useTranslations('common')
   const queryClient = useQueryClient()

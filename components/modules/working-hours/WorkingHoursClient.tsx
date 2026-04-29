@@ -266,12 +266,9 @@ function WeeklyHoursRow({ row, onUpdate, isLoading, t, zebra }: WeeklyHoursRowPr
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!row.open_time) setOpenTime(DEFAULT_OPEN)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     else setOpenTime(row.open_time.slice(0, 5))
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!row.close_time) setCloseTime(DEFAULT_CLOSE)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     else setCloseTime(row.close_time.slice(0, 5))
   }, [row.open_time, row.close_time])
 

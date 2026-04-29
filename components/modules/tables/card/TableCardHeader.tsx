@@ -1,10 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { formatDistanceToNow } from 'date-fns'
 import { tr, enUS } from 'date-fns/locale'
-import { Smartphone, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Smartphone } from 'lucide-react'
 
 interface TableCardHeaderProps {
   name: string
@@ -21,7 +19,6 @@ export function TableCardHeader({
   orderCreatedAt,
   locale,
 }: TableCardHeaderProps) {
-  const t = useTranslations('tables')
   const dateLocale = locale === 'tr' ? tr : enUS
 
   return (

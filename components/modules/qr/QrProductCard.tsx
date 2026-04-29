@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
 import type { MenuCampaign, Product } from '@/types'
@@ -11,15 +12,15 @@ interface QrProductCardProps {
   campaigns: MenuCampaign[]
   qrEnabled: boolean
   priority?: boolean
-  onClick: () => void
+  onOpen: (product: Product) => void
 }
 
-export function QrProductCard({
+export const QrProductCard = memo(function QrProductCard({
   product,
   campaigns,
   qrEnabled,
   priority = false,
-  onClick,
+  onOpen,
 }: QrProductCardProps) {
   const t = useTranslations('qr')
   const locale = useLocale()
@@ -32,7 +33,7 @@ export function QrProductCard({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => onOpen(product)}
       className="group relative overflow-hidden rounded-[28px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(251,247,239,0.94))] text-left shadow-[0_28px_60px_-42px_rgba(27,60,42,0.5)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_36px_90px_-46px_rgba(27,60,42,0.55)] active:scale-[0.99]"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-[#f3ede2]">
@@ -87,4 +88,4 @@ export function QrProductCard({
       </div>
     </button>
   )
-}
+})

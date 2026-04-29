@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import type { CartItem, Product, RemovedIngredient, SelectedExtra } from '@/types'
+import type { CartItem } from '@/types'
 
 interface CartState {
   items: CartItem[]

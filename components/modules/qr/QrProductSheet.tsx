@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useMemo, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import {
@@ -86,6 +86,26 @@ export function QrProductSheet({
     }
   }, [open, onClose])
 
+  const selectedExtras = useMemo<SelectedExtra[]>(() => {
+    if (!product?.extra_groups) return []
+    const result: SelectedExtra[] = []
+    for (const group of product.extra_groups) {
+      for (const opt of group.extra_options ?? []) {
+        if ((optionQty[opt.id] ?? 0) > 0) {
+          result.push({
+            group_id: group.id,
+            group_name_tr: group.name_tr,
+            option_id: opt.id,
+            option_name_tr: opt.name_tr,
+            option_name_en: opt.name_en,
+            price: opt.price,
+          })
+        }
+      }
+    }
+    return result
+  }, [product, optionQty])
+
   if (!product) return null
 
   const displayName =
@@ -97,24 +117,6 @@ export function QrProductSheet({
 
   const finalPrice = calculateFinalPrice(product, campaigns)
   const hasDiscount = finalPrice < product.price
-
-  const selectedExtras: SelectedExtra[] = []
-  if (product.extra_groups) {
-    for (const group of product.extra_groups) {
-      for (const opt of group.extra_options ?? []) {
-        if ((optionQty[opt.id] ?? 0) > 0) {
-          selectedExtras.push({
-            group_id: group.id,
-            group_name_tr: group.name_tr,
-            option_id: opt.id,
-            option_name_tr: opt.name_tr,
-            option_name_en: opt.name_en,
-            price: opt.price,
-          })
-        }
-      }
-    }
-  }
 
   const handleToggleIngredient = (id: string) => {
     setRemovedIngredients((prev) => {

@@ -52,6 +52,7 @@ interface TableFormProps {
 }
 
 function TableForm({ defaultValues, categories, onSuccess, onCancel }: TableFormProps) {
+  'use no memo'
   const tCommon = useTranslations('common')
   const t = useTranslations('tables')
   const queryClient = useQueryClient()

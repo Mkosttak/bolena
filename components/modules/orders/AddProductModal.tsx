@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
@@ -16,11 +16,10 @@ import {
 import { campaignKeys, fetchActiveCampaigns } from '@/lib/queries/menu-campaign.queries'
 import { ordersKeys, fetchOrderItems } from '@/lib/queries/orders.queries'
 import { addOrderItem, updateOrderItemQuantity } from '@/app/[locale]/admin/orders/actions'
-import { calculateEffectivePrice, calculateFinalPrice, applyRadioOptionSelection } from '@/lib/utils/order.utils'
+import { calculateFinalPrice, applyRadioOptionSelection } from '@/lib/utils/order.utils'
 import type {
   Product,
   ExtraGroup,
-  ExtraOption,
   RemovedIngredient,
   SelectedExtra,
   OrderItem,
@@ -394,7 +393,6 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
       {productList.map((product) => {
         const price = calculateFinalPrice(product, activeCampaigns)
-        const hasCampaign = product.campaign_price != null && price === product.campaign_price
         const hasRequiredExtras = product.extra_groups?.some(g => g.is_required) ?? false;
         const isOutOfStock = product.track_stock && (!product.is_available || product.stock_count === 0);
 

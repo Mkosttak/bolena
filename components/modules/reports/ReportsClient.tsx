@@ -26,8 +26,6 @@ import { PlatformCompareTable } from './PlatformCompareTable'
 import { EndOfDayReport } from './EndOfDayReport'
 import { ReservationStats } from './ReservationStats'
 import { CampaignStatsTable } from './CampaignStatsTable'
-import { ComplimentaryStats } from './ComplimentaryStats'
-import { OrderOutcomeCard } from './OrderOutcomeCard'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface ReportsClientProps {
@@ -89,8 +87,8 @@ export function ReportsClient({ locale: _locale }: ReportsClientProps) {
                   <Icon className="h-6 w-6" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="font-semibold leading-none tracking-tight">{item.hardcodedLabel || t(item.labelKey as any)}</h3>
-                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{item.hardcodedDesc || t(item.descKey as any)}</p>
+                  <h3 className="font-semibold leading-none tracking-tight">{item.hardcodedLabel || t(item.labelKey as Parameters<typeof t>[0])}</h3>
+                  <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{item.hardcodedDesc || t(item.descKey as Parameters<typeof t>[0])}</p>
                 </div>
               </button>
             )
@@ -124,7 +122,7 @@ export function ReportsClient({ locale: _locale }: ReportsClientProps) {
                     <div className="rounded-md bg-primary/10 p-1.5 text-primary">
                       <Icon className="h-5 w-5" />
                     </div>
-                    {activeData?.hardcodedLabel || t(activeData?.labelKey as any || 'sections.overview')}
+                    {activeData?.hardcodedLabel || t(activeData?.labelKey as Parameters<typeof t>[0] || 'sections.overview')}
                   </>
                 )
               })()}

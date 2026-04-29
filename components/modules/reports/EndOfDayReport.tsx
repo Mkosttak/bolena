@@ -4,7 +4,6 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useQueries } from '@tanstack/react-query'
 import { formatCurrency, type DateRange } from '@/lib/utils/reports.utils'
-import { useTranslations } from 'next-intl'
 import { Loader2, Banknote, CreditCard, ShoppingBag, Utensils, BadgePercent, Flame } from 'lucide-react'
 import {
   fetchPaymentMethodBreakdown,
@@ -20,7 +19,6 @@ interface EndOfDayReportProps {
 }
 
 export function EndOfDayReport({ dateRange }: EndOfDayReportProps) {
-  const t = useTranslations('reports')
 
   const queries = useQueries({
     queries: [
@@ -73,8 +71,8 @@ export function EndOfDayReport({ dateRange }: EndOfDayReportProps) {
   const totalRevenue = kpiData?.revenue || 0
   const orderCount = kpiData?.orderCount || 0
   
-  const cashObj = payments.find((p: any) => p.method === 'cash')
-  const cardObj = payments.find((p: any) => p.method === 'card')
+  const cashObj = payments.find((p: { method: string; total: number }) => p.method === 'cash')
+  const cardObj = payments.find((p: { method: string; total: number }) => p.method === 'card')
   const cashTotal = cashObj ? cashObj.total : 0
   const cardTotal = cardObj ? cardObj.total : 0
   

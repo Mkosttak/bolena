@@ -13,7 +13,6 @@ export function QrCartItemRow({ item }: QrCartItemProps) {
   const t = useTranslations('qr')
   const locale = useLocale()
   const updateQuantity = useQrSessionStore((s) => s.updateQuantity)
-  const removeItem = useQrSessionStore((s) => s.removeItem)
 
   const extrasTotal = item.selected_extras.reduce((s, e) => s + e.price, 0)
   const unitPrice = item.product.price + extrasTotal
