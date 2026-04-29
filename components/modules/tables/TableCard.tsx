@@ -13,9 +13,10 @@ import { TableCardActions } from './card/TableCardActions'
 interface TableCardProps {
   table: Table
   locale: string
+  isFlashing?: boolean
 }
 
-export function TableCard({ table, locale }: TableCardProps) {
+export function TableCard({ table, locale, isFlashing = false }: TableCardProps) {
   const router = useRouter()
   const activeOrder = table.activeOrder
   const hasActiveOrder = activeOrder != null && activeOrder.items_count > 0
@@ -50,7 +51,7 @@ export function TableCard({ table, locale }: TableCardProps) {
             : 'bg-card hover:bg-muted/50 border-border/60'
         )}
       >
-        <div className="relative h-full flex flex-col p-4 border rounded-2xl transition-colors duration-300">
+        <div className={cn('relative h-full flex flex-col p-4 border rounded-2xl transition-colors duration-300', isFlashing && 'animate-qr-flash')}>
           <div className="flex flex-col gap-3">
             {/* Header & Status */}
             <div className="flex items-start justify-between gap-3">

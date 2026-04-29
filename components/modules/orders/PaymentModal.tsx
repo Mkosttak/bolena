@@ -118,9 +118,7 @@ export function PaymentModal({
     if (!open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSplitMode(false)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedItemIds(new Set())
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalPaidItemIds(new Set())
     }
   }, [open])
@@ -228,10 +226,10 @@ export function PaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[92vh] overflow-hidden flex flex-col p-0 border bg-background">
+      <DialogContent className="max-h-[94dvh] w-[calc(100vw-0.75rem)] max-w-[calc(100vw-0.75rem)] overflow-hidden rounded-2xl border bg-background p-0 sm:max-w-4xl">
 
         {/* ── Header ── */}
-        <DialogHeader className="px-6 py-4 border-b bg-muted/40 shrink-0">
+        <DialogHeader className="shrink-0 border-b bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,245,237,0.82))] px-4 py-3 sm:px-6 sm:py-4">
           {/*
             pr-12 → Dialog'un sağ üst köşesindeki kapatma butonuyla üst üste gelmesini önler.
             Kapatma butonu shadcn tarafından absolute right-4 top-4 olarak eklenir.
@@ -266,11 +264,11 @@ export function PaymentModal({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 h-full">
+        <div className="grid h-full flex-1 grid-cols-1 overflow-hidden md:grid-cols-12">
 
           {/* ── LEFT COLUMN: Sipariş Detayları ──────────────────────────── */}
-          <div className="md:col-span-6 lg:col-span-5 h-[calc(92vh-65px)] flex flex-col border-r bg-muted/10">
-            <div className="p-4 border-b shrink-0 flex items-center justify-between">
+          <div className="flex max-h-[42dvh] flex-col border-b bg-muted/10 md:col-span-6 md:max-h-none md:border-b-0 md:border-r lg:col-span-5">
+            <div className="flex shrink-0 items-center justify-between border-b p-3 sm:p-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 {t('orderSummary')}
               </h3>
@@ -301,7 +299,7 @@ export function PaymentModal({
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-1">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1">
               {(() => {
                 const sortedItems = [...items].sort((a, b) => {
                   const aCancelled = a.quantity === 0 ? 1 : 0
@@ -424,7 +422,7 @@ export function PaymentModal({
             </div>
 
             {/* Left Footer Summary */}
-            <div className="p-5 bg-background border-t shrink-0">
+            <div className="shrink-0 border-t bg-background p-3 sm:p-5">
               <div className="space-y-2 mb-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">{t('subtotal')}</span>
@@ -480,10 +478,11 @@ export function PaymentModal({
           </div>
 
           {/* ── RIGHT COLUMN: Ödeme Akışı ───────────────────────────────── */}
-          <div className="md:col-span-6 lg:col-span-7 h-[calc(92vh-65px)] flex flex-col p-6 space-y-5 bg-background overflow-y-auto">
+          <div className="flex min-h-0 flex-col overflow-y-auto bg-background p-3 pb-6 md:col-span-6 md:p-6 lg:col-span-7">
+            <div className="space-y-4 md:space-y-5">
 
             {/* Header Stats */}
-            <div className="flex justify-between items-center p-4 rounded-xl bg-muted/30 border border-border/50 shrink-0">
+            <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/30 p-3.5 sm:p-4 shrink-0">
               <div className="flex flex-col">
                 <span className="text-[11px] text-muted-foreground uppercase font-semibold mb-0.5">{t('total')}</span>
                 <span className="text-xl font-bold tabular-nums">₺{Number(order.total_amount).toFixed(2)}</span>
@@ -498,7 +497,7 @@ export function PaymentModal({
             </div>
 
             {/* ── İndirim Bölümü — her iki modda da görünür ── */}
-            <div className="space-y-3 border border-border/50 rounded-xl p-3 bg-muted/10 shrink-0">
+            <div className="shrink-0 space-y-3 rounded-xl border border-border/50 bg-muted/10 p-3">
               <button
                 className="w-full flex items-center justify-between outline-none group"
                 onClick={() => setShowDiscount(!showDiscount)}
@@ -590,7 +589,7 @@ export function PaymentModal({
             )}
 
             {remaining > 0 ? (
-              <div className="flex-1 flex flex-col space-y-5">
+              <div className="flex flex-1 flex-col space-y-4 md:space-y-5">
 
                 {/* Tutar alanı */}
                 <div className="space-y-2">
@@ -691,7 +690,7 @@ export function PaymentModal({
 
                 {/* Ödeme butonu */}
                 <Button
-                  className="w-full h-10 rounded-md text-sm font-semibold shadow-sm active:scale-[0.98] transition-transform"
+                  className="sticky bottom-0 z-10 h-10 w-full rounded-md text-sm font-semibold shadow-sm active:scale-[0.98] transition-transform"
                   onClick={() => paymentMutation.mutate()}
                   disabled={paymentMutation.isPending || !canPay}
                 >
@@ -741,6 +740,7 @@ export function PaymentModal({
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       </DialogContent>

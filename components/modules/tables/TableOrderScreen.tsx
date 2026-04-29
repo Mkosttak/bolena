@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Receipt,
   ArrowRightLeft,
+  Wallet,
 } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { closeOrder } from '@/app/[locale]/admin/orders/actions'
@@ -73,6 +74,9 @@ export function TableOrderScreen({
 
   const [orderId, setOrderId] = useState<string | null>(initialOrderId)
   const [addModalOpen, setAddModalOpen] = useState(false)
+  // QR sipariş bildirimi için: siparişin QR olup olmadığını ve modal durumunu ref'te tut
+  const isQrOrderRef = useRef(false)
+  const addModalOpenRef = useRef(false)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [transferModalOpen, setTransferModalOpen] = useState(false)
@@ -107,6 +111,9 @@ export function TableOrderScreen({
     }
   }, [initialOrderError])
 
+  // addModalOpen değişimini ref ile takip et (stale closure önlemi)
+  useEffect(() => { addModalOpenRef.current = addModalOpen }, [addModalOpen])
+
   // Realtime aboneliği
   useEffect(() => {
     if (!orderId) return
@@ -116,7 +123,33 @@ export function TableOrderScreen({
       .channel(`table-order-${orderId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'order_items' },
+        { event: 'INSERT', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = payload.new as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
+          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+          // Modal kapalıyken QR siparişte yeni ürün geldi → bildirim
+          if (isQrOrderRef.current && !addModalOpenRef.current) {
+            toast.info(t('newQrOrderOnTable'), {
+              duration: 30000,
+              icon: '📱',
+              description: tableName,
+            })
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
+          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'order_items' },
         (payload) => {
           const row = (payload.new ?? payload.old) as { order_id?: string } | null
           if (row?.order_id !== orderId) return
@@ -161,6 +194,12 @@ export function TableOrderScreen({
   const items = fullOrder?.items ?? []
   const payments = fullOrder?.payments ?? []
 
+  useEffect(() => {
+    if (order) {
+      isQrOrderRef.current = !!(order as typeof order & { session_token?: string | null }).session_token
+    }
+  }, [order])
+
   const { data: allTables = [] } = useQuery({
     queryKey: tablesKeys.list(),
     queryFn: fetchTablesWithOrder,
@@ -180,6 +219,7 @@ export function TableOrderScreen({
   }, [searchParams, isLoading, order, items.length, router, locale, tableId])
 
   const remaining = order ? calculateRemaining(Number(order.total_amount), payments) : 0
+  const activeItemCount = items.filter((item) => item.quantity > 0).length
 
   const closeOrderMutation = useMutation({
     mutationFn: () => closeOrder(orderId!),
@@ -236,10 +276,10 @@ export function TableOrderScreen({
 
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-background">
+    <div className="flex h-full flex-col overflow-hidden bg-[#efe4cf]/35">
       <header
         className={cn(
-          'sticky top-0 z-30 shrink-0 border-b border-border/60 bg-card/80 shadow-sm backdrop-blur-md',
+          'sticky top-0 z-30 shrink-0 border-b border-border/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.9),rgba(250,245,234,0.82))] shadow-sm backdrop-blur-md',
           embedded ? 'px-4 py-3 sm:px-4' : 'px-4 py-3 sm:px-5'
         )}
       >
@@ -340,6 +380,18 @@ export function TableOrderScreen({
               {tOrders('payment')}
             </Button>
           </div>
+
+          {!isLoading && order && (
+            <div className="mt-2.5 flex items-center gap-2">
+              <Badge className="h-6 border border-white/50 bg-white/80 px-2.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#1B3C2A] shadow-sm">
+                {activeItemCount} {t('openLinesLabel').toLowerCase()}
+              </Badge>
+              <Badge className="h-6 border border-white/50 bg-white/80 px-2.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#1B3C2A] shadow-sm">
+                <Wallet className="mr-1 h-3 w-3" />
+                ₺{remaining.toFixed(2)} {tOrders('remaining').toLowerCase()}
+              </Badge>
+            </div>
+          )}
         </div>
       </header>
 
@@ -366,7 +418,7 @@ export function TableOrderScreen({
                 ))}
               </div>
             ) : (
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-md ring-1 ring-foreground/5">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,245,234,0.82))] shadow-[0_20px_45px_-30px_rgba(27,60,42,0.38)] ring-1 ring-white/60">
                 <div className="flex shrink-0 items-center gap-2 border-b border-border/60 bg-muted/40 px-3 py-2.5 sm:px-4">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <ClipboardList className="h-4 w-4" />
@@ -379,6 +431,7 @@ export function TableOrderScreen({
                   <OrderItemList
                     items={items}
                     orderId={orderId!}
+                    variant={embedded ? 'dense' : 'default'}
                     onEdit={(item) => {
                       setSelectedItem(item)
                       setEditModalOpen(true)
@@ -396,7 +449,7 @@ export function TableOrderScreen({
             )}
           >
             {!isLoading && order && items.length > 0 && (
-              <div className="space-y-4 overflow-hidden rounded-2xl border border-primary/15 bg-card p-4 shadow-lg ring-1 ring-primary/10 sm:p-5">
+              <div className="space-y-4 overflow-hidden rounded-3xl border border-primary/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(248,244,235,0.86))] p-4 shadow-[0_24px_48px_-30px_rgba(27,60,42,0.45)] ring-1 ring-white/60 sm:p-5">
                 <div className="flex items-center gap-2 border-b border-border/50 pb-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                     <Receipt className="h-4 w-4" />

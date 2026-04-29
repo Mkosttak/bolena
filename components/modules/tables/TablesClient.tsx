@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { LayoutGrid, Settings } from 'lucide-react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 
 import { tablesKeys, fetchTablesWithOrder, fetchTableCategories } from '@/lib/queries/tables.queries'
@@ -20,6 +21,7 @@ interface TablesClientProps {
 export function TablesClient({ locale }: TablesClientProps) {
   const t = useTranslations('tables')
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [flashingTableIds, setFlashingTableIds] = useState<Set<string>>(new Set())
   const queryClient = useQueryClient()
 
   const { data: tables, isLoading, refetch } = useQuery({
@@ -28,19 +30,57 @@ export function TablesClient({ locale }: TablesClientProps) {
     refetchInterval: 15_000,
   })
 
-  // Realtime: QR'dan veya başka kanaldan gelen sipariş değişikliklerini yakala
+  // Stale closure'ı önlemek için tables verisini ref'te tut
+  const tablesRef = useRef(tables)
+  useEffect(() => { tablesRef.current = tables }, [tables])
+
+  // Realtime: QR'dan gelen INSERT'leri yakala → flash + bildirim
   useEffect(() => {
     const supabase = createClient()
     const invalidate = () => queryClient.invalidateQueries({ queryKey: tablesKeys.list() })
+
     const channel = supabase
       .channel('tables-client-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, invalidate)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_items' }, async (payload) => {
+        invalidate()
+        const newItem = payload.new as { order_id?: string }
+        if (!newItem.order_id) return
+
+        const { data: order } = await supabase
+          .from('orders')
+          .select('session_token, table_id')
+          .eq('id', newItem.order_id)
+          .maybeSingle()
+
+        if (!order?.session_token || !order.table_id) return
+
+        const tableId = order.table_id as string
+        const tableName = tablesRef.current?.find((tbl) => tbl.id === tableId)?.name ?? tableId
+
+        // 3 sn masa kartı flash animasyonu
+        setFlashingTableIds((prev) => new Set([...prev, tableId]))
+        setTimeout(() => {
+          setFlashingTableIds((prev) => {
+            const next = new Set(prev)
+            next.delete(tableId)
+            return next
+          })
+        }, 3000)
+
+        // Uzun süreli bildirim (30 sn)
+        toast.info(t('newQrOrderNotification', { tableName }), {
+          duration: 30000,
+          icon: '📱',
+        })
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_items' }, invalidate)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'order_items' }, invalidate)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, invalidate)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, invalidate)
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [queryClient])
+  }, [queryClient, t])
 
   const { data: categories } = useQuery({
     queryKey: tablesKeys.categories(),
@@ -80,10 +120,9 @@ export function TablesClient({ locale }: TablesClientProps) {
           categories={categories ?? []}
           isLoading={isLoading}
           locale={locale}
+          flashingTableIds={flashingTableIds}
           onEditTables={() => setEditModalOpen(true)}
           onRefresh={() => void refetch()}
-          groupedTables={groupedTables as Record<string, import('@/types').Table[] | undefined>}
-          sortedCategoryIds={sortedCategoryIds}
         />
       </div>
 
@@ -167,7 +206,7 @@ export function TablesClient({ locale }: TablesClientProps) {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 md:gap-4">
                       {(tablesInGroup ?? []).map((table) => (
-                        <TableCard key={table.id} table={table} locale={locale} />
+                        <TableCard key={table.id} table={table} locale={locale} isFlashing={flashingTableIds.has(table.id)} />
                       ))}
                     </div>
                   </section>

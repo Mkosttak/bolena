@@ -265,6 +265,15 @@
   }
 }
 
+/* ── QR yeni sipariş — masa kartı yanıp sönme animasyonu (3 sn, 6 döngü × 0.5 sn) ── */
+@keyframes qr-flash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.55), 0 0 18px rgba(20, 184, 166, 0.25); }
+}
+.animate-qr-flash {
+  animation: qr-flash 0.5s ease-in-out 6;
+}
+
 /* ── Raporlar (dark) — mutfak ekranı ile uyumlu yüzey + kartlar ── */
 .dark .reports-page {
   background-color: oklch(0.125 0.042 168);
