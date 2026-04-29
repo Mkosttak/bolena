@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { useReducedMotion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useQrSessionStore } from '@/lib/stores/qr-session.store'
 import { qrKeys } from '@/lib/queries/qr.queries'
+import { fetchFullOrder } from '@/lib/queries/orders.queries'
 import { QrBottomNav, type QrTab } from './QrBottomNav'
 import { QrMenuTab } from './QrMenuTab'
 import { QrCartTab } from './QrCartTab'
@@ -132,6 +133,18 @@ export function QrOrderScreen({
     }
   }, [initialOrderId, sessionToken, queryClient, t])
 
+  const { data: latestFullOrder } = useQuery({
+    queryKey: qrKeys.order(sessionToken),
+    queryFn: () => fetchFullOrder(initialOrderId),
+    initialData: initialFullOrder ?? undefined,
+    enabled: !isSessionExpired,
+    staleTime: 0,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+  })
+  const isSessionExpiredResolved =
+    isSessionExpired || ((latestFullOrder?.order?.status ?? 'active') !== 'active')
+
   const handleTabChange = (tab: QrTab) => {
     // Cart sekmesine geçerken iletilmemiş ürün varsa popup aç
     if (tab === 'cart' && hasLocalItems) {
@@ -141,8 +154,8 @@ export function QrOrderScreen({
     setActiveTab(tab)
   }
 
-  if (isSessionExpired) {
-    return <QrSessionExpired tableName={tableName} />
+  if (isSessionExpiredResolved) {
+    return <QrSessionExpired tableName={tableName} fullOrder={latestFullOrder ?? initialFullOrder} />
   }
 
   return (
@@ -159,8 +172,8 @@ export function QrOrderScreen({
       >
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden min-w-0">
           <div
-            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
-              activeTab === 'menu' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-4'
+            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeTab === 'menu' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-2'
             }`}
           >
             <QrMenuTab
@@ -179,8 +192,8 @@ export function QrOrderScreen({
           </div>
 
           <div
-            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
-              activeTab === 'cart' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-4'
+            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              activeTab === 'cart' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-2'
             }`}
           >
             <QrCartTab
@@ -188,7 +201,6 @@ export function QrOrderScreen({
               sessionToken={sessionToken}
               orderId={initialOrderId}
               qrEnabled={qrEnabled}
-              onOpenDraft={() => setDraftPopupOpen(true)}
             />
           </div>
         </main>

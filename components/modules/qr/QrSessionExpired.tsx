@@ -1,17 +1,29 @@
 'use client'
 
 import { QrIntlProvider } from './QrIntlProvider'
-import { useTranslations } from 'next-intl'
-import { CheckCircle2, QrCode, Star, ExternalLink } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { CheckCircle2, QrCode, Star, ExternalLink, Instagram, Receipt } from 'lucide-react'
 import { SITE_LOGO_SRC, GOOGLE_REVIEW_URL } from '@/lib/site-brand'
+import { INSTAGRAM_URL } from '@/lib/constants/social'
+import { calculatePaid } from '@/lib/utils/order.utils'
+import type { FullOrder } from '@/lib/queries/orders.queries'
 import Image from 'next/image'
 
 interface QrSessionExpiredProps {
   tableName: string
+  fullOrder?: FullOrder | null
 }
 
-function QrSessionExpiredInner({ tableName }: QrSessionExpiredProps) {
+function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) {
   const t = useTranslations('qr')
+  const locale = useLocale()
+  const order = fullOrder?.order
+  const paidAmount = calculatePaid(fullOrder?.payments ?? [])
+  const complimentaryTotal = (fullOrder?.items ?? [])
+    .filter((item) => item.quantity > 0 && item.is_complimentary)
+    .reduce((sum, item) => sum + Number(item.total_price), 0)
+  const discountAmount = Number(order?.discount_amount ?? 0)
+  const hasSummary = !!order
 
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-[#efe4cf] px-6">
@@ -56,6 +68,43 @@ function QrSessionExpiredInner({ tableName }: QrSessionExpiredProps) {
           {t('sessionExpiredDesc')}
         </p>
 
+        {hasSummary && (
+          <div className="mt-5 w-full rounded-2xl border border-white/60 bg-white/85 p-4 shadow-[0_8px_30px_rgba(27,60,42,0.08)] backdrop-blur-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-[#1B3C2A]/55" />
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1B3C2A]/55">
+                {t('sessionExpiredOrderSummaryTitle')}
+              </p>
+            </div>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex items-center justify-between text-[#1B3C2A]/70">
+                <span>{t('sessionExpiredSubtotalLabel')}</span>
+                <span className="font-semibold">₺{Number(order.subtotal).toFixed(2)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-emerald-700">
+                  <span>{t('sessionExpiredDiscountLabel')}</span>
+                  <span className="font-semibold">-₺{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {complimentaryTotal > 0 && (
+                <div className="flex items-center justify-between text-emerald-700">
+                  <span>{t('sessionExpiredComplimentaryLabel')}</span>
+                  <span className="font-semibold">-₺{complimentaryTotal.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-[#1B3C2A]/10 pt-2 text-[#173322]">
+                <span className="font-semibold">{t('sessionExpiredTotalLabel')}</span>
+                <span className="text-base font-extrabold">₺{Number(order.total_amount).toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between text-[#1B3C2A]/70">
+                <span>{t('sessionExpiredPaidLabel')}</span>
+                <span className="font-semibold">₺{paidAmount.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Yıldızlar */}
         <div className="mt-5 flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -86,6 +135,32 @@ function QrSessionExpiredInner({ tableName }: QrSessionExpiredProps) {
           </a>
         </div>
 
+        <div className="mt-4 w-full rounded-2xl border border-white/60 bg-white/80 p-5 shadow-[0_8px_30px_rgba(27,60,42,0.08)] backdrop-blur-sm">
+          <p className="text-sm font-semibold text-[#173322]">
+            {t('sessionExpiredInstagramTitle')}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-[#1B3C2A]/55">
+            {t('sessionExpiredInstagramDesc')}
+          </p>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[#1B3C2A]/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,248,242,0.9))] px-4 py-3.5 text-sm font-bold text-[#1B3C2A] shadow-[0_8px_20px_rgba(27,60,42,0.12)] transition-transform active:scale-[0.98]"
+          >
+            <Instagram className="h-4 w-4" />
+            {t('sessionExpiredInstagramBtn')}
+            <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+          </a>
+        </div>
+
+        <a
+          href={`/${locale || 'tr'}/menu`}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#25523A] to-[#142C1F] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(27,60,42,0.25)] ring-1 ring-white/10 transition-transform active:scale-[0.98]"
+        >
+          {t('sessionExpiredOrderBtn')}
+        </a>
+
         {/* Yeni sipariş ipucu */}
         <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[#1B3C2A]/8 bg-white/50 px-4 py-3 backdrop-blur-sm">
           <QrCode className="h-4 w-4 shrink-0 text-[#C4841A]" />
@@ -102,10 +177,10 @@ function QrSessionExpiredInner({ tableName }: QrSessionExpiredProps) {
  * QR oturumu sona erdiğinde gösterilen ekran.
  * QrIntlProvider ile sarılır — sunucu tarafından render edilebilir.
  */
-export function QrSessionExpired({ tableName }: QrSessionExpiredProps) {
+export function QrSessionExpired({ tableName, fullOrder }: QrSessionExpiredProps) {
   return (
     <QrIntlProvider>
-      <QrSessionExpiredInner tableName={tableName} />
+      <QrSessionExpiredInner tableName={tableName} fullOrder={fullOrder} />
     </QrIntlProvider>
   )
 }

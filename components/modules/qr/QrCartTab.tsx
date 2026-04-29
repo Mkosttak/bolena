@@ -7,8 +7,6 @@ import {
   ChefHat,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  Send,
 } from 'lucide-react'
 import { fetchFullOrder } from '@/lib/queries/orders.queries'
 import { qrKeys } from '@/lib/queries/qr.queries'
@@ -19,14 +17,12 @@ interface QrCartTabProps {
   sessionToken: string
   orderId: string
   qrEnabled: boolean
-  onOpenDraft?: () => void
 }
 
 export function QrCartTab({
   sessionToken,
   orderId,
   qrEnabled: _qrEnabled,
-  onOpenDraft,
 }: QrCartTabProps) {
   const t = useTranslations('qr')
   const locale = useLocale()
@@ -46,6 +42,11 @@ export function QrCartTab({
 
   const localItems = useQrSessionStore((s) => s.items)
   const hasLocalItems = localItems.length > 0
+  const localTotal = localItems.reduce((sum, item) => {
+    const extrasTotal = item.selected_extras.reduce((extraSum, extra) => extraSum + extra.price, 0)
+    return sum + (item.product.price + extrasTotal) * item.quantity
+  }, 0)
+  const mixedGrandTotal = grandTotal + localTotal
 
   /* ── Yükleniyor ── */
   if (isLoading) {
@@ -74,7 +75,7 @@ export function QrCartTab({
   }
 
   /* ── Boş ── */
-  if (!hasPlacedItems) {
+  if (!hasPlacedItems && !hasLocalItems) {
     return (
       <div className="flex flex-1 min-h-0 flex-col items-center justify-center px-6 py-24 text-center">
         <div className="relative mb-6">
@@ -98,25 +99,63 @@ export function QrCartTab({
       >
         
         {hasLocalItems && (
-          <div className="rounded-2xl border border-amber-500/20 bg-[linear-gradient(180deg,rgba(255,251,235,0.9),rgba(255,248,235,0.95))] p-4 shadow-[0_10px_30px_-15px_rgba(245,158,11,0.3)]">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 rounded-full bg-amber-100 p-1.5 shrink-0">
-                <AlertCircle className="h-5 w-5 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-[14px] font-bold text-amber-900">{t('draftAlertTitle')}</h3>
-                <p className="mt-1 text-[13px] text-amber-700/80 leading-relaxed">
-                  {t('draftAlertDesc', { count: localItems.length })}
-                </p>
-                <button
-                  type="button"
-                  onClick={onOpenDraft}
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-[13px] font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-amber-600"
-                >
-                  <Send className="h-4 w-4" />
-                  {t('draftAlertCta')}
-                </button>
-              </div>
+          <div className="rounded-2xl overflow-hidden border border-red-200/80 bg-white/95 shadow-sm">
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-red-200/60 bg-red-50/85">
+              <ChefHat className="w-4 h-4 text-red-600/80 shrink-0" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-red-700/80">
+                {t('unsentOrders')}
+              </span>
+            </div>
+
+            <div className="px-4 divide-y divide-red-100/70">
+              {localItems.map((item) => {
+                const extras = Array.isArray(item.selected_extras) ? item.selected_extras : []
+                const removed = Array.isArray(item.removed_ingredients) ? item.removed_ingredients : []
+                const displayName =
+                  locale === 'en' && item.product.name_en
+                    ? item.product.name_en
+                    : item.product.name_tr
+                const lineTotal =
+                  (item.product.price + extras.reduce((sum, extra) => sum + extra.price, 0)) * item.quantity
+
+                return (
+                  <div key={item.localId} className="flex gap-3 py-3.5">
+                    <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-red-700">{item.quantity}</span>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#1B3C2A] leading-snug">{displayName}</p>
+                      {extras.length > 0 && (
+                        <p className="text-xs text-[#1B3C2A]/50 mt-0.5">
+                          +{extras.map((e) =>
+                            locale === 'en' && e.option_name_en ? e.option_name_en : e.option_name_tr
+                          ).join(', ')}
+                        </p>
+                      )}
+                      {removed.length > 0 && (
+                        <p className="text-xs text-red-400/80 mt-0.5">
+                          ✕ {removed.map((r) =>
+                            locale === 'en' && r.name_en ? r.name_en : r.name_tr
+                          ).join(', ')}
+                        </p>
+                      )}
+                      {item.notes && (
+                        <p className="text-xs text-[#1B3C2A]/40 mt-0.5 italic">{item.notes}</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col items-end justify-between shrink-0 gap-1.5">
+                      <span className="text-sm font-bold text-[#1B3C2A] tabular-nums">
+                        ₺{lineTotal.toFixed(2)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                        {t('unsentStatus')}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
@@ -126,7 +165,7 @@ export function QrCartTab({
           <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#1B3C2A]/6 bg-[#1B3C2A]/3">
             <ChefHat className="w-4 h-4 text-[#1B3C2A]/40 shrink-0" />
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1B3C2A]/40">
-              {t('submittedOrders')}
+              {t('ordersLabel')}
             </span>
           </div>
 
@@ -140,6 +179,7 @@ export function QrCartTab({
                 ? (item.removed_ingredients as { name_tr: string; name_en: string }[])
                 : []
               const kdsReady = item.kds_status === 'ready'
+              const isComplimentary = item.is_complimentary
               const displayName =
                 locale === 'en' && item.product_name_en
                   ? item.product_name_en
@@ -154,7 +194,14 @@ export function QrCartTab({
 
                   {/* Ürün bilgisi */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1B3C2A] leading-snug">{displayName}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold text-[#1B3C2A] leading-snug">{displayName}</p>
+                      {isComplimentary && (
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-emerald-700">
+                          {t('complimentaryLabel')}
+                        </span>
+                      )}
+                    </div>
                     {extras.length > 0 && (
                       <p className="text-xs text-[#1B3C2A]/50 mt-0.5">
                         +{extras.map((e) =>
@@ -176,7 +223,7 @@ export function QrCartTab({
 
                   {/* Fiyat + durum */}
                   <div className="flex flex-col items-end justify-between shrink-0 gap-1.5">
-                    <span className="text-sm font-bold text-[#1B3C2A] tabular-nums">
+                    <span className={`text-sm font-bold tabular-nums ${isComplimentary ? 'text-[#1B3C2A]/45 line-through' : 'text-[#1B3C2A]'}`}>
                       ₺{item.total_price.toFixed(2)}
                     </span>
                     <span
@@ -210,7 +257,7 @@ export function QrCartTab({
               <span className="text-sm font-semibold text-[#1B3C2A]/60">{t('grandTotalLabel')}</span>
             </div>
             <span className="text-lg font-extrabold text-[#1B3C2A] tabular-nums">
-              ₺{grandTotal.toFixed(2)}
+              ₺{mixedGrandTotal.toFixed(2)}
             </span>
           </div>
         </div>

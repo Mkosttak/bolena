@@ -189,9 +189,8 @@ export function QrProductSheet({
       description: t('toastCartPendingDesc'),
       duration: 3500,
       position: 'top-center',
-      icon: <ShoppingBagIcon className="w-4 h-4 text-emerald-400" />,
-      className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex p-4',
-      descriptionClassName: 'text-gray-300',
+      className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex flex-col items-center p-4 text-center',
+      descriptionClassName: 'text-gray-300 text-center',
       action: {
         label: t('navCart'),
         onClick: () => document.getElementById('cart-tab-btn')?.click()

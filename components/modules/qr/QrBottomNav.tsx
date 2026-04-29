@@ -71,7 +71,7 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
                     <motion.span
                       layoutId="bottom-nav-indicator"
                       className="absolute inset-0 rounded-[18px] bg-[linear-gradient(135deg,#234a36,#13281d)]"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 32 }}
                     />
                   )}
                   <span

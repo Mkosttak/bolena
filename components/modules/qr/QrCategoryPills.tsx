@@ -70,7 +70,7 @@ export function QrCategoryPills({ categories, activeId, onSelect }: QrCategoryPi
                 layoutId="category-pill-bg"
                 className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,#204432,#173322)]"
                 style={{ zIndex: -1 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+                transition={{ type: 'spring', damping: 32, stiffness: 240 }}
               />
             )}
             {cat.label}
