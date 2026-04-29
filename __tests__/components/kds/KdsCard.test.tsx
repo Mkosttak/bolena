@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { KdsCard } from '@/components/modules/kds/KdsCard'
 import type { KdsGroup } from '@/lib/utils/kds.utils'
@@ -71,7 +71,8 @@ describe('KdsCard', () => {
 
   it('<1 dk gosterir', () => {
     render(<KdsCard group={makeGroup({ elapsedMinutes: 0 })} onMarkReady={vi.fn()} onCardClick={vi.fn()} />)
-    expect(screen.getByText('< 1 dk')).toBeInTheDocument()
+    const matches = screen.getAllByText('< 1 dk')
+    expect(matches.length).toBeGreaterThanOrEqual(1)
   })
 
   it('hazirlandi butonunu render eder', () => {

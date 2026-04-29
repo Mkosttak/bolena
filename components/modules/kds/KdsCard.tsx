@@ -179,7 +179,7 @@ export function KdsCard({ group, onMarkReady, onCardClick }: KdsCardProps) {
             )}
           </div>
 
-          {isReservation && timerLabel && (
+          {timerLabel && (
             <div
               className={cn(
                 'flex items-center gap-1.5 text-xs font-bold rounded-lg px-2.5 py-1.5 shrink-0 transition-transform group-hover:scale-105',
