@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
@@ -50,17 +50,17 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
     queryKey: usersKeys.permissions(user?.id ?? ''),
     queryFn: () => fetchUserPermissions(user!.id),
     enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
   })
 
-  useEffect(() => {
-    if (currentPerms) {
-      setSelected(currentPerms)
-    }
-  }, [currentPerms])
+  const effectiveSelected = selected.length > 0 ? selected : (currentPerms ?? [])
 
   function toggle(module: string) {
     setSelected((prev) =>
-      prev.includes(module) ? prev.filter((m) => m !== module) : [...prev, module]
+      effectiveSelected.includes(module)
+        ? effectiveSelected.filter((m) => m !== module)
+        : [...effectiveSelected, module]
     )
   }
 
@@ -68,7 +68,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
     if (!user) return
     setIsLoading(true)
     try {
-      const result = await updateUserPermissions(user.id, selected)
+      const result = await updateUserPermissions(user.id, effectiveSelected)
       if (result.error) {
         toast.error(result.error)
         return
@@ -101,7 +101,7 @@ export function UserPermissionsModal({ user, onClose }: UserPermissionsModalProp
               <div key={module} className="flex items-center gap-3">
                 <Checkbox
                   id={`perm-${module}`}
-                  checked={selected.includes(module)}
+                  checked={effectiveSelected.includes(module)}
                   onCheckedChange={() => toggle(module)}
                   disabled={isLoading}
                 />

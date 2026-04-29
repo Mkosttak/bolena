@@ -41,20 +41,6 @@ export function MenuDisplay({
   translations,
 }: MenuDisplayProps) {
   const isEn = locale === 'en'
-  const [activeId, setActiveId] = useState<string>('')
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const navScrollRef = useRef<HTMLDivElement>(null)
-
-  const scrollNav = (direction: 'left' | 'right') => {
-    if (navScrollRef.current) {
-      const scrollAmount = 300;
-      navScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-    }
-  }
-
   const sections: CategorizedSection[] = categories
     .map((cat) => ({
       id: cat.id,
@@ -72,10 +58,19 @@ export function MenuDisplay({
     })
   }
 
-  useEffect(() => {
-    if (sections.length > 0 && !activeId) setActiveId(sections[0].id)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sections.length])
+  const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? '')
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const navScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollNav = (direction: 'left' | 'right') => {
+    if (navScrollRef.current) {
+      const scrollAmount = 300
+      navScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' })
+    }
+  }
 
   useEffect(() => {
     observerRef.current?.disconnect()

@@ -320,19 +320,15 @@ export function SidebarContent({ locale, role, fullName, allowedModules, onItemC
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => setMounted(true), [])
-
-  if (!mounted) return <div className="p-2 w-8 h-8" />
+  const isDark = theme === 'dark'
 
   return (
     <button
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="p-2 rounded-md transition-all hover:bg-accent hover:text-accent-foreground active:scale-90"
       aria-label="Toggle theme"
     >
-      {theme === 'dark' ? (
+      {isDark ? (
         <Sun className="h-4 w-4 text-amber-400" />
       ) : (
         <Moon className="h-4 w-4 text-slate-600" />

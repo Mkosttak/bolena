@@ -23,6 +23,10 @@ const PLATFORM_EMOJI: Record<string, string> = {
   courier: '🛵',
 }
 
+function getCurrentTimestamp() {
+  return Date.now()
+}
+
 export function KdsCard({ group, onMarkReady, onCardClick }: KdsCardProps) {
   const t = useTranslations('kds')
 
@@ -95,7 +99,7 @@ export function KdsCard({ group, onMarkReady, onCardClick }: KdsCardProps) {
       }
     }
 
-    const diffMs = resDateTime.getTime() - Date.now()
+    const diffMs = resDateTime.getTime() - getCurrentTimestamp()
     const diffMin = Math.round(diffMs / 60000)
 
     if (diffMin > 60) {

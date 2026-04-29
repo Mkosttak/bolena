@@ -14,27 +14,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ locale, role, fullName, allowedModules }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
-  const [isMounted, setIsMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('sidebar-collapsed')
-    if (saved !== null) {
-      setIsCollapsed(saved === 'true')
-    }
-    setIsMounted(true)
-  }, [])
+  const [isCollapsed, setIsCollapsed] = React.useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('sidebar-collapsed') === 'true'
+  })
 
   const handleToggle = () => {
     const newState = !isCollapsed
     setIsCollapsed(newState)
     localStorage.setItem('sidebar-collapsed', String(newState))
-  }
-
-  if (!isMounted) {
-    return (
-      <aside className="hidden lg:flex w-60 sticky top-0 h-screen border-r bg-sidebar backdrop-blur-xl flex-col" />
-    )
   }
 
   return (

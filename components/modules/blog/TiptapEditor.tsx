@@ -43,6 +43,30 @@ interface TiptapEditorProps {
   disabled?: boolean
 }
 
+interface ToolButtonProps {
+  active?: boolean
+  onClick: () => void
+  children: React.ReactNode
+  title: string
+  disabled?: boolean
+}
+
+function ToolButton({ active, onClick, children, title, disabled }: ToolButtonProps) {
+  return (
+    <Button
+      type="button"
+      variant={active ? 'secondary' : 'ghost'}
+      size="icon"
+      className={cn('h-8 w-8', active && 'bg-primary/10 text-primary')}
+      onClick={onClick}
+      title={title}
+      disabled={disabled}
+    >
+      {children}
+    </Button>
+  )
+}
+
 export function TiptapEditor({ value, onChange, placeholder, blogPostId, disabled }: TiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isUploading = useRef(false)
@@ -116,90 +140,76 @@ export function TiptapEditor({ value, onChange, placeholder, blogPostId, disable
 
   if (!editor) return null
 
-  const ToolBtn = ({ active, onClick, children, title }: { active?: boolean; onClick: () => void; children: React.ReactNode; title: string }) => (
-    <Button
-      type="button"
-      variant={active ? 'secondary' : 'ghost'}
-      size="icon"
-      className={cn('h-8 w-8', active && 'bg-primary/10 text-primary')}
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-    >
-      {children}
-    </Button>
-  )
-
   return (
     <div className={cn('rounded-lg border bg-background overflow-hidden', disabled && 'opacity-60 pointer-events-none')}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 border-b bg-muted/30">
-        <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Kalın">
+        <ToolButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Kalın" disabled={disabled}>
           <Bold className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="İtalik">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="İtalik" disabled={disabled}>
           <Italic className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} title="Altı Çizili">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} title="Altı Çizili" disabled={disabled}>
           <UnderlineIcon className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Üstü Çizili">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Üstü Çizili" disabled={disabled}>
           <Strikethrough className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="Başlık 2">
+        <ToolButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="Başlık 2" disabled={disabled}>
           <Heading2 className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="Başlık 3">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="Başlık 3" disabled={disabled}>
           <Heading3 className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Alıntı">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Alıntı" disabled={disabled}>
           <Quote className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Sola Hizala">
+        <ToolButton onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Sola Hizala" disabled={disabled}>
           <AlignLeft className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Ortala">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Ortala" disabled={disabled}>
           <AlignCenter className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Sağa Hizala">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Sağa Hizala" disabled={disabled}>
           <AlignRight className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Madde İşareti">
+        <ToolButton onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Madde İşareti" disabled={disabled}>
           <List className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Numaralı Liste">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Numaralı Liste" disabled={disabled}>
           <ListOrdered className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Yatay Çizgi">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Yatay Çizgi" disabled={disabled}>
           <Minus className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <ToolBtn onClick={setLink} active={editor.isActive('link')} title="Link Ekle">
+        <ToolButton onClick={setLink} active={editor.isActive('link')} title="Link Ekle" disabled={disabled}>
           <LinkIcon className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => fileInputRef.current?.click()} active={false} title="Görsel Ekle">
+        </ToolButton>
+        <ToolButton onClick={() => fileInputRef.current?.click()} active={false} title="Görsel Ekle" disabled={disabled}>
           <ImageIcon className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
-        <ToolBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="Geri Al">
+        <ToolButton onClick={() => editor.chain().focus().undo().run()} active={false} title="Geri Al" disabled={disabled}>
           <Undo className="h-4 w-4" />
-        </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="Yinele">
+        </ToolButton>
+        <ToolButton onClick={() => editor.chain().focus().redo().run()} active={false} title="Yinele" disabled={disabled}>
           <Redo className="h-4 w-4" />
-        </ToolBtn>
+        </ToolButton>
       </div>
 
       {/* Editor area */}
