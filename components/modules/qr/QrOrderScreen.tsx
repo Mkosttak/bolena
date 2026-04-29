@@ -48,9 +48,10 @@ export function QrOrderScreen({
   const initSession = useQrSessionStore((s) => s.initSession)
   const hasLocalItems = useQrSessionStore((s) => s.items.length > 0)
   const queryClient = useQueryClient()
-  const lastInsertCountRef = useRef(0)
   const isFirstLoadRef = useRef(true)
   const suppressNextInsertToastRef = useRef(false)
+  const insertToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingInsertToastRef = useRef(false)
   const _reduceMotion = useReducedMotion()
 
   useEffect(() => {
@@ -89,14 +90,21 @@ export function QrOrderScreen({
             return
           }
 
-          lastInsertCountRef.current += 1
-          toast(t('toastItemAddedTitle'), {
-            description: t('toastItemAddedDesc'),
-            duration: 4000,
-            position: 'top-center',
-            className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex p-4',
-            descriptionClassName: 'text-gray-300'
-          })
+          pendingInsertToastRef.current = true
+          if (insertToastTimeoutRef.current) {
+            clearTimeout(insertToastTimeoutRef.current)
+          }
+          insertToastTimeoutRef.current = setTimeout(() => {
+            if (!pendingInsertToastRef.current) return
+            pendingInsertToastRef.current = false
+            toast(t('toastItemAddedTitle'), {
+              description: t('toastItemAddedDesc'),
+              duration: 4000,
+              position: 'top-center',
+              className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex p-4',
+              descriptionClassName: 'text-gray-300'
+            })
+          }, 320)
         }
       )
       .on(
@@ -129,6 +137,9 @@ export function QrOrderScreen({
       })
 
     return () => {
+      if (insertToastTimeoutRef.current) {
+        clearTimeout(insertToastTimeoutRef.current)
+      }
       supabase.removeChannel(channel)
     }
   }, [initialOrderId, sessionToken, queryClient, t])
