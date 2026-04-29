@@ -171,6 +171,42 @@ function buildGroup(
 }
 
 /**
+ * QR sipariş kalemlerini ürün başına ayrı gruplar halinde döner.
+ * Her kalem kendi kartında gösterilir (ürün bazlı KDS görünümü).
+ */
+export function groupQrItemsPerProduct(
+  items: KdsOrderItem[],
+  tableNames: Record<string, string> = {}
+): KdsGroup[] {
+  const qrItems = items.filter((i) => i.is_qr_order)
+  if (qrItems.length === 0) return []
+
+  return qrItems
+    .map((item): KdsGroup => {
+      const elapsedMinutes = getElapsedMinutes(item.created_at)
+      return {
+        id: `qr__${item.id}`,
+        orderId: item.order_id,
+        orderType: item.order_type,
+        tableId: item.order_table_id,
+        tableName: item.order_table_id ? (tableNames[item.order_table_id] ?? null) : null,
+        customerName: item.order_customer_name,
+        platform: item.order_platform,
+        orderNotes: item.order_notes,
+        itemIds: [item.id],
+        items: [item],
+        windowStart: item.created_at,
+        elapsedMinutes,
+        urgency: getUrgencyLevel(elapsedMinutes),
+        isQrOrder: true,
+        reservationDate: item.reservation_date ?? null,
+        reservationTime: item.reservation_time ?? null,
+      }
+    })
+    .sort((a, b) => new Date(a.windowStart).getTime() - new Date(b.windowStart).getTime())
+}
+
+/**
  * Yeni eklenen `order_items` satırının ait olduğu KDS zaman penceresi grubunu bulur.
  * Aynı açık siparişteki eski kalemler başka pencerelerde kalır; bildirimde yalnızca bu “parti” görünür.
  */

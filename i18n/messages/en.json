@@ -505,7 +505,8 @@
     "columns": {
       "tables": "Tables",
       "reservations": "Takeaway & Reservations",
-      "platforms": "Platforms"
+      "platforms": "Platforms",
+      "qrOrders": "QR Orders"
     },
     "markReady": "Ready",
     "undoCountdown": "Undo within {seconds}s",

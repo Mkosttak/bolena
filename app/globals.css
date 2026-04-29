@@ -254,6 +254,15 @@
   .safe-area-padding-bottom {
     padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   }
+
+  /* QR mobile compact nav spacing helpers */
+  .qr-bottom-nav-offset-compact {
+    bottom: calc(4.9rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .safe-area-padding-bottom-compact {
+    padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* ── Raporlar (dark) — mutfak ekranı ile uyumlu yüzey + kartlar ── */

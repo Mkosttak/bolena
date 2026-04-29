@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import { ArrowLeft, Minus, Plus, Utensils, X, Zap } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Minus, Plus, Utensils, X, Zap } from 'lucide-react'
 import Image from 'next/image'
 
 import {
@@ -52,6 +52,11 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
 
   const [step, setStep] = useState<'list' | 'configure'>('list')
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    scrollRef.current?.scrollBy({ left: direction === 'left' ? -160 : 160, behavior: 'smooth' })
+  }
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   // Konfigürasyon state'i
@@ -466,11 +471,7 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
 
               <div className="flex items-center justify-between mt-2 pt-2 border-t h-8">
                 <div>
-                  {totalAdded > 0 ? (
-                    <Badge variant="secondary" className="text-[9px] px-1 py-0 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors font-bold">
-                      {totalAdded} eklendi
-                    </Badge>
-                  ) : product.track_stock && !isOutOfStock ? (
+                  {product.track_stock && !isOutOfStock && totalAdded === 0 ? (
                     <Badge variant="secondary" className="text-[8px] sm:text-[9px] px-1 py-0 bg-secondary/60 text-secondary-foreground font-medium uppercase tracking-tighter">
                       Kalan: {Math.max(0, product.stock_count ?? 0)}
                     </Badge>
@@ -493,26 +494,29 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
                 )}
 
                 {!hasRequiredExtras && !isOutOfStock && totalAdded > 0 && itemToModify && (
-                  <div className="flex items-center gap-0.5 bg-background border rounded-md p-0.5 shadow-sm shrink-0" onClick={e => e.stopPropagation()}>
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="h-5 w-5 rounded-sm hover:bg-secondary text-foreground" 
-                      onClick={() => updateQuantityMutation.mutate({ item: itemToModify, newQuantity: itemToModify.quantity - 1 })} 
-                      disabled={updateQuantityMutation.isPending}
-                    >
-                      <Minus className="h-2.5 w-2.5" />
-                    </Button>
-                    <span className="w-4 text-center text-[10px] font-bold text-primary">{itemToModify.quantity}</span>
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="h-5 w-5 rounded-sm hover:bg-secondary text-foreground" 
-                      onClick={() => updateQuantityMutation.mutate({ item: itemToModify, newQuantity: itemToModify.quantity + 1 })} 
-                      disabled={updateQuantityMutation.isPending || (product.track_stock && product.stock_count !== null && totalAdded >= product.stock_count)}
-                    >
-                      <Plus className="h-2.5 w-2.5" />
-                    </Button>
+                  <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                    <span className="text-[9px] font-bold text-primary whitespace-nowrap">{totalAdded} eklendi</span>
+                    <div className="flex items-center gap-0.5 bg-background border rounded-md p-0.5 shadow-sm shrink-0">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-5 w-5 rounded-sm hover:bg-secondary text-foreground"
+                        onClick={() => updateQuantityMutation.mutate({ item: itemToModify, newQuantity: itemToModify.quantity - 1 })}
+                        disabled={updateQuantityMutation.isPending}
+                      >
+                        <Minus className="h-2.5 w-2.5" />
+                      </Button>
+                      <span className="w-4 text-center text-[10px] font-bold text-primary">{itemToModify.quantity}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-5 w-5 rounded-sm hover:bg-secondary text-foreground"
+                        onClick={() => updateQuantityMutation.mutate({ item: itemToModify, newQuantity: itemToModify.quantity + 1 })}
+                        disabled={updateQuantityMutation.isPending || (product.track_stock && product.stock_count !== null && totalAdded >= product.stock_count)}
+                      >
+                        <Plus className="h-2.5 w-2.5" />
+                      </Button>
+                    </div>
                   </div>
                 )}
 
@@ -564,30 +568,46 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
 
         {/* Categories are extracted from scroll container to prevent cut-off */}
         {step === 'list' && (
-          <div className="w-full overflow-x-auto no-scrollbar border-b bg-card shrink-0 shadow-sm z-10 p-1.5 sm:px-4">
-            <div className="flex gap-1.5 w-max px-0.5">
-               <button
+          <div className="relative w-full border-b bg-card shrink-0 shadow-sm z-10">
+            <button
+              onClick={() => scrollCategories('left')}
+              className="absolute left-0 top-0 z-10 h-full px-1.5 flex items-center bg-gradient-to-r from-card to-transparent"
+              aria-label="Sola kaydır"
+            >
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <div ref={scrollRef} className="w-full overflow-x-auto no-scrollbar p-1.5 sm:px-8">
+              <div className="flex gap-1.5 w-max px-0.5">
+                <button
                   onClick={() => setSelectedCategoryId(null)}
                   className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 border
-                     ${!selectedCategoryId 
-                        ? 'bg-foreground border-foreground text-background shadow-xs' 
-                        : 'bg-background border-border hover:bg-accent hover:text-accent-foreground'}`}
-               >
+                    ${!selectedCategoryId
+                      ? 'bg-foreground border-foreground text-background shadow-xs'
+                      : 'bg-background border-border hover:bg-accent hover:text-accent-foreground'}`}
+                >
                   {t('allCategories')}
-               </button>
-               {categories?.map((cat) => (
+                </button>
+                {categories?.map((cat) => (
                   <button
-                     key={cat.id}
-                     onClick={() => setSelectedCategoryId(cat.id)}
-                     className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 border whitespace-nowrap
-                        ${selectedCategoryId === cat.id 
-                           ? 'bg-foreground border-foreground text-background shadow-xs' 
-                           : 'bg-background border-border hover:bg-accent hover:text-accent-foreground'}`}
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-200 border whitespace-nowrap
+                      ${selectedCategoryId === cat.id
+                        ? 'bg-foreground border-foreground text-background shadow-xs'
+                        : 'bg-background border-border hover:bg-accent hover:text-accent-foreground'}`}
                   >
-                     {cat.name_tr}
+                    {cat.name_tr}
                   </button>
-               ))}
+                ))}
+              </div>
             </div>
+            <button
+              onClick={() => scrollCategories('right')}
+              className="absolute right-0 top-0 z-10 h-full px-1.5 flex items-center bg-gradient-to-l from-card to-transparent"
+              aria-label="Sağa kaydır"
+            >
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
         )}
 

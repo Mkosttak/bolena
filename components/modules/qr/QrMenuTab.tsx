@@ -131,19 +131,19 @@ export function QrMenuTab({
 
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col">
-      <div className="sticky top-0 z-30 shrink-0 px-2 pb-2 pt-2 transition-all duration-300">
+      <div className="sticky top-0 z-30 shrink-0 px-1.5 pb-1.5 pt-1.5 transition-all duration-300">
         <div
           className={`transition-all duration-300 ${
             isScrolled
-              ? 'rounded-[28px] border border-white/60 bg-[rgba(255,255,255,0.88)] px-3 py-3 shadow-[0_20px_55px_-28px_rgba(27,60,42,0.45)] backdrop-blur-xl'
-              : 'rounded-[34px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,248,235,0.82))] px-4 py-4 shadow-[0_30px_80px_-36px_rgba(27,60,42,0.55)]'
+              ? 'rounded-[24px] border border-white/60 bg-[rgba(255,255,255,0.88)] px-3 py-2 shadow-[0_20px_55px_-28px_rgba(27,60,42,0.45)] backdrop-blur-xl'
+              : 'rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,248,235,0.82))] px-3.5 py-3 shadow-[0_28px_70px_-38px_rgba(27,60,42,0.55)]'
           }`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div
                 className={`flex items-center justify-center rounded-[22px] border border-[#1B3C2A]/10 bg-[#1B3C2A]/5 transition-all duration-300 ${
-                  isScrolled ? 'h-11 w-11' : 'h-14 w-14'
+                  isScrolled ? 'h-10 w-10' : 'h-12 w-12'
                 }`}
               >
                 <Image
@@ -157,14 +157,14 @@ export function QrMenuTab({
               </div>
 
               <div className="min-w-0">
-                <p className="font-heading text-[1.55rem] leading-none text-[#173322]">
+                <p className="font-heading text-[1.35rem] leading-none text-[#173322]">
                   {t('brand')}
                 </p>
-                <p className="mt-1 truncate text-sm font-medium text-[#1B3C2A]/65">{tableName}</p>
+                <p className="mt-0.5 truncate text-[13px] font-medium text-[#1B3C2A]/65">{tableName}</p>
               </div>
             </div>
 
-            <div className="flex shrink-0 flex-col items-end gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-1.5">
               <QrLocaleToggle />
               {!qrEnabled && (
                 <span className="rounded-full border border-amber-300/70 bg-amber-100/90 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.24em] text-amber-900 shadow-sm">
@@ -174,7 +174,7 @@ export function QrMenuTab({
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-2.5">
             <QrCategoryPills
               categories={filteredCategoriesForPills}
               activeId={resolvedActiveCategoryId}
@@ -187,10 +187,10 @@ export function QrMenuTab({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="qr-scrollbar flex-1 overflow-y-auto overscroll-contain px-2 pb-8 pt-3 touch-pan-y sm:px-4"
+        className="qr-scrollbar flex-1 overflow-y-auto overscroll-contain px-1.5 pb-6 pt-2 touch-pan-y sm:px-4"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <section className="space-y-4">
+        <section className="space-y-3.5">
           {groupedProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-[30px] border border-dashed border-[#1B3C2A]/15 bg-white/55 px-6 py-20 text-center shadow-[0_25px_55px_-42px_rgba(27,60,42,0.55)]">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#1B3C2A]/6 text-[#1B3C2A]/60">
@@ -199,7 +199,7 @@ export function QrMenuTab({
               <p className="font-heading text-2xl text-[#173322]">{t('emptyCategory')}</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-5">
               {groupedProducts.map((group) => (
                 <section
                   key={group.id}

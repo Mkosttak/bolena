@@ -159,7 +159,7 @@ export function QrOrderScreen({
       >
         <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden min-w-0">
           <div
-            className={`absolute top-0 inset-x-0 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
+            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
               activeTab === 'menu' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-4'
             }`}
           >
@@ -179,7 +179,7 @@ export function QrOrderScreen({
           </div>
 
           <div
-            className={`absolute top-0 inset-x-0 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
+            className={`qr-bottom-nav-offset-compact absolute top-0 inset-x-0 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ease-out ${
               activeTab === 'cart' ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 pointer-events-none z-0 translate-y-4'
             }`}
           >

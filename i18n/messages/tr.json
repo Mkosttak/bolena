@@ -511,7 +511,8 @@
     "columns": {
       "tables": "Masalar",
       "reservations": "Gel-Al & Rezervasyonlar",
-      "platforms": "Platformlar"
+      "platforms": "Platformlar",
+      "qrOrders": "QR Siparişler"
     },
     "markReady": "Hazırlandı",
     "undoCountdown": "{seconds} sn içinde geri alınabilir",

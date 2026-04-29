@@ -45,6 +45,10 @@ export function KdsCard({ group, onMarkReady, onCardClick }: KdsCardProps) {
   }
 
   const headerLabel = (): string => {
+    // QR ürün bazlı kart: başlık ürün adı
+    if (group.isQrOrder && group.items.length === 1) {
+      return group.items[0].product_name_tr
+    }
     if (group.orderType === 'table') {
       return group.tableName ?? t('headerTable')
     }
@@ -165,6 +169,10 @@ export function KdsCard({ group, onMarkReady, onCardClick }: KdsCardProps) {
                 </Badge>
               )}
             </div>
+            {/* QR per-product kartında masa adı subtitle olarak */}
+            {group.isQrOrder && group.items.length === 1 && group.tableName && (
+              <span className="text-xs text-muted-foreground font-medium mt-0.5">{group.tableName}</span>
+            )}
             {isReservation && group.reservationTime && (
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Calendar className="h-3.5 w-3.5 text-blue-500" />

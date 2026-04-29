@@ -34,9 +34,9 @@ export const QrProductCard = memo(function QrProductCard({
     <button
       type="button"
       onClick={() => onOpen(product)}
-      className="group relative overflow-hidden rounded-[28px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(251,247,239,0.94))] text-left shadow-[0_28px_60px_-42px_rgba(27,60,42,0.5)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_36px_90px_-46px_rgba(27,60,42,0.55)] active:scale-[0.99]"
+      className="group relative overflow-hidden rounded-[24px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(251,247,239,0.94))] text-left shadow-[0_24px_56px_-40px_rgba(27,60,42,0.48)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_34px_82px_-44px_rgba(27,60,42,0.52)] active:scale-[0.99]"
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-[#f3ede2]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#f3ede2]">
         <Image
           src={product.image_url || SITE_LOGO_SRC}
           alt={displayName}
@@ -51,31 +51,31 @@ export const QrProductCard = memo(function QrProductCard({
           loading={priority ? 'eager' : 'lazy'}
         />
 
-        <div className="absolute inset-x-0 top-0 flex flex-wrap gap-1 p-2.5">
+        <div className="absolute inset-x-0 top-0 flex flex-wrap gap-1 p-2">
           {!product.is_available && (
-            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-semibold text-white backdrop-blur-sm">
               {t('outOfStock')}
             </span>
           )}
           {hasDiscount && product.is_available && (
-            <span className="rounded-full bg-[#C4841A] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+            <span className="rounded-full bg-[#C4841A] px-2 py-0.5 text-[9px] font-semibold text-white shadow-sm">
               {t('discount')}
             </span>
           )}
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-3 pb-3 pt-10">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-2.5 pb-2.5 pt-9">
           <div className="flex items-end justify-between gap-2">
             <div className="min-w-0">
-              <p className="line-clamp-2 text-sm font-bold leading-tight text-white sm:text-base">
+              <p className="line-clamp-2 text-[13px] font-bold leading-tight text-white sm:text-sm">
                 {displayName}
               </p>
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <span className="text-sm font-extrabold tracking-tight text-white">
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="text-[13px] font-extrabold tracking-tight text-white sm:text-sm">
                   ₺{finalPrice.toFixed(2)}
                 </span>
                 {hasDiscount && (
-                  <span className="text-[11px] text-white/60 line-through">
+                  <span className="text-[10px] text-white/60 line-through">
                     ₺{product.price.toFixed(2)}
                   </span>
                 )}

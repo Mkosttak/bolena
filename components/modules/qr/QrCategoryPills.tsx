@@ -47,7 +47,7 @@ export function QrCategoryPills({ categories, activeId, onSelect }: QrCategoryPi
   return (
     <div
       ref={scrollRef}
-      className="max-w-full flex gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none"
+      className="scrollbar-none flex max-w-full gap-1.5 overflow-x-auto pb-0.5 pt-0.5"
       style={{ WebkitOverflowScrolling: 'touch' }}
     >
       {allItems.map((cat) => {
@@ -59,9 +59,9 @@ export function QrCategoryPills({ categories, activeId, onSelect }: QrCategoryPi
             data-category-id={cat.id}
             onClick={() => onSelect(cat.id)}
             className={cn(
-              'relative shrink-0 overflow-hidden rounded-full border px-4 py-2 text-[12px] font-semibold transition-all',
+              'relative shrink-0 overflow-hidden rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-all',
               isActive
-                ? 'border-[#1B3C2A]/10 text-[#faf7ef] shadow-[0_12px_24px_-18px_rgba(27,60,42,0.9)]'
+                ? 'border-[#1B3C2A]/10 text-[#faf7ef] shadow-[0_10px_20px_-16px_rgba(27,60,42,0.9)]'
                 : 'border-[#1B3C2A]/8 bg-white/65 text-[#1B3C2A]/60 hover:border-[#1B3C2A]/16 hover:bg-white'
             )}
           >

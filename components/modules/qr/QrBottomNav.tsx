@@ -22,14 +22,14 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
       {
         id: 'menu',
         label: t('navMenu'),
-        icon: <UtensilsCrossed className="w-[22px] h-[22px]" strokeWidth={2} />,
+        icon: <UtensilsCrossed className="h-[19px] w-[19px]" strokeWidth={2} />,
       },
       {
         id: 'cart',
         label: t('navCart'),
         icon: (
           <div className="relative">
-            <ShoppingBag className="w-[22px] h-[22px]" strokeWidth={2} />
+            <ShoppingBag className="h-[19px] w-[19px]" strokeWidth={2} />
             {itemCount > 0 && (
               <motion.span
                 key={itemCount}
@@ -49,10 +49,10 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
   )
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="pointer-events-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8 pb-3">
-        <div className="rounded-[28px] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(247,240,224,0.78))] p-2 backdrop-blur-2xl shadow-[0_25px_65px_-35px_rgba(15,32,23,0.85)]">
-          <div className="grid grid-cols-2 gap-2">
+    <nav className="fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none safe-area-padding-bottom-compact">
+      <div className="pointer-events-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8 pb-1.5">
+        <div className="rounded-[24px] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.84),rgba(246,238,220,0.78))] p-1.5 backdrop-blur-2xl shadow-[0_22px_56px_-34px_rgba(15,32,23,0.8)]">
+          <div className="grid grid-cols-2 gap-1.5">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id
               return (
@@ -61,7 +61,7 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
                   id={tab.id === 'cart' ? 'cart-tab-btn' : undefined}
                   type="button"
                   onClick={() => onTabChange(tab.id)}
-                  className={`relative flex min-h-[64px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[22px] px-2 py-3 transition ${
+                  className={`relative flex min-h-[54px] flex-col items-center justify-center gap-0.5 overflow-hidden rounded-[18px] px-2 py-2 transition ${
                     isActive
                       ? 'text-[#faf7ef] shadow-[0_20px_40px_-28px_rgba(27,60,42,0.95)]'
                       : 'text-[#1B3C2A]/45 hover:bg-white/55'
@@ -70,7 +70,7 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
                   {isActive && (
                     <motion.span
                       layoutId="bottom-nav-indicator"
-                      className="absolute inset-0 rounded-[22px] bg-[linear-gradient(135deg,#234a36,#13281d)]"
+                      className="absolute inset-0 rounded-[18px] bg-[linear-gradient(135deg,#234a36,#13281d)]"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -80,7 +80,7 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
                     {tab.icon}
                   </span>
                   <span
-                    className={`relative z-10 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors ${
+                    className={`relative z-10 text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors ${
                       isActive ? 'text-[#faf7ef]' : 'text-[#1B3C2A]/45'
                     }`}
                   >
