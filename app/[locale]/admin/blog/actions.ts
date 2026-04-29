@@ -82,7 +82,7 @@ export async function deleteBlogPost(id: string) {
 
 export async function toggleBlogPublished(id: string, isPublished: boolean) {
   const supabase = await createClient()
-  const updateData: Record<string, unknown> = { is_published: isPublished }
+  const updateData: { is_published: boolean; published_at?: string } = { is_published: isPublished }
   if (isPublished) {
     const { data } = await supabase.from('blog_posts').select('published_at').eq('id', id).single()
     if (!data?.published_at) {

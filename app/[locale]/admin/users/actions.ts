@@ -175,7 +175,7 @@ export async function updateUserProfile(
   }
 
   // profiles tablosunu güncelle
-  const profileUpdate: Record<string, unknown> = {}
+  const profileUpdate: { full_name?: string; email?: string; role?: string } = {}
   if (fields.fullName) profileUpdate.full_name = fields.fullName
   if (fields.email) profileUpdate.email = fields.email
   if (fields.role) profileUpdate.role = fields.role

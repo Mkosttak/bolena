@@ -185,9 +185,13 @@ export async function toggleProductField(
   value: boolean
 ) {
   const supabase = await createClient()
+  const payload =
+    field === 'is_available' ? { is_available: value } :
+    field === 'is_visible'   ? { is_visible: value }   :
+                                { is_featured: value }
   const { error } = await supabase
     .from('products')
-    .update({ [field]: value })
+    .update(payload)
     .eq('id', id)
   if (error) return { error: error.message }
   return { success: true }

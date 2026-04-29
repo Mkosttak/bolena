@@ -130,7 +130,7 @@ export async function updateReservationStatus(
 
   if (reservation.order_id) {
     const orderStatus = status === 'completed' ? 'completed' : status
-    const update: Record<string, unknown> = { status: orderStatus }
+    const update: { status: string; completed_at?: string; payment_status?: string } = { status: orderStatus }
     if (orderStatus === 'completed') {
       update.completed_at = new Date().toISOString()
       update.payment_status = 'paid'
