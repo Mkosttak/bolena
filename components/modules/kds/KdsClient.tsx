@@ -23,7 +23,6 @@ import { tablesKeys, fetchTablesWithOrder } from '@/lib/queries/tables.queries'
 import {
   findKdsGroupContainingOrderItem,
   groupItemsByTimeWindow,
-  groupQrItemsPerProduct,
   isKnownPlatformChannel,
   itemLeadTimeMinutes,
   orderLeadTimeMinutes,
@@ -63,7 +62,6 @@ export function KdsClient({ locale }: KdsClientProps) {
   const [showTables, setShowTables] = useState(true)
   const [showReservations, setShowReservations] = useState(true)
   const [showPlatforms, setShowPlatforms] = useState(true)
-  const [showQrOrders, setShowQrOrders] = useState(true)
   const [unifiedSort, setUnifiedSort] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
 
@@ -132,14 +130,8 @@ export function KdsClient({ locale }: KdsClientProps) {
     [rawItems, tableNames]
   )
 
-  // QR siparişleri ürün başına ayrı gruplar halinde
-  const qrGroups = useMemo(
-    () => groupQrItemsPerProduct(rawItems, tableNames),
-    [rawItems, tableNames]
-  )
-
   const tableGroups = useMemo(
-    () => allGroups.filter((g) => !g.isQrOrder && (g.orderType === 'table' || (!!g.tableId && (g.orderType === 'reservation' || g.orderType === 'takeaway')))),
+    () => allGroups.filter((g) => g.orderType === 'table' || (!!g.tableId && (g.orderType === 'reservation' || g.orderType === 'takeaway'))),
     [allGroups]
   )
   const reservationGroups = useMemo(
@@ -154,7 +146,6 @@ export function KdsClient({ locale }: KdsClientProps) {
   // Unified view: groups filtered by visibility toggles, sorted by windowStart
   const unifiedGroups = useMemo(() => {
     const filtered = allGroups.filter((g) => {
-      if (g.isQrOrder) return false // QR siparişler qrGroups üzerinden gösterilir
       const isActuallyTable =
         g.orderType === 'table' ||
         (!!g.tableId && (g.orderType === 'reservation' || g.orderType === 'takeaway'))
@@ -166,17 +157,15 @@ export function KdsClient({ locale }: KdsClientProps) {
       if (g.orderType === 'platform') return showPlatforms
       return true
     })
-    const combined = [...filtered, ...(showQrOrders ? qrGroups : [])]
-    return combined.sort(
+    return [...filtered].sort(
       (a, b) => new Date(a.windowStart).getTime() - new Date(b.windowStart).getTime()
     )
-  }, [allGroups, qrGroups, showTables, showReservations, showPlatforms, showQrOrders])
+  }, [allGroups, showTables, showReservations, showPlatforms])
 
   const showAllColumns = useCallback(() => {
     setShowTables(true)
     setShowReservations(true)
     setShowPlatforms(true)
-    setShowQrOrders(true)
   }, [])
 
   const historyRows = useMemo(
@@ -464,20 +453,6 @@ export function KdsClient({ locale }: KdsClientProps) {
               <Smartphone className="h-3.5 w-3.5 shrink-0" aria-hidden />
               {t('columns.platforms')}
             </button>
-            <button
-              type="button"
-              className={cn(
-                'inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-lg border transition-colors',
-                showQrOrders
-                  ? 'bg-teal-500/12 text-teal-700 border-teal-400/35 ring-1 ring-teal-400/15 shadow-sm'
-                  : 'bg-muted/30 text-muted-foreground border-border/80 hover:bg-muted/50 hover:text-foreground'
-              )}
-              onClick={() => setShowQrOrders((v) => !v)}
-              aria-pressed={showQrOrders}
-            >
-              <span className="text-sm leading-none" aria-hidden>📱</span>
-              {t('columns.qrOrders')}
-            </button>
           </div>
         </div>
       </div>
@@ -547,19 +522,7 @@ export function KdsClient({ locale }: KdsClientProps) {
                 />
               </div>
             )}
-            {showQrOrders && (
-              <div className="flex-1 min-w-0 p-3 sm:p-4">
-                <KdsColumn
-                  title={t('columns.qrOrders')}
-                  icon={<span className="text-sm leading-none">📱</span>}
-                  accentClassName="bg-teal-500/10 text-teal-700 border border-teal-400/20"
-                  groups={qrGroups}
-                  onCardClick={setSelectedGroup}
-                  onMarkReady={handleMarkReady}
-                />
-              </div>
-            )}
-            {!showTables && !showReservations && !showPlatforms && !showQrOrders && (
+            {!showTables && !showReservations && !showPlatforms && (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 py-20 px-4 text-center">
                 <p className="text-muted-foreground text-sm font-medium">{t('columnsAllHidden')}</p>
                 <Button type="button" variant="default" size="sm" onClick={showAllColumns}>

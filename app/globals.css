@@ -257,11 +257,11 @@
 
   /* QR mobile compact nav spacing helpers */
   .qr-bottom-nav-offset-compact {
-    bottom: calc(4.9rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
   }
 
   .safe-area-padding-bottom-compact {
-    padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 

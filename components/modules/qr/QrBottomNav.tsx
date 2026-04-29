@@ -50,7 +50,7 @@ export function QrBottomNav({ activeTab, onTabChange }: QrBottomNavProps) {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 flex justify-center pointer-events-none safe-area-padding-bottom-compact">
-      <div className="pointer-events-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8 pb-1.5">
+      <div className="pointer-events-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8">
         <div className="rounded-[24px] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.84),rgba(246,238,220,0.78))] p-1.5 backdrop-blur-2xl shadow-[0_22px_56px_-34px_rgba(15,32,23,0.8)]">
           <div className="grid grid-cols-2 gap-1.5">
             {tabs.map((tab) => {

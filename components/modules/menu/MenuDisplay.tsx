@@ -134,12 +134,12 @@ export function MenuDisplay({
           position: sticky;
           top: 0;
           z-index: 40;
-          padding: 0 clamp(1rem, 4vw, 2rem) 1rem;
+          padding: 0 clamp(1rem, 4vw, 2rem) 0.25rem;
           background: rgba(250,248,242,0.9);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(27,60,42,0.08);
-          margin-bottom: 2rem;
+          margin-bottom: 0.75rem;
         }
         .md-nav-shell {
           position: relative;
@@ -226,7 +226,7 @@ export function MenuDisplay({
           .md-nav {
             top: 0;
             padding: 0 1rem 0;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
           }
           .md-cat-btn {
             flex: 0 0 120px;

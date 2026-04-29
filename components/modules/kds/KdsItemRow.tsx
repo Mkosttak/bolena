@@ -63,6 +63,11 @@ export function KdsItemRow({ item, onMarkReady }: KdsItemRowProps) {
                   {timerLabel}
                 </span>
               )}
+              {item.is_qr_order && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-black border bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800">
+                  📱 {t('headerCustomer')}
+                </span>
+              )}
               {item.is_complimentary && (
                 <span className="text-[10px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200">
                   {t('complimentary') || 'İkram'}
