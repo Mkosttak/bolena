@@ -194,11 +194,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           />
         </motion.div>
 
+        {/* Daha güçlü gradient overlay — başlık ve alt metnin okunabilirliği için */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.15) 100%)',
+              'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 45%, rgba(0,0,0,0.65) 100%)',
           }}
         />
 
@@ -226,11 +227,19 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                   letterSpacing: '-0.04em',
                   color: '#FDFCF8',
                   margin: 0,
+                  textShadow: '0 2px 24px rgba(0,0,0,0.35)',
                 }}
               >
                 {t('heroTitle')}
                 <br />
-                <span style={{ color: '#D5AD5C' }}>{t('heroTitleAccent')}</span>
+                <span
+                  style={{
+                    color: '#E8C684',
+                    textShadow: '0 2px 18px rgba(0,0,0,0.45)',
+                  }}
+                >
+                  {t('heroTitleAccent')}
+                </span>
               </motion.h1>
             </div>
 
@@ -244,10 +253,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               <p
                 className="font-sans"
                 style={{
-                  fontSize: 'clamp(0.875rem,1.8vw,1rem)',
-                  lineHeight: 1.72,
-                  color: 'rgba(253,252,248,0.62)',
-                  maxWidth: 380,
+                  fontSize: 'clamp(0.95rem,1.9vw,1.0625rem)',
+                  lineHeight: 1.7,
+                  color: 'rgba(253,252,248,0.92)',
+                  maxWidth: 440,
+                  fontWeight: 400,
+                  textShadow: '0 1px 12px rgba(0,0,0,0.4)',
                 }}
               >
                 {t('heroSubtitle')}
@@ -256,36 +267,20 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               <div className="flex gap-3 flex-wrap sm:flex-shrink-0">
                 <Link
                   href={`/${locale}/menu`}
-                  className="inline-flex items-center gap-2 rounded-full font-sans transition-all duration-200 hover:scale-105"
+                  className="inline-flex items-center gap-2 rounded-full font-sans transition-all duration-200 hover:scale-105 hover:shadow-[0_8px_28px_-6px_rgba(0,0,0,0.45)]"
                   style={{
                     background: '#FDFCF8',
                     color: '#1C1C1A',
-                    padding: '0.8rem 1.5rem',
+                    padding: '0.95rem 1.75rem',
                     fontSize: 12,
                     fontWeight: 700,
-                    letterSpacing: '0.1em',
+                    letterSpacing: '0.12em',
                     textTransform: 'uppercase',
                     textDecoration: 'none',
                   }}
                 >
                   {t('heroPrimaryCta')}
                   <ArrowUpRight className="w-4 h-4" strokeWidth={2.5} />
-                </Link>
-                <Link
-                  href={`/${locale}/contact`}
-                  className="inline-flex items-center gap-2 rounded-full font-sans border border-white/22 backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
-                  style={{
-                    background: 'rgba(255,255,255,0.09)',
-                    color: 'rgba(253,252,248,0.9)',
-                    padding: '0.8rem 1.5rem',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    textDecoration: 'none',
-                  }}
-                >
-                  {t('heroSecondaryCta')}
                 </Link>
               </div>
             </motion.div>

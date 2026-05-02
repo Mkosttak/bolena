@@ -345,7 +345,7 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
 
           {/* Right: language + hamburger */}
           <div className="pnav-right">
-            <LanguageSwitcher />
+            <LanguageSwitcher inverted={isHome && !scrolled} />
             <button
               className="pnav-hamburger"
               onClick={() => setMobileOpen(true)}
