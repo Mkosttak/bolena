@@ -20,33 +20,36 @@ export default async function LoginPage({
   const { locale } = await params
   const { redirect: redirectTo } = await searchParams
 
-  // Zaten giriş yapmışsa yönlendir
+  // Zaten giriş yapmışsa yönlendir — profil yok veya pasifse loop'a girmemek için
+  // login sayfasında bırak (form tekrar denenebilir).
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
-    let path: string
-    if (isSafeLocaleAdminRedirect(redirectTo, locale)) {
-      path = redirectTo
-    } else {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, is_active')
+      .eq('id', user.id)
+      .single()
 
-      const role = profile?.role === 'employee' ? 'employee' : 'admin'
-      let allowed: ModuleName[] = []
-      if (role === 'employee') {
-        const { data: perms } = await supabase
-          .from('module_permissions')
-          .select('module_name')
-          .eq('user_id', user.id)
-          .eq('can_access', true)
-        allowed = (perms ?? []).map((p) => p.module_name as ModuleName)
+    if (profile && profile.is_active !== false) {
+      let path: string
+      if (isSafeLocaleAdminRedirect(redirectTo, locale)) {
+        path = redirectTo
+      } else {
+        const role = profile.role === 'employee' ? 'employee' : 'admin'
+        let allowed: ModuleName[] = []
+        if (role === 'employee') {
+          const { data: perms } = await supabase
+            .from('module_permissions')
+            .select('module_name')
+            .eq('user_id', user.id)
+            .eq('can_access', true)
+          allowed = (perms ?? []).map((p) => p.module_name as ModuleName)
+        }
+        path = defaultPathAfterLogin(locale, role, allowed)
       }
-      path = defaultPathAfterLogin(locale, role, allowed)
+      redirect(path as Route)
     }
-    redirect(path as Route)
   }
 
   return (

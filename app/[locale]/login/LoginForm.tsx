@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTranslations } from 'next-intl'
-import type { Route } from 'next'
 import { createClient } from '@/lib/supabase/client'
 import {
   defaultPathAfterLogin,
@@ -27,7 +25,7 @@ interface LoginFormProps {
 
 export function LoginForm({ locale, redirectTo }: LoginFormProps) {
   const t = useTranslations('login')
-  const router = useRouter()
+  const tAuth = useTranslations('auth')
   const [isLoading, setIsLoading] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
 
@@ -68,17 +66,24 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
         return
       }
 
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_active')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile || profile.is_active === false) {
+        await supabase.auth.signOut()
+        toast.error(tAuth('unauthorized'))
+        setIsLoading(false)
+        return
+      }
+
       let destination: string
       if (isSafeLocaleAdminRedirect(redirectTo, locale)) {
         destination = redirectTo
       } else {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-
-        const role = profile?.role === 'employee' ? 'employee' : 'admin'
+        const role = profile.role === 'employee' ? 'employee' : 'admin'
         let allowed: ModuleName[] = []
         if (role === 'employee') {
           const { data: perms } = await supabase
@@ -93,8 +98,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
 
       setIsLoading(false)
       setIsRedirecting(true)
-      router.push(destination as Route)
-      router.refresh()
+      window.location.assign(destination)
     } catch {
       toast.error(t('genericError'))
       setIsLoading(false)
