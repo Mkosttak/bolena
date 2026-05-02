@@ -1,10 +1,12 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Order } from '@/types'
 
+export const PLATFORM_HISTORY_PAGE_SIZE = 20
+
 export const platformOrdersKeys = {
   all: ['platform-orders'] as const,
   active: () => [...platformOrdersKeys.all, 'active'] as const,
-  history: () => [...platformOrdersKeys.all, 'history'] as const,
+  history: (page?: number) => [...platformOrdersKeys.all, 'history', page ?? 0] as const,
   order: (orderId: string) => [...platformOrdersKeys.all, orderId] as const,
 }
 
@@ -20,15 +22,31 @@ export async function fetchActivePlatformOrders(): Promise<Order[]> {
   return (data ?? []) as Order[]
 }
 
-export async function fetchPlatformOrderHistory(): Promise<Order[]> {
+export interface PlatformHistoryResult {
+  orders: Order[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+export async function fetchPlatformOrderHistory(page = 0): Promise<PlatformHistoryResult> {
   const supabase = createClient()
-  const { data, error } = await supabase
+  const from = page * PLATFORM_HISTORY_PAGE_SIZE
+  const to = from + PLATFORM_HISTORY_PAGE_SIZE - 1
+
+  const { data, error, count } = await supabase
     .from('orders')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('type', 'platform')
     .neq('status', 'active')
     .order('created_at', { ascending: false })
-    .limit(50)
+    .range(from, to)
+
   if (error) throw new Error(error.message)
-  return (data ?? []) as Order[]
+  return {
+    orders: (data ?? []) as Order[],
+    total: count ?? 0,
+    page,
+    pageSize: PLATFORM_HISTORY_PAGE_SIZE,
+  }
 }

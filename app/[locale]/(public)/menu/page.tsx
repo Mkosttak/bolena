@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { PublicNavbar } from '@/components/shared/PublicNavbar'
@@ -6,8 +7,44 @@ import { MenuDisplay } from '@/components/modules/menu/MenuDisplay'
 import { MenuHero } from '@/components/modules/menu/MenuHero'
 import type { Category, MenuCampaign, Product } from '@/types'
 
+export const revalidate = 1800
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+
+const META = {
+  tr: {
+    title: 'Menü | Bolena Glutensiz Cafe',
+    description: 'Bolena\'nın 100% glutensiz menüsünü keşfedin. Kahvaltılar, ana yemekler, tatlılar ve içecekler — hepsi sertifikalı glutensiz mutfakta hazırlanır.',
+  },
+  en: {
+    title: 'Menu | Bolena Gluten-Free Cafe',
+    description: 'Explore Bolena\'s 100% gluten-free menu. Breakfasts, mains, desserts and drinks — all prepared in our certified gluten-free kitchen.',
+  },
+}
+
 interface MenuPageProps {
   params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: MenuPageProps): Promise<Metadata> {
+  const { locale } = await params
+  const meta = META[locale as 'tr' | 'en'] ?? META.tr
+  return {
+    title: meta.title,
+    description: meta.description,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}/menu`,
+      languages: { tr: `${SITE_URL}/tr/menu`, en: `${SITE_URL}/en/menu` },
+    },
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      url: `${SITE_URL}/${locale}/menu`,
+      siteName: 'Bolena Glutensiz Cafe',
+      locale: locale === 'tr' ? 'tr_TR' : 'en_US',
+      type: 'website',
+    },
+  }
 }
 
 export default async function MenuPage({ params }: MenuPageProps) {

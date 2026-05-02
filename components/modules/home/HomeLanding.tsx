@@ -54,7 +54,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
   const menuCards = [
     {
       key: 'menu1',
-      image: '/images/menu/placeholder-2.png',
+      image: '/images/menu/breakfast.png',
       title: t('menuCard1Title'),
       desc: t('menuCard1Desc'),
       tag: t('menuCard1Tag'),
@@ -62,11 +62,27 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
     },
     {
       key: 'menu2',
-      image: '/images/menu/placeholder-1.png',
+      image: '/images/menu/healthy.png',
       title: t('menuCard2Title'),
       desc: t('menuCard2Desc'),
       tag: t('menuCard2Tag'),
       alt: t('menuCard2Alt'),
+    },
+    {
+      key: 'menu3',
+      image: '/images/menu/fastfood.png',
+      title: t('menuCard3Title'),
+      desc: t('menuCard3Desc'),
+      tag: t('menuCard3Tag'),
+      alt: t('menuCard3Alt'),
+    },
+    {
+      key: 'menu4',
+      image: '/images/menu/waffle.png',
+      title: t('menuCard4Title'),
+      desc: t('menuCard4Desc'),
+      tag: t('menuCard4Tag'),
+      alt: t('menuCard4Alt'),
     },
   ]
 
@@ -80,52 +96,61 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
 
   const platforms = [
     {
+      key: 'phone',
+      name: t('orderCallLabel'),
+      cta: t('orderCallCta'),
+      accent: '#D5AD5C',
+      gradFrom: '#1A3524',
+      gradTo: '#13291B',
+      borderColor: 'rgba(255,255,255,0.1)',
+      href: `tel:${t('orderCallNumber').replace(/\s/g, '')}`,
+      isPhone: true,
+      tagline: t('orderCallNumber'),
+    },
+    {
       key: 'p1',
       name: t('platform1Name'),
       cta: t('platform1Cta'),
-      accent: '#E10600',
-      gradFrom: '#FFF0F0',
-      gradTo: '#FFE0E0',
-      borderColor: 'rgba(225,6,0,0.15)',
-      href: 'https://www.yemeksepeti.com',
-      initial: 'Y',
-      tagline: 'En hızlı teslimat',
+      accent: '#1A3524',
+      gradFrom: '#FFFFFF',
+      gradTo: '#F9F7F0',
+      borderColor: 'rgba(26,53,36,0.08)',
+      href: 'https://www.yemeksepeti.com/restaurant/bkpm/bolena-glutensiz-cafe',
+      logo: '/images/menu/yemeksepeti.jpg',
     },
     {
       key: 'p2',
       name: t('platform2Name'),
       cta: t('platform2Cta'),
-      accent: '#5D3EBC',
-      gradFrom: '#F3F0FF',
-      gradTo: '#E8E2FF',
-      borderColor: 'rgba(93,62,188,0.15)',
-      href: 'https://getir.com',
-      initial: 'G',
-      tagline: 'Anında kapıda',
-    },
-    {
-      key: 'p3',
-      name: t('platform3Name'),
-      cta: t('platform3Cta'),
-      accent: '#F27A1A',
-      gradFrom: '#FFF5EC',
-      gradTo: '#FFE8D0',
-      borderColor: 'rgba(242,122,26,0.15)',
-      href: 'https://www.trendyol.com/yemek',
-      initial: 'T',
-      tagline: 'Avantajlı fiyatlar',
+      accent: '#1A3524',
+      gradFrom: '#FFFFFF',
+      gradTo: '#F9F7F0',
+      borderColor: 'rgba(26,53,36,0.08)',
+      href: 'https://getir.com/yemek/restoran/bolena-glutensiz-cafe-cankaya-yasamkent-mah-cankaya-ankara/',
+      logo: '/images/menu/getir-yemek.png',
     },
     {
       key: 'p4',
       name: t('platform4Name'),
       cta: t('platform4Cta'),
-      accent: '#E3000B',
-      gradFrom: '#FFF0F1',
-      gradTo: '#FFE0E2',
-      borderColor: 'rgba(227,0,11,0.15)',
-      href: 'https://www.migroskurye.com',
-      initial: 'M',
-      tagline: 'Migros güvencesiyle',
+      accent: '#1A3524',
+      gradFrom: '#FFFFFF',
+      gradTo: '#F9F7F0',
+      borderColor: 'rgba(26,53,36,0.08)',
+      href: 'https://www.migros.com.tr/yemek/bolena-glutensiz-cafe-cankaya-yasamkent-mah-st-2bc7d',
+      logo: '/images/menu/migros-yemek.png',
+    },
+    {
+      key: 'p3',
+      name: t('platform3Name'),
+      cta: t('platform3Cta'),
+      accent: '#1A3524',
+      gradFrom: '#FFFFFF',
+      gradTo: '#F9F7F0',
+      borderColor: 'rgba(26,53,36,0.08)',
+      href: '',
+      logo: '/images/menu/trendyol-yemek.png',
+      noLink: true,
     },
   ]
 
@@ -146,13 +171,21 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
       <section
         ref={heroRef}
         className="relative flex flex-col justify-end overflow-hidden"
-        style={{ minHeight: '100svh' }}
+        style={{ minHeight: '100svh', background: '#FDFCF8' }}
       >
         <motion.div
-          style={{ y: heroImgY, position: 'absolute', inset: 0, scale: 1.1 }}
+          style={{ 
+            y: heroImgY, 
+            position: 'absolute', 
+            inset: 0, 
+            scale: 1.2, // Increased scale to ensure coverage during parallax
+            width: '100%',
+            height: '100%' 
+          }}
+          className="bg-[#FDFCF8]"
         >
           <Image
-            src="/images/menu/hero.png"
+            src="/images/menu/hero_v5.png"
             alt={t('heroImageAlt')}
             fill
             priority
@@ -165,7 +198,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(160deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.08) 45%, rgba(0,0,0,0.85) 100%)',
+              'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.15) 100%)',
           }}
         />
 
@@ -261,7 +294,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
       </section>
 
       {/* ─── TICKER ───────────────────────────────────────────── */}
-      <div className="overflow-hidden" style={{ background: '#1A3524', padding: '0.875rem 0' }}>
+      <div className="overflow-hidden" style={{ background: '#254a33', padding: '0.875rem 0' }}>
         <style>{`
           @keyframes hl-ticker {
             0%   { transform: translateX(0); }
@@ -310,12 +343,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           <p
             className="font-sans"
             style={{
-              fontSize: 10.5,
-              fontWeight: 700,
-              letterSpacing: '0.26em',
+              fontSize: 'clamp(11.5px, 1.2vw, 13.5px)',
+              fontWeight: 800,
+              letterSpacing: '0.28em',
               textTransform: 'uppercase',
               color: '#C4841A',
-              marginBottom: '1.1rem',
+              marginBottom: '1.25rem',
             }}
           >
             {t('signatureEyebrow')}
@@ -323,12 +356,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           <h2
             className="font-heading"
             style={{
-              fontSize: 'clamp(1.85rem,4.5vw,3.5rem)',
+              fontSize: 'clamp(1.85rem,4.5vw,3.85rem)',
               fontWeight: 700,
-              lineHeight: 1.08,
+              lineHeight: 1.05,
               letterSpacing: '-0.035em',
               color: '#1C1C1A',
-              maxWidth: 700,
+              maxWidth: 1000,
             }}
           >
             {t('signatureTitle')}
@@ -344,13 +377,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
             return (
               <Reveal key={feat.title} delay={i * 0.09}>
                 <div
-                  className="flex flex-col gap-5"
+                  className={`flex flex-col gap-5 ${i < 2 ? 'sm:border-r border-black/10' : ''}`}
                   style={{
                     padding: 'clamp(1.75rem,4vh,2.5rem) 0',
-                    paddingRight: i < 2 ? 'clamp(1.5rem,4vw,2.5rem)' : 0,
-                    paddingLeft: i > 0 ? 'clamp(1.5rem,4vw,2.5rem)' : 0,
+                    paddingRight: i < 2 ? 'clamp(1rem, 3vw, 2.5rem)' : 0,
+                    paddingLeft: i > 0 ? 'clamp(1rem, 3vw, 2.5rem)' : 0,
                     borderBottom: '1px solid rgba(28,28,26,0.1)',
-                    borderRight: i < 2 ? '1px solid rgba(28,28,26,0.1)' : 'none',
                   }}
                 >
                   <div
@@ -441,75 +473,58 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                   {t('orderSubtitle')}
                 </p>
               </div>
-
-              {/* Phone CTA — visible on sm+ next to header */}
-              <a
-                href={`tel:${t('orderCallNumber').replace(/\s/g, '')}`}
-                className="group hidden sm:inline-flex items-center gap-3 rounded-2xl flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                style={{
-                  background: '#1A3524',
-                  padding: '1rem 1.5rem',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 2px 16px rgba(26,53,36,0.18)',
-                }}
-              >
-                <div
-                  className="inline-flex items-center justify-center rounded-xl flex-shrink-0"
-                  style={{ width: 38, height: 38, background: 'rgba(255,255,255,0.1)', color: '#D5AD5C' }}
-                >
-                  <Phone className="w-4 h-4" strokeWidth={2} />
-                </div>
-                <div>
-                  <p className="font-heading" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#FDFCF8', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
-                    {t('orderCallLabel')}
-                  </p>
-                  <p className="font-sans" style={{ fontSize: 12, color: 'rgba(253,252,248,0.52)', lineHeight: 1 }}>
-                    {t('orderCallNumber')}
-                  </p>
-                </div>
-                <ArrowUpRight className="w-4 h-4 ml-1 text-amber-400 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={2.5} />
-              </a>
             </div>
           </Reveal>
 
-          {/* Platform cards grid */}
+          {/* Platform cards grid — Forced single row */}
           <div
-            className="grid gap-4"
-            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}
+            className="grid gap-2 sm:gap-4"
+            style={{ 
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              maxWidth: 1400,
+              margin: '0 auto'
+            }}
           >
-            {platforms.map((p, i) => (
-              <Reveal key={p.key} delay={i * 0.07}>
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1.5"
+            {platforms.map((p, i) => {
+              const CardContent = (
+                <div
+                  className="group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1.5 h-full"
                   style={{
                     background: `linear-gradient(145deg, ${p.gradFrom} 0%, ${p.gradTo} 100%)`,
                     border: `1px solid ${p.borderColor}`,
                     padding: 'clamp(1.25rem,3vw,1.75rem)',
-                    textDecoration: 'none',
-                    boxShadow: `0 4px 20px ${p.borderColor}`,
-                    minHeight: 170,
+                    boxShadow: p.isPhone 
+                      ? '0 10px 30px rgba(26,53,36,0.2)' 
+                      : `0 4px 20px ${p.borderColor}`,
+                    minHeight: 180,
+                    cursor: p.noLink ? 'default' : 'pointer'
                   }}
                 >
-                  {/* Brand initial badge */}
+                  {/* Brand logo / initial badge */}
                   <div className="flex items-start justify-between mb-auto">
                     <div
-                      className="inline-flex items-center justify-center rounded-xl font-sans"
+                      className="relative overflow-hidden inline-flex items-center justify-center rounded-xl font-sans"
                       style={{
                         width: 52,
                         height: 52,
-                        background: '#fff',
+                        background: p.isPhone ? 'rgba(255,255,255,0.1)' : '#fff',
                         color: p.accent,
                         fontSize: 22,
                         fontWeight: 900,
-                        boxShadow: `0 2px 10px ${p.borderColor}`,
+                        boxShadow: p.isPhone ? 'none' : `0 2px 10px ${p.borderColor}`,
                         letterSpacing: '-0.02em',
                       }}
                     >
-                      {p.initial}
+                      {p.isPhone ? (
+                        <Phone className="w-6 h-6" style={{ color: p.accent }} strokeWidth={1.5} />
+                      ) : p.logo ? (
+                        <Image
+                          src={p.logo}
+                          alt={p.name}
+                          fill
+                          className="object-contain p-1.5"
+                        />
+                      ) : null}
                     </div>
                     <ArrowUpRight
                       className="w-4 h-4 opacity-30 group-hover:opacity-80 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 flex-shrink-0"
@@ -522,26 +537,28 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                     <p
                       className="font-heading"
                       style={{
-                        fontSize: '1.1rem',
+                        fontSize: 'clamp(0.75rem, 1.6vw, 1.1rem)',
                         fontWeight: 700,
                         letterSpacing: '-0.02em',
-                        color: '#1C1C1A',
+                        color: p.isPhone ? '#FDFCF8' : '#1C1C1A',
                         marginBottom: '0.2rem',
                         lineHeight: 1.2,
                       }}
                     >
                       {p.name}
                     </p>
-                    <p
-                      className="font-sans"
-                      style={{ fontSize: 12, color: 'rgba(28,28,26,0.42)', marginBottom: '0.75rem', lineHeight: 1.4 }}
-                    >
-                      {p.tagline}
-                    </p>
+                    {p.isPhone && (
+                      <p
+                        className="font-sans hidden md:block"
+                        style={{ fontSize: 13, color: 'rgba(253,252,248,0.5)', marginBottom: '0.75rem', lineHeight: 1.4 }}
+                      >
+                        {p.tagline}
+                      </p>
+                    )}
                     <span
                       className="inline-flex items-center gap-1 font-sans transition-all duration-200"
                       style={{
-                        fontSize: 10.5,
+                        fontSize: 'clamp(8px, 1.2vw, 10.5px)',
                         fontWeight: 800,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
@@ -549,50 +566,32 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                       }}
                     >
                       {p.cta}
-                      <ArrowUpRight className="w-3 h-3" strokeWidth={3} />
+                      <ArrowUpRight className="w-2.5 h-2.5" strokeWidth={3} />
                     </span>
                   </div>
-                </a>
-              </Reveal>
-            ))}
+                </div>
+              )
+
+              return (
+                <Reveal key={p.key} delay={i * 0.07}>
+                  {p.noLink ? (
+                    <div className="h-full">{CardContent}</div>
+                  ) : (
+                    <a
+                      href={p.href}
+                      target={p.isPhone ? undefined : "_blank"}
+                      rel={p.isPhone ? undefined : "noopener noreferrer"}
+                      style={{ textDecoration: 'none' }}
+                      className="h-full block"
+                    >
+                      {CardContent}
+                    </a>
+                  )}
+                </Reveal>
+              )
+            })}
           </div>
 
-          {/* Phone CTA — mobile only (full width) */}
-          <Reveal delay={0.32}>
-            <a
-              href={`tel:${t('orderCallNumber').replace(/\s/g, '')}`}
-              className="group flex sm:hidden items-center gap-4 rounded-2xl mt-4 transition-all duration-200 hover:shadow-lg"
-              style={{
-                background: '#1A3524',
-                padding: 'clamp(1.1rem,3vw,1.5rem)',
-                textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 2px 16px rgba(26,53,36,0.22)',
-              }}
-            >
-              <div
-                className="inline-flex items-center justify-center rounded-xl flex-shrink-0"
-                style={{ width: 48, height: 48, background: 'rgba(255,255,255,0.1)', color: '#D5AD5C' }}
-              >
-                <Phone className="w-5 h-5" strokeWidth={1.75} />
-              </div>
-              <div className="flex-1">
-                <p className="font-heading" style={{ fontSize: '1rem', fontWeight: 700, color: '#FDFCF8', marginBottom: '0.2rem', letterSpacing: '-0.01em' }}>
-                  {t('orderCallLabel')}
-                </p>
-                <p className="font-sans" style={{ fontSize: 13, color: 'rgba(253,252,248,0.5)' }}>
-                  {t('orderCallNumber')}
-                </p>
-              </div>
-              <span
-                className="inline-flex items-center gap-1 font-sans flex-shrink-0"
-                style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#D5AD5C' }}
-              >
-                {t('orderCallCta')}
-                <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-              </span>
-            </a>
-          </Reveal>
 
         </div>
       </section>
@@ -654,15 +653,15 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5">
             {menuCards.map((card, i) => (
               <Reveal key={card.key} delay={i * 0.1}>
                 <Link
                   href={`/${locale}/menu`}
                   className="group block relative overflow-hidden"
                   style={{
-                    borderRadius: 28,
-                    minHeight: 'clamp(340px,48vw,520px)',
+                    borderRadius: 16,
+                    minHeight: 'clamp(110px, 18vw, 220px)',
                     textDecoration: 'none',
                     background: '#1A3524',
                   }}
@@ -683,16 +682,16 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                   />
                   <div
                     className="absolute inset-0 flex flex-col justify-between"
-                    style={{ padding: 'clamp(1.25rem,3vw,2rem)' }}
+                    style={{ padding: 'clamp(0.65rem, 1.8vw, 1.25rem)' }}
                   >
                     <span
                       className="font-sans self-start rounded-full border border-white/15 backdrop-blur-md"
                       style={{
                         background: 'rgba(0,0,0,0.38)',
-                        padding: '0.28rem 0.75rem',
-                        fontSize: 10,
+                        padding: '0.22rem 0.65rem',
+                        fontSize: 'clamp(8px, 1.2vw, 10px)',
                         fontWeight: 700,
-                        letterSpacing: '0.18em',
+                        letterSpacing: '0.15em',
                         textTransform: 'uppercase',
                         color: 'rgba(253,252,248,0.88)',
                       }}
@@ -703,42 +702,42 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                       <h3
                         className="font-heading"
                         style={{
-                          fontSize: 'clamp(1.4rem,3.5vw,2.1rem)',
+                          fontSize: 'clamp(1rem, 2.8vw, 1.9rem)',
                           fontWeight: 700,
-                          lineHeight: 1.15,
-                          letterSpacing: '-0.025em',
+                          lineHeight: 1.1,
+                          letterSpacing: '-0.02em',
                           color: '#FDFCF8',
-                          marginBottom: '0.5rem',
+                          marginBottom: '0.35rem',
                         }}
                       >
                         {card.title}
                       </h3>
                       <p
-                        className="font-sans"
+                        className="font-sans hidden sm:block"
                         style={{
-                          fontSize: 13.5,
-                          lineHeight: 1.65,
+                          fontSize: 'clamp(11px, 1.3vw, 13px)',
+                          lineHeight: 1.6,
                           color: 'rgba(253,252,248,0.6)',
                           maxWidth: 320,
-                          marginBottom: '1rem',
+                          marginBottom: '0.875rem',
                         }}
                       >
                         {card.desc}
                       </p>
                       <span
-                        className="inline-flex items-center gap-2 font-sans transition-all duration-200 group-hover:gap-2.5"
+                        className="inline-flex items-center gap-1.5 font-sans transition-all duration-200 group-hover:gap-2"
                         style={{
-                          fontSize: 11,
+                          fontSize: 'clamp(9px, 1.2vw, 10.5px)',
                           fontWeight: 700,
-                          letterSpacing: '0.12em',
+                          letterSpacing: '0.1em',
                           textTransform: 'uppercase',
                           color: 'rgba(253,252,248,0.72)',
                         }}
                       >
                         {t('menuCardCta')}
                         <ArrowUpRight
-                          className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                          strokeWidth={2.5}
+                          className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          strokeWidth={3}
                         />
                       </span>
                     </div>
@@ -760,21 +759,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               style={{ marginBottom: 'clamp(2.5rem,5vh,3.5rem)' }}
             >
               <div>
-                <div className="flex items-center gap-2.5 mb-3">
-                  <GoogleLogo />
-                  <p
-                    className="font-sans"
-                    style={{
-                      fontSize: 10.5,
-                      fontWeight: 700,
-                      letterSpacing: '0.22em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(253,252,248,0.45)',
-                    }}
-                  >
-                    {t('reviewsEyebrow')}
-                  </p>
-                </div>
+
                 <h2
                   className="font-heading"
                   style={{
@@ -818,12 +803,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                       <StarFull key={idx} />
                     ))}
                   </div>
-                  <p
-                    className="font-sans"
-                    style={{ fontSize: 11, color: 'rgba(253,252,248,0.45)', lineHeight: 1 }}
-                  >
-                    {t('reviewsCount')} {t('reviewsSource')}
-                  </p>
+
                 </div>
               </div>
             </div>
@@ -901,7 +881,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           <Reveal delay={0.25}>
             <div className="mt-8 text-center">
               <a
-                href="https://maps.google.com/?q=Bolena+Cafe+Yaşamkent+Ankara"
+                href="https://www.google.com/maps/place/Bolena+Glutensiz+Cafe/@39.8703126,32.6618315,17z/data=!4m8!3m7!1s0x14d33f002ef2e931:0x56146f1ed06acfd8!8m2!3d39.8703126!4d32.6644064!9m1!1b1!16s%2Fg%2F11yc3qsx9w?entry=ttu&g_ep=EgoyMDI2MDQyNy4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full font-sans transition-all duration-200 hover:bg-white/15"

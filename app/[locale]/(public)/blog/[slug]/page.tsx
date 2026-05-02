@@ -8,6 +8,8 @@ import { BlogDetailContent } from '@/components/modules/blog/BlogDetailContent'
 import { BlogJsonLd } from '@/components/modules/blog/BlogJsonLd'
 import type { BlogPost } from '@/types'
 
+export const revalidate = 3600
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
 
 interface BlogDetailPageProps {

@@ -1,17 +1,19 @@
 'use client'
 
 import type { SVGProps } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircleMore, Sparkles } from 'lucide-react'
+import { MessageCircleMore, Sparkles, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { WHATSAPP_NUMBER, WHATSAPP_URL } from '@/lib/constants/social'
 
 type WidgetPageKey = 'home' | 'menu' | 'contact' | 'blog'
-const INTRO_VISIBLE_MS = 3200
-const INTRO_PAUSE_MS = 1800
+
+const DELAY_MS = 15000 // 15 seconds
+const TYPING_MS = 3000  // 3 seconds typing effect
+const DISMISS_KEY = 'bolena_wa_bubble_dismissed_v2'
 
 function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -34,66 +36,48 @@ export function WhatsAppFloatingButton() {
   const pageKey = getPageKey(pathname)
   const isHiddenRoute = pageKey === 'blog'
 
-  const messages = useMemo(
-    () => [
-      t(`${pageKey}.message1`),
-      t(`${pageKey}.message2`),
-    ],
-    [pageKey, t]
-  )
+  const [isVisible, setIsVisible] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
+  const [wasDismissed, setWasDismissed] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return !!localStorage.getItem(DISMISS_KEY)
+  })
 
+  // Randomly pick one of the 3 greetings — stable, initialised once on mount
+  const [randomIndex] = useState(() => Math.floor(Math.random() * 3) + 1)
+  const selectedMessageKey = `${pageKey}.greeting${randomIndex}`
+
+  const messageText = t(selectedMessageKey)
   const prefill = t(`${pageKey}.prefill`)
   const href = `${WHATSAPP_URL}?text=${encodeURIComponent(prefill)}`
 
-  const [messageIndex, setMessageIndex] = useState(0)
-  const [bubbleVisible, setBubbleVisible] = useState(true)
-  const [introDone, setIntroDone] = useState(false)
-  const currentMessage = introDone ? messages[messageIndex] : t('welcome')
-  const visibleDuration = introDone
-    ? Math.min(16000, Math.max(9200, 6400 + currentMessage.length * 60))
-    : INTRO_VISIBLE_MS
-  const pauseDuration = introDone ? 5600 : INTRO_PAUSE_MS
 
+  // Show logic
   useEffect(() => {
-    if (isHiddenRoute) return
+    if (isHiddenRoute || wasDismissed) return
 
-    const introHideTimeout = setTimeout(() => setBubbleVisible(false), INTRO_VISIBLE_MS)
-    const introDoneTimeout = setTimeout(() => {
-      setIntroDone(true)
-      setBubbleVisible(true)
-    }, INTRO_VISIBLE_MS + INTRO_PAUSE_MS)
+    const showTimeout = setTimeout(() => {
+      setIsVisible(true)
+      setIsTyping(true)
 
-    return () => {
-      clearTimeout(introHideTimeout)
-      clearTimeout(introDoneTimeout)
-    }
-  }, [isHiddenRoute])
+      // Turn off typing after delay
+      const typingTimeout = setTimeout(() => {
+        setIsTyping(false)
+      }, TYPING_MS)
 
-  useEffect(() => {
-    if (!introDone) return
+      return () => clearTimeout(typingTimeout)
+    }, DELAY_MS)
 
-    const resetFrame = window.requestAnimationFrame(() => {
-      setMessageIndex(0)
-      setBubbleVisible(true)
-    })
+    return () => clearTimeout(showTimeout)
+  }, [isHiddenRoute, wasDismissed])
 
-    return () => window.cancelAnimationFrame(resetFrame)
-  }, [introDone, pageKey])
-
-  useEffect(() => {
-    if (isHiddenRoute || !introDone) return
-
-    const hideTimeout = setTimeout(() => setBubbleVisible(false), visibleDuration)
-    const nextMessageTimeout = setTimeout(() => {
-      setMessageIndex((prev) => (prev + 1) % messages.length)
-      setBubbleVisible(true)
-    }, visibleDuration + pauseDuration)
-
-    return () => {
-      clearTimeout(hideTimeout)
-      clearTimeout(nextMessageTimeout)
-    }
-  }, [currentMessage, introDone, isHiddenRoute, messages.length, pauseDuration, visibleDuration])
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsVisible(false)
+    setWasDismissed(true)
+    localStorage.setItem(DISMISS_KEY, 'true')
+  }
 
   if (isHiddenRoute) {
     return null
@@ -101,60 +85,80 @@ export function WhatsAppFloatingButton() {
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-[90] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
-      <AnimatePresence mode="wait">
-        {bubbleVisible ? (
+      <AnimatePresence>
+        {isVisible && !wasDismissed && (
           <motion.div
-            key={`${pageKey}-${messageIndex}`}
-            initial={{ opacity: 0, y: 12, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.97 }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto relative max-w-[260px] rounded-[24px] border border-[#173424]/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(249,245,236,0.96))] px-4 py-3 text-[#173424] shadow-[0_18px_50px_-24px_rgba(16,38,27,0.34)] backdrop-blur"
+            initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.9, y: 10, filter: 'blur(10px)' }}
+            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            className="pointer-events-auto relative mb-2 w-full max-w-[280px] sm:max-w-[320px]"
           >
-            <div className="flex items-start gap-2.5">
-              <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#173424]/6 text-[#c4841a]">
-                <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-              </span>
-              <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#173424]/48">
-                  {t('badge')}
-                </p>
-                <motion.p
-                  className="text-sm font-medium leading-6 text-[#173424]/88"
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    visible: {
-                      transition: {
-                        staggerChildren: 0.085,
-                        delayChildren: 0.16,
-                      },
-                    },
-                  }}
-                >
-                  {currentMessage.split(' ').map((word, index) => (
-                    <motion.span
-                      key={`${word}-${index}`}
-                      className="inline-block pr-[0.28rem]"
-                      variants={{
-                        hidden: { opacity: 0, y: 8, filter: 'blur(6px)' },
-                        visible: {
-                          opacity: 1,
-                          y: 0,
-                          filter: 'blur(0px)',
-                          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-                        },
-                      }}
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </motion.p>
+            <div 
+              className={cn(
+                "relative overflow-hidden rounded-[24px] border border-[#173424]/10 bg-white/95 p-4 shadow-[0_20px_50px_rgba(26,53,36,0.15)] backdrop-blur-xl sm:p-5",
+                "before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(255,255,255,0.4),rgba(255,255,255,0))]"
+              )}
+            >
+              {/* Close Button */}
+              <button
+                onClick={handleDismiss}
+                className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#173424]/5 text-[#173424]/40 transition-all hover:bg-[#173424]/10 hover:text-[#173424] sm:right-4 sm:top-4"
+                aria-label={t('close')}
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="relative shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#173424] text-[#D5AD5C] sm:h-11 sm:w-11">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />
+                </div>
+
+                <div className="flex-1 pt-0.5">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#173424]/40">
+                    Bolena Destek
+                  </p>
+                  
+                  <div className="min-h-[40px]">
+                    {isTyping ? (
+                      <div className="flex items-center gap-1.5 pt-2">
+                        <motion.div
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ repeat: Infinity, duration: 1.2, delay: 0 }}
+                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
+                        />
+                        <motion.div
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }}
+                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
+                        />
+                        <motion.div
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }}
+                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
+                        />
+                      </div>
+                    ) : (
+                      <motion.p
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-[13px] font-medium leading-[1.6] text-[#173424] sm:text-sm"
+                      >
+                        {messageText}
+                      </motion.p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-            <span className="absolute bottom-[-7px] right-7 h-4 w-4 rotate-45 rounded-[4px] border-b border-r border-[#173424]/10 bg-[#fbf8f1]" />
+            
+            {/* Pointer triangle */}
+            <div className="absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b border-r border-[#173424]/10 bg-white/95" />
           </motion.div>
-        ) : null}
+        )}
       </AnimatePresence>
 
       <a
@@ -163,21 +167,26 @@ export function WhatsAppFloatingButton() {
         rel="noopener noreferrer"
         aria-label={t('ariaLabel')}
         className={cn(
-          'pointer-events-auto group relative inline-flex h-16 w-16 items-center justify-center rounded-full',
-          'bg-[linear-gradient(135deg,#25d366_0%,#1ea952_100%)] text-white shadow-[0_20px_45px_-18px_rgba(37,211,102,0.72)]',
-          'transition-transform duration-300 hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#25d366]/25'
+          'pointer-events-auto group relative inline-flex h-14 w-14 items-center justify-center rounded-full sm:h-16 sm:w-16',
+          'bg-[linear-gradient(135deg,#25d366_0%,#1ea952_100%)] text-white shadow-[0_15px_35px_-12px_rgba(37,211,102,0.6)]',
+          'transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(37,211,102,0.8)]'
         )}
-        onMouseEnter={() => setBubbleVisible(true)}
-        onFocus={() => setBubbleVisible(true)}
       >
-        <span className="absolute inset-0 rounded-full bg-white/18 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <span className="absolute inset-[-6px] rounded-full border border-[#25d366]/30" />
-        <span className="absolute -top-1.5 -right-1.5 inline-flex h-6 min-w-6 items-center justify-center rounded-full border border-white/60 bg-[#f7f1e5] px-1 text-[#173424] shadow-sm">
-          <MessageCircleMore className="h-3.5 w-3.5" strokeWidth={2.2} />
-        </span>
-        <WhatsAppIcon className="relative h-8 w-8" />
+        <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <span className="absolute inset-[-6px] rounded-full border border-[#25d366]/20" />
+        
+        {/* Unread badge icon */}
+        {!wasDismissed && !isVisible && (
+          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 sm:h-5 sm:w-5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+            <span className="relative inline-flex h-4 w-4 rounded-full bg-red-500 sm:h-5 sm:w-5" />
+          </span>
+        )}
+
+        <WhatsAppIcon className="relative h-7 w-7 sm:h-8 sm:w-8" />
         <span className="sr-only">{WHATSAPP_NUMBER}</span>
       </a>
     </div>
   )
 }
+

@@ -17,12 +17,19 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ['300', '400', '500', '600', '700', '800'],
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+
 export const metadata: Metadata = {
   title: 'Bolena Cafe — %100 Glutensiz Mutfak | Ankara Yaşamkent',
   description: 'Bolena Cafe, Ankara\'nın Yaşamkent semtinde %100 glutensiz pizza, burger, bowl ve tatlılar sunan özel bir cafe. Çölyak dostu, sertifikalı mutfak.',
   icons: {
     icon: '/images/bolena_logo.png',
     apple: '/images/bolena_logo.png',
+  },
+  alternates: {
+    types: {
+      'application/rss+xml': `${SITE_URL}/feed.xml`,
+    },
   },
 }
 

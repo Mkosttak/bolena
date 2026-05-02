@@ -12,6 +12,7 @@ import {
   platformOrdersKeys,
   fetchActivePlatformOrders,
   fetchPlatformOrderHistory,
+  PLATFORM_HISTORY_PAGE_SIZE,
 } from '@/lib/queries/platform-orders.queries'
 import { deliverPlatformOrder } from '@/app/[locale]/admin/platform-orders/actions'
 import type { Order } from '@/types'
@@ -30,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PlatformOrderModal } from './PlatformOrderModal'
 import { PlatformOrderScreen } from './PlatformOrderScreen'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const PLATFORM_LABELS: Record<string, string> = {
   yemeksepeti: '🍽️ Yemeksepeti',
@@ -45,6 +47,7 @@ export function PlatformOrdersClient() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [orderScreen, setOrderScreen] = useState<{ order: Order; autoOpenAddModal?: boolean } | null>(null)
   const [historyOrderScreen, setHistoryOrderScreen] = useState<Order | null>(null)
+  const [historyPage, setHistoryPage] = useState(0)
 
   const { data: activeOrders = [], isLoading: activeLoading } = useQuery({
     queryKey: platformOrdersKeys.active(),
@@ -52,10 +55,15 @@ export function PlatformOrdersClient() {
     refetchInterval: 30_000,
   })
 
-  const { data: historyOrders = [], isLoading: historyLoading } = useQuery({
-    queryKey: platformOrdersKeys.history(),
-    queryFn: fetchPlatformOrderHistory,
+  const { data: historyResult, isLoading: historyLoading } = useQuery({
+    queryKey: platformOrdersKeys.history(historyPage),
+    queryFn: () => fetchPlatformOrderHistory(historyPage),
+    placeholderData: (prev) => prev,
   })
+
+  const historyOrders = historyResult?.orders ?? []
+  const historyTotal = historyResult?.total ?? 0
+  const historyPageCount = Math.ceil(historyTotal / PLATFORM_HISTORY_PAGE_SIZE)
 
   const deliverMutation = useMutation({
     mutationFn: (orderId: string) => deliverPlatformOrder(orderId),
@@ -163,7 +171,7 @@ export function PlatformOrdersClient() {
         </TabsContent>
 
         {/* Geçmiş */}
-        <TabsContent value="history" className="mt-4">
+        <TabsContent value="history" className="mt-4 space-y-3">
           {historyLoading ? (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
@@ -172,6 +180,31 @@ export function PlatformOrdersClient() {
             </div>
           ) : (
             <HistoryTable orders={historyOrders} onSelect={(order) => setHistoryOrderScreen(order)} />
+          )}
+          {historyPageCount > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-muted-foreground">
+                {historyTotal} sipariş · Sayfa {historyPage + 1} / {historyPageCount}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHistoryPage((p) => Math.max(0, p - 1))}
+                  disabled={historyPage === 0}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHistoryPage((p) => Math.min(historyPageCount - 1, p + 1))}
+                  disabled={historyPage >= historyPageCount - 1}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </TabsContent>
       </Tabs>
