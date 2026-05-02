@@ -48,16 +48,6 @@ export function MenuHero({ locale, title, subtitle, eyebrowText, badges }: MenuH
           background: linear-gradient(105deg, rgba(17,38,27,0.95) 0%, rgba(17,38,27,0.85) 45%, rgba(17,38,27,0.3) 100%);
           z-index: 1;
         }
-        
-        .mhero-bottom-fade {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 120px;
-          background: linear-gradient(to top, #FAF8F2 0%, transparent 100%);
-          z-index: 2;
-        }
 
         .mhero-inner {
           max-width: 1240px;
@@ -202,8 +192,7 @@ export function MenuHero({ locale, title, subtitle, eyebrowText, badges }: MenuH
           <Image src="/images/menu/hero.png" alt="Bolena Cafe Menu" fill priority />
         </div>
         <div className="mhero-overlay" />
-        <div className="mhero-bottom-fade" />
-        
+
         <div className="mhero-inner">
           <div className="mhero-shell">
             <div className="mhero-main">

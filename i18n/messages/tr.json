@@ -236,6 +236,7 @@
     "productDetailIngredients": "İçindekiler",
     "productDetailAllergens": "Alerjenler",
     "productDetailClose": "Kapat",
+    "emptyState": "Menü hazırlanıyor.",
     "campaign": {
       "title": "Kampanya Takvimi",
       "addCampaign": "Kampanya Ekle",

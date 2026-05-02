@@ -236,6 +236,7 @@
     "productDetailIngredients": "Ingredients",
     "productDetailAllergens": "Allergens",
     "productDetailClose": "Close",
+    "emptyState": "Menu is being prepared.",
     "campaign": {
       "title": "Campaign Calendar",
       "addCampaign": "Add Campaign",

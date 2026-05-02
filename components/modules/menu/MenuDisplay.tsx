@@ -23,6 +23,7 @@ interface MenuDisplayProps {
     productDetailIngredients: string
     productDetailAllergens: string
     productDetailClose: string
+    emptyState: string
   }
 }
 
@@ -86,7 +87,7 @@ export function MenuDisplay({
           pillRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
         }
       },
-      { rootMargin: '-10% 0px -60% 0px', threshold: 0 }
+      { rootMargin: '-80px 0px -65% 0px', threshold: 0 }
     )
     sections.forEach((s) => {
       const el = sectionRefs.current[s.id]
@@ -99,8 +100,32 @@ export function MenuDisplay({
   const scrollTo = useCallback((id: string) => {
     const el = sectionRefs.current[id]
     if (!el) return
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' })
+    setActiveId(id)
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
+
+  if (sections.length === 0) {
+    return (
+      <div
+        style={{
+          background: '#FAF8F2',
+          marginTop: '-2rem',
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
+          boxShadow: '0 -8px 32px rgba(17,38,27,0.08)',
+          padding: '5rem 1.5rem 6rem',
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 4,
+          color: 'rgba(27,60,42,0.6)',
+          fontFamily: '"Plus Jakarta Sans", sans-serif',
+          fontSize: '1rem',
+        }}
+      >
+        {translations.emptyState}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -111,18 +136,11 @@ export function MenuDisplay({
           color: #1A1A14;
           padding-bottom: 6rem;
           min-height: 60vh;
-          margin-top: -2.5rem;
+          margin-top: -2rem;
           z-index: 4;
-        }
-        .md-root::before {
-          content: '';
-          position: absolute;
-          inset: 0 0 auto 0;
-          height: 7rem;
-          background:
-            linear-gradient(to bottom, rgba(250,248,242,0.82) 0%, rgba(250,248,242,0.38) 44%, transparent 100%);
-          pointer-events: none;
-          z-index: 0;
+          border-top-left-radius: 32px;
+          border-top-right-radius: 32px;
+          box-shadow: 0 -8px 32px rgba(17,38,27,0.08);
         }
 
         /* ─ Cat nav ─ */
@@ -131,7 +149,7 @@ export function MenuDisplay({
           top: 0;
           z-index: 40;
           padding: 0 clamp(1rem, 4vw, 2rem) 0.25rem;
-          background: rgba(250,248,242,0.9);
+          background: rgba(250,248,242,0.95);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(27,60,42,0.08);
@@ -198,7 +216,7 @@ export function MenuDisplay({
           border-radius: 999px;
           cursor: pointer;
           white-space: nowrap;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 2px 8px rgba(27,60,42,0.02);
         }
         .md-cat-btn:hover {
@@ -218,7 +236,11 @@ export function MenuDisplay({
         }
 
         @media (max-width: 740px) {
-          .md-root { margin-top: -1.4rem; }
+          .md-root {
+            margin-top: -1.25rem;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+          }
           .md-nav {
             top: 0;
             padding: 0 1rem 0;
@@ -236,12 +258,13 @@ export function MenuDisplay({
           max-width: 1200px;
           margin: 0 auto;
           padding: 0 clamp(1.25rem, 5vw, 3rem);
+          scroll-margin-top: 80px;
         }
         .md-section-head {
           display: grid;
           gap: 0;
-          padding: 2rem 0 1rem;
-          margin-bottom: 1rem;
+          padding: 1.25rem 0 0.75rem;
+          margin-bottom: 0.75rem;
           text-align: center;
         }
         .md-section-name {
@@ -392,6 +415,7 @@ export function MenuDisplay({
                     ref={(el) => { pillRefs.current[s.id] = el }}
                     className={cn('md-cat-btn', activeId === s.id && 'active')}
                     onClick={() => scrollTo(s.id)}
+                    aria-current={activeId === s.id ? 'true' : undefined}
                   >
                     {s.label}
                   </button>

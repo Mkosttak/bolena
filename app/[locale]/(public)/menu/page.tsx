@@ -87,6 +87,7 @@ export default async function MenuPage({ params }: MenuPageProps) {
     productDetailIngredients: tMenu('productDetailIngredients'),
     productDetailAllergens: tMenu('productDetailAllergens'),
     productDetailClose: tMenu('productDetailClose'),
+    emptyState: tMenu('emptyState'),
   }
 
   return (
