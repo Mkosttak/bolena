@@ -227,50 +227,74 @@ export function MenuClient({ locale }: MenuClientProps) {
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {t('categoriesSection')}
                 </p>
-                <div className="relative flex items-center gap-1">
+                <div className="relative flex items-center gap-2">
                   <button
                     type="button"
                     aria-label="Sola kaydır"
-                    onClick={() => tabsScrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
+                    aria-disabled={!canScrollLeft}
+                    onClick={() => tabsScrollRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}
                     className={cn(
-                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-md border bg-background shadow-sm transition-opacity hover:bg-muted',
-                      canScrollLeft ? 'opacity-100' : 'pointer-events-none opacity-0'
+                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all',
+                      canScrollLeft
+                        ? 'cursor-pointer border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
+                        : 'pointer-events-none cursor-not-allowed border-border/40 text-muted-foreground/40 opacity-50'
                     )}
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
                   </button>
 
-                  <div ref={tabsScrollRef} className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden scrollbar-none">
-                    <Tabs
-                      value={selectedCategoryId ?? 'all'}
-                      onValueChange={(v) => setSelectedCategoryId(v === 'all' ? null : v)}
-                    >
-                      <TabsList className="h-auto w-max justify-start bg-muted/50 p-1">
-                        <TabsTrigger value="all" className="px-4 py-2.5">
-                          {tCommon('all')}
-                        </TabsTrigger>
-                        {categories?.map((cat) => (
-                          <TabsTrigger key={cat.id} value={cat.id} className="whitespace-nowrap px-4 py-2.5">
-                            {cat.name_tr}
-                            {!cat.is_active && (
-                              <span className="ml-1 text-[10px] text-muted-foreground">(pasif)</span>
-                            )}
+                  <div className="relative min-w-0 flex-1">
+                    {/* Sol fade — scroll edilebiliyorsa belirir */}
+                    <div
+                      className={cn(
+                        'pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent transition-opacity',
+                        canScrollLeft ? 'opacity-100' : 'opacity-0'
+                      )}
+                      aria-hidden
+                    />
+                    <div ref={tabsScrollRef} className="overflow-x-auto overflow-y-hidden scrollbar-none">
+                      <Tabs
+                        value={selectedCategoryId ?? 'all'}
+                        onValueChange={(v) => setSelectedCategoryId(v === 'all' ? null : v)}
+                      >
+                        <TabsList className="h-auto w-max justify-start bg-muted/50 p-1">
+                          <TabsTrigger value="all" className="px-4 py-2.5">
+                            {tCommon('all')}
                           </TabsTrigger>
-                        ))}
-                      </TabsList>
-                    </Tabs>
+                          {categories?.map((cat) => (
+                            <TabsTrigger key={cat.id} value={cat.id} className="whitespace-nowrap px-4 py-2.5">
+                              {cat.name_tr}
+                              {!cat.is_active && (
+                                <span className="ml-1 text-[10px] text-muted-foreground">(pasif)</span>
+                              )}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </Tabs>
+                    </div>
+                    {/* Sağ fade — scroll edilebiliyorsa belirir */}
+                    <div
+                      className={cn(
+                        'pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent transition-opacity',
+                        canScrollRight ? 'opacity-100' : 'opacity-0'
+                      )}
+                      aria-hidden
+                    />
                   </div>
 
                   <button
                     type="button"
                     aria-label="Sağa kaydır"
-                    onClick={() => tabsScrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
+                    aria-disabled={!canScrollRight}
+                    onClick={() => tabsScrollRef.current?.scrollBy({ left: 240, behavior: 'smooth' })}
                     className={cn(
-                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-md border bg-background shadow-sm transition-opacity hover:bg-muted',
-                      canScrollRight ? 'opacity-100' : 'pointer-events-none opacity-0'
+                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all',
+                      canScrollRight
+                        ? 'cursor-pointer border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
+                        : 'pointer-events-none cursor-not-allowed border-border/40 text-muted-foreground/40 opacity-50'
                     )}
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
