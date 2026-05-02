@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { tr as trLocale, enUS } from 'date-fns/locale'
 import type { Route } from 'next'
 import type { BlogPost } from '@/types'
+import { sanitizeBlogContent } from '@/lib/utils/sanitize-html'
 
 interface BlogDetailContentProps {
   post: BlogPost
@@ -133,7 +134,7 @@ export function BlogDetailContent({ post, locale, translations }: BlogDetailCont
       {/* Content */}
       <div
         className="blog-content prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeBlogContent(content) }}
       />
 
       <style>{`

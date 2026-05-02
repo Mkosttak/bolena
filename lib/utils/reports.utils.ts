@@ -135,9 +135,10 @@ export function findPeakHeatmapSlot(points: HeatmapCountPoint[]): HeatmapCountPo
 }
 
 export function exportToCsv(rows: Record<string, unknown>[], filename: string): void {
-  if (rows.length === 0) return
+  const firstRow = rows[0]
+  if (!firstRow) return
 
-  const headers = Object.keys(rows[0])
+  const headers = Object.keys(firstRow)
   const csvRows = [
     headers.join(','),
     ...rows.map((row) =>

@@ -440,7 +440,7 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
               {/* Out of Stock overlay */}
               {isOutOfStock && (
                 <div className="absolute inset-0 bg-background/50 flex items-center justify-center backdrop-blur-[1px]">
-                  <Badge variant="destructive" className="font-bold text-xs pointer-events-none shadow-sm">Tükendi</Badge>
+                  <Badge variant="destructive" className="font-bold text-xs pointer-events-none shadow-sm">{t('outOfStockBadge')}</Badge>
                 </div>
               )}
             </div>
@@ -489,7 +489,7 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
                     }}
                     disabled={quickAddMutation.isPending}
                   >
-                    <Plus className="h-2.5 w-2.5 mr-0.5 shrink-0" /> <span className="text-[10px] font-bold">Ekle</span>
+                    <Plus className="h-2.5 w-2.5 mr-0.5 shrink-0" /> <span className="text-[10px] font-bold">{t('addItemShort')}</span>
                   </Button>
                 )}
 
@@ -522,7 +522,7 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
 
                 {hasRequiredExtras && !isOutOfStock && (
                    <div className="h-6 flex items-center justify-center rounded-md px-1.5 text-[9px] font-bold text-muted-foreground bg-muted/40 shrink-0 uppercase tracking-tighter">
-                      Seçim
+                      {t('selectionRequired')}
                    </div>
                 )}
               </div>
@@ -928,9 +928,9 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
                    ? tCommon('loading')
                    : (
                       <div className="flex items-center justify-between w-full px-1">
-                         <span className="uppercase tracking-tight font-black text-[11px]">Siparişe Ekle</span>
+                         <span className="uppercase tracking-tight font-black text-[11px]">{t('addToOrder')}</span>
                          <div className="flex items-center gap-2">
-                            <span className="opacity-70 text-[9px] font-black uppercase tracking-tighter">Toplam</span>
+                            <span className="opacity-70 text-[9px] font-black uppercase tracking-tighter">{t('total')}</span>
                             <span className="text-base font-black bg-white/20 px-1.5 py-0.5 rounded-md group-hover:scale-105 transition-transform">
                                ₺{(
                                 calculateFinalPrice(selectedProduct!, activeCampaigns) * quantity +

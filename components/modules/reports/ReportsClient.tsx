@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import {
   BarChart3,
@@ -11,22 +12,57 @@ import {
   Wallet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 import { buildDateRange, type DateRange } from '@/lib/utils/reports.utils'
 import { DateRangePicker } from './DateRangePicker'
 import { ExportButton } from './ExportButton'
 import { ReportSection } from './ReportSection'
 import { KpiCards } from './KpiCards'
-import { RevenueChart } from './RevenueChart'
-import { OrderTypeChart } from './OrderTypeChart'
-import { PaymentMethodChart } from './PaymentMethodChart'
-import { TopProductsTable } from './TopProductsTable'
-import { CategoryRevenueChart } from './CategoryRevenueChart'
-import { HourlyHeatmap } from './HourlyHeatmap'
-import { PlatformCompareTable } from './PlatformCompareTable'
-import { EndOfDayReport } from './EndOfDayReport'
-import { ReservationStats } from './ReservationStats'
-import { CampaignStatsTable } from './CampaignStatsTable'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+
+// Recharts ~150KB — chart bileşenlerini lazy load et (admin reports sayfası dışında bundle'a girmesin).
+const chartLoading = () => <Skeleton className="h-64 w-full rounded-xl" />
+
+const RevenueChart = dynamic(
+  () => import('./RevenueChart').then((m) => m.RevenueChart),
+  { ssr: false, loading: chartLoading },
+)
+const OrderTypeChart = dynamic(
+  () => import('./OrderTypeChart').then((m) => m.OrderTypeChart),
+  { ssr: false, loading: chartLoading },
+)
+const PaymentMethodChart = dynamic(
+  () => import('./PaymentMethodChart').then((m) => m.PaymentMethodChart),
+  { ssr: false, loading: chartLoading },
+)
+const TopProductsTable = dynamic(
+  () => import('./TopProductsTable').then((m) => m.TopProductsTable),
+  { ssr: false, loading: chartLoading },
+)
+const CategoryRevenueChart = dynamic(
+  () => import('./CategoryRevenueChart').then((m) => m.CategoryRevenueChart),
+  { ssr: false, loading: chartLoading },
+)
+const HourlyHeatmap = dynamic(
+  () => import('./HourlyHeatmap').then((m) => m.HourlyHeatmap),
+  { ssr: false, loading: chartLoading },
+)
+const PlatformCompareTable = dynamic(
+  () => import('./PlatformCompareTable').then((m) => m.PlatformCompareTable),
+  { ssr: false, loading: chartLoading },
+)
+const EndOfDayReport = dynamic(
+  () => import('./EndOfDayReport').then((m) => m.EndOfDayReport),
+  { ssr: false, loading: chartLoading },
+)
+const ReservationStats = dynamic(
+  () => import('./ReservationStats').then((m) => m.ReservationStats),
+  { ssr: false, loading: chartLoading },
+)
+const CampaignStatsTable = dynamic(
+  () => import('./CampaignStatsTable').then((m) => m.CampaignStatsTable),
+  { ssr: false, loading: chartLoading },
+)
 
 interface ReportsClientProps {
   locale: string

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import {
   workingHoursSchema,
   workingHoursExceptionSchema,
@@ -13,8 +14,11 @@ import type {
 // ─── Haftalık Saat Güncelle ───────────────────────────────────────────────────
 
 export async function updateWorkingHours(id: string, input: WorkingHoursInput) {
+  const auth = await requireModuleAccess("working-hours")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = workingHoursSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const d = parsed.data
@@ -38,8 +42,11 @@ export async function updateWorkingHours(id: string, input: WorkingHoursInput) {
 // ─── İstisna Ekle ─────────────────────────────────────────────────────────────
 
 export async function createWorkingHoursException(input: WorkingHoursExceptionInput) {
+  const auth = await requireModuleAccess("working-hours")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = workingHoursExceptionSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const d = parsed.data
@@ -66,8 +73,11 @@ export async function updateWorkingHoursException(
   id: string,
   input: WorkingHoursExceptionInput
 ) {
+  const auth = await requireModuleAccess("working-hours")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = workingHoursExceptionSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const d = parsed.data
@@ -91,6 +101,9 @@ export async function updateWorkingHoursException(
 // ─── İstisna Sil ──────────────────────────────────────────────────────────────
 
 export async function deleteWorkingHoursException(id: string) {
+  const auth = await requireModuleAccess("working-hours")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('working_hours_exceptions')

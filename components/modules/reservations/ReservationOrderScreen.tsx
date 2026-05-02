@@ -20,8 +20,16 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { OrderItemList } from '@/components/modules/orders/OrderItemList'
 import { OrderSummary } from '@/components/modules/orders/OrderSummary'
-import { AddProductModal } from '@/components/modules/orders/AddProductModal'
-import { PaymentModal } from '@/components/modules/orders/PaymentModal'
+import dynamic from 'next/dynamic'
+
+const AddProductModal = dynamic(
+  () => import('@/components/modules/orders/AddProductModal').then((m) => m.AddProductModal),
+  { ssr: false },
+)
+const PaymentModal = dynamic(
+  () => import('@/components/modules/orders/PaymentModal').then((m) => m.PaymentModal),
+  { ssr: false },
+)
 import { EditOrderItemModal } from '@/components/modules/orders/EditOrderItemModal'
 import { AssignTableModal } from '@/components/modules/reservations/AssignTableModal'
 import { cn } from '@/lib/utils'
@@ -118,7 +126,7 @@ export function ReservationOrderScreen({
   useEffect(() => {
     if (autoOpenAddModal && !itemsLoading && !autoOpenedRef.current) {
       autoOpenedRef.current = true
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setAddModalOpen(true)
     }
   }, [autoOpenAddModal, itemsLoading])
@@ -128,7 +136,7 @@ export function ReservationOrderScreen({
   useEffect(() => {
     if (autoOpenPaymentModal && !itemsLoading && !autoPaymentOpenedRef.current && items.length > 0) {
       autoPaymentOpenedRef.current = true
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setPaymentModalOpen(true)
     }
   }, [autoOpenPaymentModal, itemsLoading, items.length])

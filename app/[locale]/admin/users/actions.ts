@@ -54,7 +54,7 @@ export async function createUser(input: CreateUserInput) {
 
   const parsed = createUserSchema.safeParse(input)
   if (!parsed.success) {
-    return { error: parsed.error.issues[0].message }
+    return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
   }
 
   const adminClient = createAdminClient()
@@ -210,7 +210,7 @@ export async function setUserPassword(input: SetPasswordInput) {
   if ('error' in auth) return { error: auth.error }
 
   const parsed = setPasswordSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const adminClient = createAdminClient()
   const { error } = await adminClient.auth.admin.updateUserById(parsed.data.userId, {

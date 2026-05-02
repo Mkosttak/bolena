@@ -1,12 +1,16 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import { menuCampaignSchema } from '@/lib/validations/menu-campaign.schema'
 import type { MenuCampaignInput } from '@/lib/validations/menu-campaign.schema'
 
 export async function createCampaign(input: MenuCampaignInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = menuCampaignSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase.from('menu_campaigns').insert({
@@ -35,8 +39,11 @@ export async function createCampaign(input: MenuCampaignInput) {
 }
 
 export async function updateCampaign(id: string, input: MenuCampaignInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = menuCampaignSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -68,6 +75,9 @@ export async function updateCampaign(id: string, input: MenuCampaignInput) {
 }
 
 export async function toggleCampaignActive(id: string, isActive: boolean) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('menu_campaigns')
@@ -78,6 +88,9 @@ export async function toggleCampaignActive(id: string, isActive: boolean) {
 }
 
 export async function deleteCampaign(id: string) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase.from('menu_campaigns').delete().eq('id', id)
   if (error) return { error: error.message }

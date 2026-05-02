@@ -15,19 +15,33 @@ export default defineConfig({
     css: false,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'json-summary', 'lcov'],
       exclude: [
         'node_modules',
         '.next',
         'e2e',
-        'components/ui',       // shadcn oluşturdu, bizim testlerimiz değil
+        'components/ui',       // shadcn oluşturdu
         '**/*.config.*',
         '**/types/**',
+        'scripts/**',
+        'supabase/repair/**',
+        '__tests__/helpers/**',
       ],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
+        lines: 75,
+        functions: 75,
+        branches: 70,
+        // Server actions için daha sıkı (kritik para/sipariş akışları)
+        'app/[locale]/admin/orders/actions.ts': {
+          lines: 85,
+          functions: 90,
+          branches: 75,
+        },
+        'app/qr/[token]/[session]/actions.ts': {
+          lines: 85,
+          functions: 90,
+          branches: 75,
+        },
       },
     },
   },

@@ -51,7 +51,6 @@ export function WhatsAppFloatingButton() {
   const prefill = t(`${pageKey}.prefill`)
   const href = `${WHATSAPP_URL}?text=${encodeURIComponent(prefill)}`
 
-
   // Show logic
   useEffect(() => {
     if (isHiddenRoute || wasDismissed) return

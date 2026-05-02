@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import { categorySchema, productSchema } from '@/lib/validations/menu.schema'
 import type { CategoryInput, ProductInput } from '@/lib/validations/menu.schema'
 import { extraGroupSchema, extraOptionSchema } from '@/lib/validations/extras.schema'
@@ -9,8 +10,11 @@ import type { ExtraGroupInput, ExtraOptionInput } from '@/lib/validations/extras
 // ─── Category Actions ────────────────────────────────────────────────────────
 
 export async function createCategory(input: CategoryInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = categorySchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase.from('categories').insert({
@@ -24,8 +28,11 @@ export async function createCategory(input: CategoryInput) {
 }
 
 export async function updateCategory(id: string, input: CategoryInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = categorySchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -42,6 +49,9 @@ export async function updateCategory(id: string, input: CategoryInput) {
 }
 
 export async function deleteCategory(id: string) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { data: products, error: checkError } = await supabase
     .from('products')
@@ -59,6 +69,9 @@ export async function deleteCategory(id: string) {
 }
 
 export async function updateCategoriesOrder(orders: { id: string, sort_order: number }[]) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   // In a real scenarios with many categories, we might use a more optimized RPC or a custom query.
@@ -77,8 +90,11 @@ export async function updateCategoriesOrder(orders: { id: string, sort_order: nu
 // ─── Product Actions ─────────────────────────────────────────────────────────
 
 export async function createProduct(input: ProductInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = productSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -124,8 +140,11 @@ export async function createProduct(input: ProductInput) {
 }
 
 export async function updateProduct(id: string, input: ProductInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = productSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -184,6 +203,9 @@ export async function toggleProductField(
   field: 'is_available' | 'is_visible' | 'is_featured',
   value: boolean
 ) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const payload =
     field === 'is_available' ? { is_available: value } :
@@ -198,6 +220,9 @@ export async function toggleProductField(
 }
 
 export async function deleteProduct(id: string) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   // K-11: Ürün fiziksel silinmez — is_visible = false (geçmiş siparişlerde FK ihlali önlenir)
   const { error } = await supabase
@@ -209,6 +234,9 @@ export async function deleteProduct(id: string) {
 }
 
 export async function updateProductsOrder(orders: { id: string; sort_order: number }[]) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   for (const item of orders) {
     const { error } = await supabase
@@ -221,6 +249,9 @@ export async function updateProductsOrder(orders: { id: string; sort_order: numb
 }
 
 export async function toggleCategoryActive(id: string, isActive: boolean) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('categories')
@@ -233,8 +264,11 @@ export async function toggleCategoryActive(id: string, isActive: boolean) {
 // ─── Extra Group Actions ─────────────────────────────────────────────────────
 
 export async function createExtraGroup(productId: string, input: ExtraGroupInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = extraGroupSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -247,8 +281,11 @@ export async function createExtraGroup(productId: string, input: ExtraGroupInput
 }
 
 export async function updateExtraGroup(id: string, input: ExtraGroupInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = extraGroupSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -260,6 +297,9 @@ export async function updateExtraGroup(id: string, input: ExtraGroupInput) {
 }
 
 export async function deleteExtraGroup(id: string) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase.from('extra_groups').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -269,8 +309,11 @@ export async function deleteExtraGroup(id: string) {
 // ─── Extra Option Actions ────────────────────────────────────────────────────
 
 export async function createExtraOption(groupId: string, input: ExtraOptionInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = extraOptionSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase.from('extra_options').insert({
@@ -282,8 +325,11 @@ export async function createExtraOption(groupId: string, input: ExtraOptionInput
 }
 
 export async function updateExtraOption(id: string, input: ExtraOptionInput) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = extraOptionSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -295,6 +341,9 @@ export async function updateExtraOption(id: string, input: ExtraOptionInput) {
 }
 
 export async function deleteExtraOption(id: string) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase.from('extra_options').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -302,6 +351,9 @@ export async function deleteExtraOption(id: string) {
 }
 
 export async function toggleExtraOptionActive(id: string, isActive: boolean) {
+  const auth = await requireModuleAccess("menu")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('extra_options')

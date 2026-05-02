@@ -194,7 +194,9 @@ export function calculateFinalPrice(
   if (applicable.length === 0) return calculateEffectivePrice(product)
 
   // 3. En yüksek priority'li kampanyayı uygula (liste zaten priority DESC sıralı)
-  return applyGlobalCampaignDiscount(product, applicable[0])
+  const top = applicable[0]
+  if (!top) return calculateEffectivePrice(product)
+  return applyGlobalCampaignDiscount(product, top)
 }
 
 export function applyRadioOptionSelection(

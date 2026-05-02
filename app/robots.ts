@@ -1,16 +1,30 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/tr/admin/', '/en/admin/', '/tr/login/', '/en/login/', '/qr/'],
+        allow: ['/'],
+        disallow: [
+          '/admin/',
+          '/tr/admin/',
+          '/en/admin/',
+          '/login',
+          '/tr/login',
+          '/en/login',
+          '/qr/',
+          '/api/',
+        ],
+      },
+      {
+        userAgent: ['GPTBot', 'CCBot', 'ChatGPT-User'],
+        disallow: ['/'],   // AI crawler'larına kapalı (kullanıcı tercihi)
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${BASE_URL}/sitemap.xml`,
+    host: BASE_URL,
   }
 }

@@ -129,7 +129,7 @@ async function compressImage(file: File, maxSizeBytes: number): Promise<File> {
 
 function extractStoragePath(publicUrl: string): string | null {
   const match = publicUrl.match(/\/bolena-cafe\/(.+)$/)
-  return match ? match[1] : null
+  return match?.[1] ?? null
 }
 
 // ─── Bileşen ─────────────────────────────────────────────────────────────────

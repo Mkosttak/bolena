@@ -11,7 +11,19 @@ import { createClient } from '@/lib/supabase/client'
 import { blogSchema } from '@/lib/validations/blog.schema'
 import type { BlogInput } from '@/lib/validations/blog.schema'
 import { createBlogPost, updateBlogPost } from '@/app/[locale]/admin/blog/actions'
-import { TiptapEditor } from './TiptapEditor'
+import dynamic from 'next/dynamic'
+
+const TiptapEditor = dynamic(
+  () => import('./TiptapEditor').then((m) => m.TiptapEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ minHeight: 200, border: '1px solid #ddd', borderRadius: 8, padding: 12, opacity: 0.5 }}>
+        Düzenleyici yükleniyor…
+      </div>
+    ),
+  },
+)
 import type { BlogPost } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -145,7 +157,7 @@ export function BlogForm({ post, locale }: BlogFormProps) {
     if (coverPreview) {
       const supabase = createClient()
       const match = coverPreview.match(/bolena-cafe\/(.+)$/)
-      if (match) {
+      if (match?.[1]) {
         await supabase.storage.from('bolena-cafe').remove([match[1]])
       }
     }

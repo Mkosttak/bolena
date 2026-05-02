@@ -149,6 +149,7 @@ function MultiSelect({ items, selected, onChange, placeholder }: MultiSelectProp
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-8 text-xs"
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- dropdown açıldığında search'e direkt yazma UX'i
               autoFocus
             />
           </div>

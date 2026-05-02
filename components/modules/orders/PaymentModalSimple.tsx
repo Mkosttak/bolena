@@ -45,7 +45,15 @@ export function PaymentModalSimple({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const payResult = await addPayment(order.id, method, Number(order.total_amount))
+      // Idempotency key — double-click / retry koruması (DB UNIQUE constraint)
+      const idempotencyKey = crypto.randomUUID()
+      const payResult = await addPayment(
+        order.id,
+        method,
+        Number(order.total_amount),
+        undefined,
+        idempotencyKey,
+      )
       if (payResult.error) return payResult
 
       const deliverResult = await deliverPlatformOrder(order.id)
@@ -94,7 +102,7 @@ export function PaymentModalSimple({
 
           {/* Ödeme yöntemi */}
           <div className="space-y-2">
-            <Label>Ödeme Yöntemi</Label>
+            <Label>{tOrders('paymentMethod')}</Label>
             <div className="flex gap-2">
               {(['cash', 'card'] as const).map((m) => (
                 <Button

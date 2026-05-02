@@ -15,7 +15,7 @@ export const CHART_COLORS = [
 ] as const
 
 export function chartFillAt(index: number): string {
-  return CHART_COLORS[index % CHART_COLORS.length]
+  return CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0]
 }
 
 /**

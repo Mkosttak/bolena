@@ -96,10 +96,13 @@ export function KdsClient({ locale }: KdsClientProps) {
   }
 
   // --- Queries ---
+  // refetchInterval kaldırıldı: realtime channel zaten invalidateQueries tetikliyor.
+  // 60sn fallback (network kopukluk durumunda toparlanma için).
   const { data: rawItems = [], isLoading: itemsLoading } = useQuery({
     queryKey: kdsKeys.activeItems(),
     queryFn: fetchKdsActiveItems,
-    refetchInterval: 30000,
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
   })
 
   const { data: tablesData = [] } = useQuery({
@@ -173,8 +176,12 @@ export function KdsClient({ locale }: KdsClientProps) {
     [completedToday]
   )
 
-  // Mutfak bildirim sesi: tarayıcı autoplay için ilk etkileşimde AudioContext açılır
-  useEffect(() => attachKitchenNotificationAudioUnlock(), [])
+  // Mutfak bildirim sesi: tarayıcı autoplay için ilk etkileşimde AudioContext açılır.
+  // attachKitchenNotificationAudioUnlock cleanup fonksiyonu döner — leak önlemek için unmount'ta çağır.
+  useEffect(() => {
+    const cleanup = attachKitchenNotificationAudioUnlock()
+    return cleanup
+  }, [])
 
   const newOrderQueueHeadId = newOrderQueue[0]?.id
 

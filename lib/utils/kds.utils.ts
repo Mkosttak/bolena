@@ -113,11 +113,14 @@ export function groupItemsByTimeWindow(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
 
-    let currentGroup: KdsOrderItem[] = [sorted[0]]
+    const firstItem = sorted[0]
+    if (!firstItem) continue
+    let currentGroup: KdsOrderItem[] = [firstItem]
 
     for (let i = 1; i < sorted.length; i++) {
       const prev = sorted[i - 1]
       const curr = sorted[i]
+      if (!prev || !curr) continue
       const gap = new Date(curr.created_at).getTime() - new Date(prev.created_at).getTime()
 
       if (gap > windowMs) {
@@ -143,10 +146,13 @@ export function groupItemsByTimeWindow(
 
 function buildGroup(
   orderId: string,
-  items: KdsOrderItem[],
+  items: [KdsOrderItem, ...KdsOrderItem[]] | KdsOrderItem[],
   tableNames: Record<string, string>
 ): KdsGroup {
   const first = items[0]
+  if (!first) {
+    throw new Error('buildGroup: items array boş olmamalı (caller invariant)')
+  }
   const windowStart = first.created_at
   const elapsedMinutes = getElapsedMinutes(windowStart)
 

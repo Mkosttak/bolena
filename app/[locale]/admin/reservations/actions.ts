@@ -1,12 +1,16 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import { reservationSchema } from '@/lib/validations/reservation.schema'
 import type { ReservationInput } from '@/lib/validations/reservation.schema'
 
 export async function createReservation(input: ReservationInput) {
+  const auth = await requireModuleAccess("reservations")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = reservationSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const data = parsed.data
@@ -31,8 +35,11 @@ export async function createReservation(input: ReservationInput) {
 }
 
 export async function updateReservation(id: string, input: ReservationInput) {
+  const auth = await requireModuleAccess("reservations")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = reservationSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const data = parsed.data
@@ -73,6 +80,9 @@ export async function updateReservation(id: string, input: ReservationInput) {
 }
 
 export async function assignReservationToTable(reservationId: string, tableId: string) {
+  const auth = await requireModuleAccess("reservations")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data: activeOrders } = await supabase
@@ -113,6 +123,9 @@ export async function updateReservationStatus(
   reservationId: string,
   status: 'cancelled' | 'no_show' | 'completed'
 ) {
+  const auth = await requireModuleAccess("reservations")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data: reservation, error: resError } = await supabase
@@ -142,6 +155,9 @@ export async function updateReservationStatus(
 }
 
 export async function completeReservationOrder(reservationId: string) {
+  const auth = await requireModuleAccess("reservations")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data: reservation, error: resError } = await supabase

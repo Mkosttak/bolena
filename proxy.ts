@@ -2,12 +2,20 @@ import createMiddleware from 'next-intl/middleware'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { routing } from './i18n/routing'
+import { checkRateLimit, getClientIdentifier, rateLimits, rateLimitHeaders } from './lib/rate-limit'
 
 const intlMiddleware = createMiddleware(routing)
 
+// Locale listesi i18n routing'inden dinamik — yeni locale eklemek için sadece routing.ts.
+const adminPathRegex = new RegExp(`^\\/(${routing.locales.join('|')})\\/admin(\\/|$)`)
+const loginPathRegex = new RegExp(`^\\/(${routing.locales.join('|')})\\/login\\/?$`)
+
 function isAdminPath(pathname: string): boolean {
-  // /tr/admin/... veya /en/admin/... şeklindeki yollar admin path'i
-  return /^\/(tr|en)\/admin(\/|$)/.test(pathname)
+  return adminPathRegex.test(pathname)
+}
+
+function isLoginPath(pathname: string): boolean {
+  return loginPathRegex.test(pathname)
 }
 
 export async function proxy(request: NextRequest) {
@@ -16,6 +24,21 @@ export async function proxy(request: NextRequest) {
   // /qr/ path'leri: intl routing ve auth guard atlanır
   if (pathname.startsWith('/qr/')) {
     return NextResponse.next()
+  }
+
+  // Login POST'a rate limit (brute force koruması)
+  if (request.method === 'POST' && isLoginPath(pathname)) {
+    const clientId = getClientIdentifier(request.headers)
+    const rl = await checkRateLimit(clientId, rateLimits.auth)
+    if (!rl.success) {
+      return new NextResponse(
+        JSON.stringify({ error: `Çok fazla deneme. ${rl.retryAfterSeconds} sn sonra tekrar deneyin.` }),
+        {
+          status: 429,
+          headers: { 'content-type': 'application/json', ...rateLimitHeaders(rl) },
+        },
+      )
+    }
   }
 
   // Run intl middleware first (handles locale routing)

@@ -34,6 +34,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# Claude local settings (per-machine permissions)
+.claude/settings.local.json
+.claude/*.session-bak
 
 # vercel
 .vercel
@@ -43,3 +48,16 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# lint/build artifacts
+lint_output*.txt
+*.log
+
+# IDE / OS
+.idea
+.vscode
+Thumbs.db
+
+# coverage
+coverage
+.nyc_output

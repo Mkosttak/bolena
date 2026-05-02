@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { QrCartItem } from '@/types'
 
 interface QrSessionState {
@@ -103,6 +103,19 @@ export const useQrSessionStore = create<QrSessionState>()(
     }),
     {
       name: 'bolena-qr-session',
+      storage: createJSONStorage(() => {
+        // Hem prod browser, hem jsdom test environment'ında çalışır.
+        // SSR/server context'inde localStorage olmadığında no-op stub döner — persist sessizce skip olur.
+        if (typeof globalThis !== 'undefined' && globalThis.localStorage) {
+          return globalThis.localStorage
+        }
+        const memory = new Map<string, string>()
+        return {
+          getItem: (k: string) => memory.get(k) ?? null,
+          setItem: (k: string, v: string) => { memory.set(k, v) },
+          removeItem: (k: string) => { memory.delete(k) },
+        }
+      }),
       partialize: (state) => ({
         sessionId: state.sessionId,
         tableToken: state.tableToken,

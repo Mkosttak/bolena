@@ -79,8 +79,9 @@ export function MenuDisplay({
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        if (visible.length > 0) {
-          const id = visible[0].target.id
+        const topVisible = visible[0]
+        if (topVisible) {
+          const id = topVisible.target.id
           setActiveId(id)
           pillRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
         }

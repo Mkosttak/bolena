@@ -1,8 +1,10 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { SubmitQrOrderSchema } from '@/lib/validations/qr.schema'
 import { logger } from '@/lib/utils/logger'
+import { checkRateLimit, getClientIdentifier, rateLimits } from '@/lib/rate-limit'
 import type { QrCartItem } from '@/types'
 
 export async function submitQrOrder(
@@ -13,6 +15,19 @@ export async function submitQrOrder(
 ): Promise<{ success: boolean; error?: string }> {
   if (!token || !sessionToken || !items?.length) {
     return { success: false, error: 'Eksik sipariş bilgisi' }
+  }
+
+  // Rate limit: aynı IP'den dakikada en fazla 10 sipariş gönderimi.
+  const requestHeaders = await headers()
+  const clientId = getClientIdentifier(requestHeaders)
+  const rateKey = `${clientId}:${token}`
+  const rl = await checkRateLimit(rateKey, rateLimits.qrOrder)
+  if (!rl.success) {
+    logger.warn('[submitQrOrder] rate limit exceeded', { clientId, token })
+    return {
+      success: false,
+      error: `Çok fazla istek. ${rl.retryAfterSeconds} saniye sonra tekrar deneyin.`,
+    }
   }
 
   const supabase = createAdminClient()

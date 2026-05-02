@@ -20,8 +20,16 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { OrderItemList } from '@/components/modules/orders/OrderItemList'
 import { OrderSummary } from '@/components/modules/orders/OrderSummary'
-import { AddProductModal } from '@/components/modules/orders/AddProductModal'
-import { PaymentModalSimple } from '@/components/modules/orders/PaymentModalSimple'
+import dynamic from 'next/dynamic'
+
+const AddProductModal = dynamic(
+  () => import('@/components/modules/orders/AddProductModal').then((m) => m.AddProductModal),
+  { ssr: false },
+)
+const PaymentModalSimple = dynamic(
+  () => import('@/components/modules/orders/PaymentModalSimple').then((m) => m.PaymentModalSimple),
+  { ssr: false },
+)
 import { EditOrderItemModal } from '@/components/modules/orders/EditOrderItemModal'
 import type { OrderItem } from '@/types'
 import { cn } from '@/lib/utils'
@@ -65,7 +73,7 @@ export function PlatformOrderScreen({
   useEffect(() => {
     if (autoOpenAddModal && !autoOpenedRef.current) {
       autoOpenedRef.current = true
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setAddModalOpen(true)
     }
   }, [autoOpenAddModal])

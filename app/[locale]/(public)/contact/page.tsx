@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ContactClient } from '@/components/modules/contact/ContactClient'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
 
 const META = {
   tr: {

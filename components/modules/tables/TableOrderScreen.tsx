@@ -22,8 +22,16 @@ import { createClient } from '@/lib/supabase/client'
 import { ordersKeys, fetchFullOrder } from '@/lib/queries/orders.queries'
 import { tablesKeys, fetchTablesWithOrder } from '@/lib/queries/tables.queries'
 import { getOrCreateTableOrder, transferTableOrder } from '@/app/[locale]/admin/tables/actions'
-import { AddProductModal } from '@/components/modules/orders/AddProductModal'
-import { PaymentModal } from '@/components/modules/orders/PaymentModal'
+import dynamic from 'next/dynamic'
+
+const AddProductModal = dynamic(
+  () => import('@/components/modules/orders/AddProductModal').then((m) => m.AddProductModal),
+  { ssr: false },
+)
+const PaymentModal = dynamic(
+  () => import('@/components/modules/orders/PaymentModal').then((m) => m.PaymentModal),
+  { ssr: false },
+)
 import { OrderItemList } from '@/components/modules/orders/OrderItemList'
 import { OrderSummary } from '@/components/modules/orders/OrderSummary'
 import { EditOrderItemModal } from '@/components/modules/orders/EditOrderItemModal'
@@ -182,12 +190,14 @@ export function TableOrderScreen({
   }, [orderId, queryClient])
 
   // Tek round-trip: order + items + payments
+  // refetchInterval realtime varken gereksiz — fallback için 60sn'e yükseltildi.
   const { data: fullOrder, isLoading: fullOrderLoading } = useQuery({
     queryKey: ordersKeys.full(orderId ?? ''),
     queryFn: () => fetchFullOrder(orderId!),
     enabled: !!orderId,
     refetchOnMount: true,
-    refetchInterval: 20_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   })
 
   const order = fullOrder?.order ?? null
@@ -258,7 +268,7 @@ export function TableOrderScreen({
   useEffect(() => {
     if (!isLoading && items.length === 0 && !autoOpenedRef.current) {
       autoOpenedRef.current = true
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setAddModalOpen(true)
     }
   }, [isLoading, items.length])

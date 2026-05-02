@@ -175,7 +175,7 @@ export function ShowcaseSection({ locale }: ShowcaseSectionProps) {
                 aria-label={cat}
               >
                 <Image
-                  src={images[i]}
+                  src={images[i] ?? images[0] ?? ''}
                   alt={cat}
                   fill
                   sizes="(max-width: 700px) 50vw, 33vw"

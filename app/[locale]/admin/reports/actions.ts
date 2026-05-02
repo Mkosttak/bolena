@@ -470,8 +470,8 @@ export async function fetchHourlyHeatmap(
     const [key, count] = entry
     const [dayStr, hourStr] = key.split('-')
     return {
-      dayOfWeek: parseInt(dayStr, 10),
-      hour: parseInt(hourStr, 10),
+      dayOfWeek: parseInt(dayStr ?? '0', 10),
+      hour: parseInt(hourStr ?? '0', 10),
       count,
     }
   })

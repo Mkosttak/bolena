@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 
 // =====================================================
 // KDS (Mutfak/Bar Ekranı) — Server Actions
@@ -13,6 +14,9 @@ import { createClient } from '@/lib/supabase/server'
 export async function markKdsGroupReady(
   itemIds: string[]
 ): Promise<{ success: true } | { error: string }> {
+  const auth = await requireModuleAccess("kds")
+  if ("error" in auth) return { error: auth.error }
+
   if (itemIds.length === 0) return { success: true }
 
   const supabase = await createClient()
@@ -31,6 +35,9 @@ export async function markKdsGroupReady(
 export async function undoKdsGroupReady(
   itemIds: string[]
 ): Promise<{ success: true } | { error: string }> {
+  const auth = await requireModuleAccess("kds")
+  if ("error" in auth) return { error: auth.error }
+
   if (itemIds.length === 0) return { success: true }
 
   const supabase = await createClient()

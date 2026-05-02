@@ -1,13 +1,17 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import { createClient } from '@/lib/supabase/server'
 import { tableSchema, tableCategorySchema } from '@/lib/validations/tables.schema'
 import type { TableInput, TableCategoryInput } from '@/lib/validations/tables.schema'
 
 export async function createTableCategory(input: TableCategoryInput) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = tableCategorySchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase.from('table_categories').insert({
@@ -19,8 +23,11 @@ export async function createTableCategory(input: TableCategoryInput) {
 }
 
 export async function updateTableCategory(id: string, input: TableCategoryInput) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = tableCategorySchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -32,6 +39,9 @@ export async function updateTableCategory(id: string, input: TableCategoryInput)
 }
 
 export async function deleteTableCategory(id: string) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { count, error: countError } = await supabase
@@ -50,8 +60,11 @@ export async function deleteTableCategory(id: string) {
 }
 
 export async function createTable(input: TableInput) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = tableSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase.from('tables').insert({
@@ -64,8 +77,11 @@ export async function createTable(input: TableInput) {
 }
 
 export async function updateTable(id: string, input: TableInput) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = tableSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const { error } = await supabase
@@ -80,6 +96,9 @@ export async function updateTable(id: string, input: TableInput) {
 }
 
 export async function deleteTable(id: string) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data: activeOrders, error: checkError } = await supabase
@@ -101,6 +120,9 @@ export async function deleteTable(id: string) {
 export async function getOrCreateTableOrder(
   tableId: string
 ): Promise<{ orderId: string } | { error: string }> {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('get_or_create_table_order_atomic', {
@@ -114,6 +136,9 @@ export async function getOrCreateTableOrder(
 }
 
 export async function transferTableOrder(sourceTableId: string, targetTableId: string) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { error } = await supabase.rpc('transfer_table_order_atomic', {
@@ -132,6 +157,9 @@ export async function transferTableOrder(sourceTableId: string, targetTableId: s
 // ── QR Sipariş Action'ları ──────────────────────────────────────────────────
 
 export async function updateQrEnabled(tableId: string, enabled: boolean) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('tables')
@@ -142,6 +170,9 @@ export async function updateQrEnabled(tableId: string, enabled: boolean) {
 }
 
 export async function regenerateQrTokenAction(tableId: string) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('regenerate_qr_token', {
     p_table_id: tableId,
@@ -151,6 +182,9 @@ export async function regenerateQrTokenAction(tableId: string) {
 }
 
 export async function updateGlobalQrSetting(enabled: boolean) {
+  const auth = await requireModuleAccess("tables")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('site_settings')

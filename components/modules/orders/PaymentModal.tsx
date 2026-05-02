@@ -178,7 +178,11 @@ export function PaymentModal({
 
       if (payAmt <= 0) throw new Error('Tutar sıfır olamaz')
 
-      const res = await addPayment(order.id, method, payAmt, note || undefined)
+      // Idempotency key: kullanıcı double-click yapsa veya network retry olsa
+      // DB-level UNIQUE constraint ikinci insert'i reddeder.
+      // crypto.randomUUID() RFC 4122 v4 — Zod uuid regex'i kabul eder.
+      const idempotencyKey = crypto.randomUUID()
+      const res = await addPayment(order.id, method, payAmt, note || undefined, idempotencyKey)
       if (res.error) throw new Error(res.error)
 
       const newRemaining = remaining - payAmt

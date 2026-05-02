@@ -44,6 +44,10 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
       type: 'website',
     },
+    twitter: {
+      title: meta.title,
+      description: meta.description,
+    },
   }
 }
 

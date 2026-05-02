@@ -1,14 +1,18 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireModuleAccess } from '@/lib/auth/guards'
 import { platformOrderSchema } from '@/lib/validations/platform-order.schema'
 import type { PlatformOrderInput } from '@/lib/validations/platform-order.schema'
 
 // ─── Sipariş Oluştur ─────────────────────────────────────────────────────────
 
 export async function createPlatformOrder(input: PlatformOrderInput) {
+  const auth = await requireModuleAccess("platform-orders")
+  if ("error" in auth) return { error: auth.error }
+
   const parsed = platformOrderSchema.safeParse(input)
-  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Geçersiz veri' }
 
   const supabase = await createClient()
   const data = parsed.data
@@ -44,6 +48,9 @@ export async function createPlatformOrder(input: PlatformOrderInput) {
 // Kurye: ödeme ayrıca PaymentModalSimple ile alınır; bu aksiyon sadece kapatır.
 
 export async function deliverPlatformOrder(orderId: string) {
+  const auth = await requireModuleAccess("platform-orders")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { data: order, error: fetchError } = await supabase
@@ -80,6 +87,9 @@ export async function deliverPlatformOrder(orderId: string) {
 // ─── İptal Et ────────────────────────────────────────────────────────────────
 
 export async function cancelPlatformOrder(orderId: string) {
+  const auth = await requireModuleAccess("platform-orders")
+  if ("error" in auth) return { error: auth.error }
+
   const supabase = await createClient()
 
   const { error } = await supabase
