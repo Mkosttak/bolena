@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { env } from '@/lib/env'
+
+// NOT: lib/env.ts import edilmedi — health endpoint env eksikse "degraded"
+// dönmeli, build/runtime patlamalı değil. Direkt process.env defensive.
 
 /**
  * Health check endpoint.
@@ -19,8 +21,13 @@ type ServiceStatus = { ok: boolean; latencyMs?: number; error?: string }
 
 async function checkDatabase(): Promise<ServiceStatus> {
   const start = Date.now()
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !anonKey) {
+    return { ok: false, latencyMs: 0, error: 'Supabase env missing' }
+  }
   try {
-    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    const supabase = createClient(url, anonKey, {
       auth: { persistSession: false },
     })
     // Hafif sorgu — public RLS-safe tablo (site_settings veya benzeri)

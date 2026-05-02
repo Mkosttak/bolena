@@ -1,8 +1,14 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
-import { env } from '@/lib/env'
 
-const BASE_URL = env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+// NOT: lib/env.ts import edilmedi — sitemap build-time generate edilir,
+// build sırasında env'ler eksik olabilir. Direkt process.env + fallback'lerle
+// defensive yapı: env yoksa sadece static entries döner, build patlamaz.
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 const STATIC_PATHS = ['', '/menu', '/blog', '/contact'] as const
 
 // ISR — sitemap saatte bir yeniden üretilir (yeni blog post'lar için)
@@ -11,7 +17,7 @@ export const revalidate = 3600
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
-  // Static pages — her locale için + hreflang alternates
+  // Static pages — her locale için + hreflang alternates (her zaman üretilir)
   const staticEntries: MetadataRoute.Sitemap = []
   for (const locale of ['tr', 'en'] as const) {
     for (const path of STATIC_PATHS) {
@@ -30,10 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Blog post'ları — yayında olanlar
+  // Blog post'ları — Supabase env'leri varsa fetch et, yoksa skip
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return staticEntries
+  }
+
   let blogEntries: MetadataRoute.Sitemap = []
   try {
-    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false },
+    })
     const { data: posts } = await supabase
       .from('blog_posts')
       .select('slug, updated_at, published_at')
