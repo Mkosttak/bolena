@@ -753,6 +753,18 @@
         "empty": "No completed orders yet today.",
         "units": "{count} pcs",
         "unknownName": "Unnamed product"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "subtitle": "One-click access to frequent modules",
+        "tables": "Table Management",
+        "tablesDesc": "Open orders, monitor tables",
+        "kds": "Kitchen Display",
+        "kdsDesc": "Manage active orders",
+        "reservations": "Reservations",
+        "reservationsDesc": "Reservation calendar",
+        "reports": "Reports",
+        "reportsDesc": "Detailed sales analytics"
       }
     }
   },

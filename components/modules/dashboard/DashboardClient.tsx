@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl'
 import { DashboardData } from '@/lib/queries/dashboard.queries'
 import { DashboardKpiCard } from './DashboardKpiCard'
 import {
-  Users,
   UtensilsCrossed,
   ChefHat,
   Truck,
@@ -16,8 +15,12 @@ import {
   Clock,
   CreditCard,
   Banknote,
-  Activity,
-  ListOrdered
+  CalendarClock,
+  BarChart3,
+  ArrowUpRight,
+  Trophy,
+  Medal,
+  Award,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -41,12 +44,102 @@ function rankRowClass(index: number): string {
   return 'border-l-2 border-l-transparent'
 }
 
+function rankBadge(index: number) {
+  // Top 3: Trophy / Medal / Award icons + altın/gümüş/bronz ton
+  if (index === 0)
+    return (
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-amber-50 shadow-sm shadow-amber-500/30">
+        <Trophy className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+      </span>
+    )
+  if (index === 1)
+    return (
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-300 to-slate-500 text-slate-50 shadow-sm shadow-slate-500/25">
+        <Medal className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+      </span>
+    )
+  if (index === 2)
+    return (
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-orange-50 shadow-sm shadow-orange-500/25">
+        <Award className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+      </span>
+    )
+  return (
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold tabular-nums text-muted-foreground/70">
+      {index + 1}
+    </span>
+  )
+}
+
 export function DashboardClient({ initialData, locale }: DashboardClientProps) {
   const router = useRouter()
   const t = useTranslations('admin.dashboard')
   const tk = useTranslations('admin.dashboard.kpi')
   const tf = useTranslations('admin.dashboard.finance')
   const tp = useTranslations('admin.dashboard.topProducts')
+  const tq = useTranslations('admin.dashboard.quickActions')
+
+  const quickActions = [
+    {
+      key: 'tables',
+      label: tq('tables'),
+      desc: tq('tablesDesc'),
+      icon: UtensilsCrossed,
+      href: `/${locale}/admin/tables` as Route,
+      tone: 'emerald',
+    },
+    {
+      key: 'kds',
+      label: tq('kds'),
+      desc: tq('kdsDesc'),
+      icon: ChefHat,
+      href: `/${locale}/admin/kds` as Route,
+      tone: 'amber',
+    },
+    {
+      key: 'reservations',
+      label: tq('reservations'),
+      desc: tq('reservationsDesc'),
+      icon: CalendarClock,
+      href: `/${locale}/admin/reservations` as Route,
+      tone: 'sky',
+    },
+    {
+      key: 'reports',
+      label: tq('reports'),
+      desc: tq('reportsDesc'),
+      icon: BarChart3,
+      href: `/${locale}/admin/reports` as Route,
+      tone: 'violet',
+    },
+  ] as const
+
+  const toneClasses: Record<string, { bg: string; ring: string; iconBg: string; iconColor: string }> = {
+    emerald: {
+      bg: 'hover:bg-emerald-500/[0.04]',
+      ring: 'group-hover:ring-emerald-500/30',
+      iconBg: 'bg-emerald-500/12 group-hover:bg-emerald-500/20',
+      iconColor: 'text-emerald-700 dark:text-emerald-400',
+    },
+    amber: {
+      bg: 'hover:bg-amber-500/[0.04]',
+      ring: 'group-hover:ring-amber-500/30',
+      iconBg: 'bg-amber-500/12 group-hover:bg-amber-500/20',
+      iconColor: 'text-amber-700 dark:text-amber-400',
+    },
+    sky: {
+      bg: 'hover:bg-sky-500/[0.04]',
+      ring: 'group-hover:ring-sky-500/30',
+      iconBg: 'bg-sky-500/12 group-hover:bg-sky-500/20',
+      iconColor: 'text-sky-700 dark:text-sky-400',
+    },
+    violet: {
+      bg: 'hover:bg-violet-500/[0.04]',
+      ring: 'group-hover:ring-violet-500/30',
+      iconBg: 'bg-violet-500/12 group-hover:bg-violet-500/20',
+      iconColor: 'text-violet-700 dark:text-violet-400',
+    },
+  }
 
   const formatCurrency = (value: number) => {
     const loc = locale === 'en' ? 'en-US' : 'tr-TR'
@@ -221,59 +314,15 @@ export function DashboardClient({ initialData, locale }: DashboardClientProps) {
             </CardContent>
           </Card>
 
-          {/* SON HAREKETLER (Live Feed) */}
-          <Card className="relative overflow-hidden border-border/60 bg-card shadow-sm lg:col-span-2">
-            <CardHeader className="border-b border-border/50 pb-4">
-              <CardTitle className="flex items-center gap-2.5 text-base font-semibold md:text-lg">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/12 text-blue-700 dark:text-blue-400">
-                  <Activity className="h-4 w-4" aria-hidden />
-                </span>
-                Canlı Akış (Son İşlemler)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-               {(!initialData.recentActivity || initialData.recentActivity.length === 0) ? (
-                  <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">İşlem bulunamadı.</div>
-               ) : (
-                  <div className="flex flex-col">
-                    {initialData.recentActivity.map((activity, i) => (
-                       <div key={activity.id} className={cn("flex items-center justify-between p-4 transition-colors hover:bg-muted/40", i !== 0 && "border-t border-border/40")}>
-                         <div className="flex items-center gap-4">
-                            <div className="p-2 bg-muted rounded-full">
-                               <ListOrdered className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <div>
-                               <p className="font-medium text-sm">
-                                 {activity.type === 'dine_in' ? `Masa Siparişi • ${activity.table_id || 'Bilinmeyen Masa'}` : activity.type === 'takeaway' ? 'Gel-Al Siparişi' : 'Paket Servis'}
-                               </p>
-                               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                  <span>{new Date(activity.created_at).toLocaleTimeString(locale === 'en' ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                  <span>•</span>
-                                  <Badge variant={activity.status === 'completed' ? 'default' : activity.status === 'active' ? 'secondary' : 'destructive'} className="text-[10px] px-1.5 py-0">
-                                    {activity.status === 'completed' ? 'Ödendi' : activity.status === 'active' ? 'Aktif' : 'İptal'}
-                                  </Badge>
-                               </div>
-                            </div>
-                         </div>
-                         <p className="font-semibold">{formatCurrency(activity.total_amount || 0)}</p>
-                       </div>
-                    ))}
-                    <button 
-                      onClick={() => router.push(`/${locale}/admin/orders` as Route)}
-                      className="w-full p-3 text-sm font-medium text-primary hover:bg-muted/50 border-t border-border/40 transition-colors"
-                    >
-                      Tüm Fişleri Görüntüle
-                    </button>
-                  </div>
-               )}
-            </CardContent>
-          </Card>
-
-          {/* TOP 5 ÜRÜNLER (Dar Panel) */}
-          <Card className="relative flex h-full flex-col overflow-hidden border-border/60 bg-card/90 shadow-sm backdrop-blur-sm">
+          {/* TOP 5 ÜRÜNLER — Mini bar chart + medal badges */}
+          <Card className="relative flex h-full flex-col overflow-hidden border-border/60 bg-card/90 shadow-sm backdrop-blur-sm lg:col-span-2">
             <div
               aria-hidden
-              className="pointer-events-none absolute -left-10 bottom-0 h-36 w-36 rounded-full bg-amber-500/[0.09] blur-3xl"
+              className="pointer-events-none absolute -left-10 bottom-0 h-48 w-48 rounded-full bg-amber-500/[0.08] blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-10 top-0 h-32 w-32 rounded-full bg-orange-500/[0.06] blur-3xl"
             />
             <CardHeader className="relative border-b border-border/50 pb-4">
               <CardTitle className="flex items-center gap-2.5 text-base font-semibold md:text-lg">
@@ -285,49 +334,115 @@ export function DashboardClient({ initialData, locale }: DashboardClientProps) {
             </CardHeader>
             <CardContent className="relative flex-1 p-0">
               {initialData.topProducts.length === 0 ? (
-                <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-                  <ShoppingBag
-                    className="h-10 w-10 text-muted-foreground/35"
-                    aria-hidden
-                  />
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 p-12 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/40">
+                    <ShoppingBag
+                      className="h-8 w-8 text-muted-foreground/40"
+                      aria-hidden
+                    />
+                  </div>
                   <p className="text-sm text-muted-foreground">{tp('empty')}</p>
                 </div>
               ) : (
-                <ul className="divide-y divide-border/60">
-                  {initialData.topProducts.map((product, index) => (
-                    <li
-                      key={`${product.name}-${index}`}
-                      className={cn(
-                        'flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/40',
-                        rankRowClass(index),
-                      )}
-                    >
-                      <div className="flex min-w-0 flex-1 items-center gap-3">
-                        <span
-                          className={cn(
-                            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums',
-                            index === 0 &&
-                              'bg-amber-500/20 text-amber-900 dark:text-amber-200',
-                            index === 1 &&
-                              'bg-slate-500/15 text-slate-800 dark:text-slate-200',
-                            index === 2 &&
-                              'bg-amber-600/20 text-amber-900 dark:text-amber-200',
-                            index > 2 && 'text-muted-foreground/70',
-                          )}
-                        >
-                          {index + 1}
-                        </span>
-                        <span className="truncate text-sm font-medium">
-                          {product.name || tp('unknownName')}
-                        </span>
-                      </div>
-                      <Badge variant="secondary" className="shrink-0 font-semibold">
-                        {tp('units', { count: product.quantity })}
-                      </Badge>
-                    </li>
-                  ))}
+                <ul className="divide-y divide-border/40">
+                  {initialData.topProducts.map((product, index, arr) => {
+                    const maxQty = Math.max(...arr.map((p) => p.quantity), 1)
+                    const widthPct = (product.quantity / maxQty) * 100
+                    return (
+                      <li
+                        key={`${product.name}-${index}`}
+                        className={cn(
+                          'group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30',
+                          rankRowClass(index),
+                        )}
+                      >
+                        {rankBadge(index)}
+
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex items-baseline justify-between gap-3">
+                            <span className="truncate text-sm font-semibold">
+                              {product.name || tp('unknownName')}
+                            </span>
+                            <span className="shrink-0 text-xs font-bold tabular-nums text-muted-foreground">
+                              {tp('units', { count: product.quantity })}
+                            </span>
+                          </div>
+
+                          {/* Mini bar — qty oranı */}
+                          <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
+                            <div
+                              className={cn(
+                                'absolute inset-y-0 left-0 rounded-full transition-all duration-500',
+                                index === 0 && 'bg-gradient-to-r from-amber-400 to-amber-600',
+                                index === 1 && 'bg-gradient-to-r from-slate-400 to-slate-600',
+                                index === 2 && 'bg-gradient-to-r from-orange-500 to-orange-700',
+                                index > 2 && 'bg-gradient-to-r from-muted-foreground/40 to-muted-foreground/60',
+                              )}
+                              style={{ width: `${widthPct}%` }}
+                            />
+                          </div>
+                        </div>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
+            </CardContent>
+          </Card>
+
+          {/* HIZLI EYLEMLER — 4 modul kisayol kartı */}
+          <Card className="relative overflow-hidden border-border/60 bg-card shadow-sm">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/[0.06] blur-3xl"
+            />
+            <CardHeader className="relative border-b border-border/50 pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base font-semibold md:text-lg">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                  <LayoutDashboard className="h-4 w-4" aria-hidden />
+                </span>
+                {tq('title')}
+              </CardTitle>
+              <p className="mt-1 pl-[3rem] text-xs text-muted-foreground">{tq('subtitle')}</p>
+            </CardHeader>
+            <CardContent className="relative p-3">
+              <div className="grid grid-cols-1 gap-2">
+                {quickActions.map((action) => {
+                  const Icon = action.icon
+                  const tone = toneClasses[action.tone]
+                  return (
+                    <button
+                      key={action.key}
+                      type="button"
+                      onClick={() => router.push(action.href)}
+                      className={cn(
+                        'group relative flex items-center gap-3 rounded-xl border border-border/40 bg-background/40 p-3 text-left transition-all',
+                        'hover:border-border hover:shadow-sm hover:-translate-y-0.5',
+                        tone?.bg,
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors',
+                          tone?.iconBg,
+                          tone?.iconColor,
+                        )}
+                      >
+                        <Icon className="h-4 w-4" strokeWidth={2.2} aria-hidden />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold leading-tight">{action.label}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{action.desc}</p>
+                      </div>
+                      <ArrowUpRight
+                        className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    </button>
+                  )
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>

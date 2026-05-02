@@ -759,6 +759,18 @@
         "empty": "Bugün henüz tamamlanan sipariş yok.",
         "units": "{count} adet",
         "unknownName": "Adsız ürün"
+      },
+      "quickActions": {
+        "title": "Hızlı Eylemler",
+        "subtitle": "Sık kullanılan modüllere tek tıkla erişim",
+        "tables": "Masa Yönetimi",
+        "tablesDesc": "Sipariş aç, masaları izle",
+        "kds": "Mutfak Ekranı",
+        "kdsDesc": "Aktif siparişleri yönet",
+        "reservations": "Rezervasyonlar",
+        "reservationsDesc": "Rezervasyon takvimi",
+        "reports": "Raporlar",
+        "reportsDesc": "Detaylı satış raporları"
       }
     }
   },
