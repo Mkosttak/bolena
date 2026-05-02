@@ -86,8 +86,8 @@ export function SiteSettingsClient({ userRole }: SiteSettingsClientProps) {
     <div className="mx-auto max-w-5xl space-y-6 p-4 py-6 md:p-6">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1B3C2A]/10">
-            <QrCode className="h-5 w-5 text-[#1B3C2A]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <QrCode className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold">{t('title')}</h1>

@@ -56,7 +56,7 @@ export function QrCodeDisplay({ url, size = 160 }: QrCodeDisplayProps) {
       <div className="flex gap-2">
         <button
           onClick={handleDownload}
-          className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-[#1B3C2A] border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary border border-border rounded-lg px-3 py-1.5 transition-colors"
           title="SVG olarak indir"
         >
           <Download className="w-3.5 h-3.5" />
@@ -64,7 +64,7 @@ export function QrCodeDisplay({ url, size = 160 }: QrCodeDisplayProps) {
         </button>
         <button
           onClick={handlePrint}
-          className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-[#1B3C2A] border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary border border-border rounded-lg px-3 py-1.5 transition-colors"
           title="Yazdır"
         >
           <Printer className="w-3.5 h-3.5" />

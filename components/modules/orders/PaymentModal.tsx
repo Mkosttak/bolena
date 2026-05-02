@@ -233,7 +233,7 @@ export function PaymentModal({
       <DialogContent className="max-h-[94dvh] w-[calc(100vw-0.75rem)] max-w-[calc(100vw-0.75rem)] overflow-hidden rounded-2xl border bg-background p-0 sm:max-w-4xl">
 
         {/* ── Header ── */}
-        <DialogHeader className="shrink-0 border-b bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,245,237,0.82))] px-4 py-3 sm:px-6 sm:py-4">
+        <DialogHeader className="shrink-0 border-b bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,245,237,0.82))] px-4 py-3 sm:px-6 sm:py-4 dark:bg-[linear-gradient(180deg,rgba(40,58,48,0.95),rgba(30,44,36,0.85))]">
           {/*
             pr-12 → Dialog'un sağ üst köşesindeki kapatma butonuyla üst üste gelmesini önler.
             Kapatma butonu shadcn tarafından absolute right-4 top-4 olarak eklenir.

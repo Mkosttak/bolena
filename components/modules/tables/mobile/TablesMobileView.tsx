@@ -75,7 +75,7 @@ export function TablesMobileView({
   }
 
   return (
-    <div className="relative h-[calc(100dvh-3.5rem)] overflow-hidden bg-[#efe4cf]">
+    <div className="relative h-[calc(100dvh-3.5rem)] overflow-hidden bg-[#efe4cf] dark:bg-background">
       {/* Arka plan blob'ları — QR menüden ilham */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-[-8%] top-[-8%] h-64 w-64" style={{ background: 'radial-gradient(circle, rgba(196,132,26,0.16) 0%, transparent 70%)' }} />
@@ -96,14 +96,14 @@ export function TablesMobileView({
           >
             {/* Yapışkan üst başlık */}
             <header className="sticky top-0 z-20 shrink-0 px-2 pb-2 pt-2">
-              <div className="rounded-[28px] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(250,245,233,0.84))] px-3.5 py-3 shadow-[0_20px_55px_-28px_rgba(27,60,42,0.45)] backdrop-blur-xl">
+              <div className="rounded-[28px] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(250,245,233,0.84))] px-3.5 py-3 shadow-[0_20px_55px_-28px_rgba(27,60,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(40,58,48,0.95),rgba(30,44,36,0.85))]">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[18px] border border-[#1B3C2A]/10 bg-[#1B3C2A]/5 text-[#1B3C2A]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-[18px] border border-[#1B3C2A]/10 bg-[#1B3C2A]/5 text-[#1B3C2A] dark:text-foreground">
                     <LayoutGrid className="h-5 w-5" strokeWidth={1.8} aria-hidden />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-heading text-[1.2rem] leading-none text-[#173322]">{t('title')}</p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1B3C2A]/55">
+                    <p className="font-heading text-[1.2rem] leading-none text-[#173322] dark:text-foreground">{t('title')}</p>
+                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#1B3C2A]/55 dark:text-muted-foreground">
                       {activeCount} {t('hasOrder').toLowerCase()} · ₺{totalRevenue.toFixed(0)} {tOrders('remaining').toLowerCase()}
                     </p>
                   </div>
@@ -112,7 +112,7 @@ export function TablesMobileView({
                       type="button"
                       onClick={onRefresh}
                       aria-label={t('refreshAriaLabel')}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-[#1B3C2A]/65 shadow-sm active:scale-95 transition-transform"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-[#1B3C2A]/65 shadow-sm active:scale-95 transition-transform dark:border-white/10 dark:bg-white/10 dark:text-muted-foreground"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </button>
@@ -120,7 +120,7 @@ export function TablesMobileView({
                       type="button"
                       onClick={onEditTables}
                       aria-label={t('editTables')}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-[#1B3C2A]/65 shadow-sm active:scale-95 transition-transform"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/70 bg-white/80 text-[#1B3C2A]/65 shadow-sm active:scale-95 transition-transform dark:border-white/10 dark:bg-white/10 dark:text-muted-foreground"
                     >
                       <Settings className="h-4 w-4" />
                     </button>
@@ -140,7 +140,7 @@ export function TablesMobileView({
                             'shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-all',
                             isActive
                               ? 'border-[#1B3C2A]/10 bg-[linear-gradient(135deg,#234a36,#13281d)] text-[#faf7ef] shadow-[0_10px_20px_-16px_rgba(27,60,42,0.9)]'
-                              : 'border-[#1B3C2A]/10 bg-white/70 text-[#1B3C2A]/70'
+                              : 'border-[#1B3C2A]/10 bg-white/70 text-[#1B3C2A]/70 dark:border-white/10 dark:bg-white/10 dark:text-muted-foreground'
                           )}
                         >
                           {pill.label} ({pill.count})
@@ -159,17 +159,17 @@ export function TablesMobileView({
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-[128px] w-full animate-pulse rounded-2xl bg-white/65"
+                      className="h-[128px] w-full animate-pulse rounded-2xl bg-white/65 dark:bg-white/10"
                     />
                   ))}
                 </div>
               ) : tables.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-5 px-6 py-20 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1B3C2A]/10 text-[#1B3C2A] shadow-inner ring-1 ring-[#1B3C2A]/20">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1B3C2A]/10 text-[#1B3C2A] shadow-inner ring-1 ring-[#1B3C2A]/20 dark:text-foreground">
                     <LayoutGrid className="h-10 w-10" strokeWidth={1} />
                   </div>
                   <div className="space-y-1.5">
-                    <p className="font-heading text-base font-semibold text-[#173322]">{t('noTables')}</p>
+                    <p className="font-heading text-base font-semibold text-[#173322] dark:text-foreground">{t('noTables')}</p>
                   </div>
                   <button
                     type="button"
@@ -198,18 +198,18 @@ export function TablesMobileView({
                           className={cn(
                             'group relative overflow-hidden rounded-2xl border text-left transition-all duration-200 active:scale-[0.98]',
                             hasOrder
-                              ? 'border-amber-300/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(252,247,233,0.9))] shadow-[0_20px_45px_-32px_rgba(185,120,22,0.5)]'
-                              : 'border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(249,245,236,0.9))] shadow-[0_20px_45px_-34px_rgba(27,60,42,0.35)]',
+                              ? 'border-amber-300/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(252,247,233,0.9))] shadow-[0_20px_45px_-32px_rgba(185,120,22,0.5)] dark:border-amber-400/20 dark:bg-[linear-gradient(180deg,rgba(50,40,20,0.85),rgba(40,32,16,0.75))]'
+                              : 'border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(249,245,236,0.9))] shadow-[0_20px_45px_-34px_rgba(27,60,42,0.35)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(40,58,48,0.95),rgba(30,44,36,0.85))]',
                             flashingTableIds?.has(table.id) && 'animate-qr-flash'
                           )}
                         >
                           <div className="p-3.5">
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <p className="truncate font-heading text-[1.02rem] leading-none text-[#173322]">
+                                <p className="truncate font-heading text-[1.02rem] leading-none text-[#173322] dark:text-foreground">
                                   {table.name}
                                 </p>
-                                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#1B3C2A]/55">
+                                <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#1B3C2A]/55 dark:text-muted-foreground">
                                   {hasOrder ? t('hasOrder') : t('noOrder')}
                                 </p>
                               </div>
@@ -228,13 +228,13 @@ export function TablesMobileView({
                                 )}>
                                   {hasOrder ? <ShoppingBag className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
                                 </div>
-                                <span className="text-[11px] font-semibold text-[#1B3C2A]/70">
+                                <span className="text-[11px] font-semibold text-[#1B3C2A]/70 dark:text-muted-foreground">
                                   {hasOrder ? `${ao!.items_count}` : '0'}
                                 </span>
                               </div>
 
                               <div className="text-right">
-                                <p className="text-[15px] font-extrabold leading-none text-[#173322] tabular-nums">
+                                <p className="text-[15px] font-extrabold leading-none text-[#173322] tabular-nums dark:text-foreground">
                                   ₺{remaining.toFixed(0)}
                                 </p>
                                 {hasOrder && (
@@ -256,7 +256,7 @@ export function TablesMobileView({
                               </div>
                             </div>
 
-                            <div className="mt-2.5 flex items-center justify-end text-[#1B3C2A]/35">
+                            <div className="mt-2.5 flex items-center justify-end text-[#1B3C2A]/35 dark:text-muted-foreground">
                               <CircleDollarSign className="h-3.5 w-3.5" />
                               <ChevronRight className="h-3.5 w-3.5" />
                             </div>
