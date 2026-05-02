@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import Image from 'next/image'
 import { SITE_LOGO_SRC } from '@/lib/site-brand'
 import { calculateFinalPrice } from '@/lib/utils/order.utils'
@@ -73,6 +73,21 @@ export function MenuDisplay({
     }
   }
 
+  // Pill'i sticky nav içinde yatay olarak ortalar — window scroll'a dokunmaz.
+  // (scrollIntoView{block:'nearest'} sticky nav unstick olduğunda window'u yanlışlıkla
+  // dikey kaydırıyordu — kategori tıklamasında ve scroll-to-top'ta sayfa yanlış yere
+  // park ediyordu.)
+  const centerPillInNav = useCallback((id: string) => {
+    const pill = pillRefs.current[id]
+    const nav = navScrollRef.current
+    if (!pill || !nav) return
+    const target = pill.offsetLeft + pill.clientWidth / 2 - nav.clientWidth / 2
+    nav.scrollTo({
+      left: Math.max(0, target),
+      behavior: 'smooth',
+    })
+  }, [])
+
   useEffect(() => {
     observerRef.current?.disconnect()
     observerRef.current = new IntersectionObserver(
@@ -83,8 +98,10 @@ export function MenuDisplay({
         const topVisible = visible[0]
         if (topVisible) {
           const id = topVisible.target.id
-          setActiveId(id)
-          pillRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+          setActiveId((prev) => {
+            if (prev !== id) centerPillInNav(id)
+            return id
+          })
         }
       },
       { rootMargin: '-80px 0px -65% 0px', threshold: 0 }
@@ -95,14 +112,18 @@ export function MenuDisplay({
     })
     return () => observerRef.current?.disconnect()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sections.map((s) => s.id).join(',')])
+  }, [sections.map((s) => s.id).join(','), centerPillInNav])
 
   const scrollTo = useCallback((id: string) => {
     const el = sectionRefs.current[id]
     if (!el) return
     setActiveId(id)
+    centerPillInNav(id)
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [])
+  }, [centerPillInNav])
+
+  const handleSelectProduct = (p: Product) => setSelectedProduct(p)
+  const handleCloseSheet = () => setSelectedProduct(null)
 
   if (sections.length === 0) {
     return (
@@ -450,7 +471,7 @@ export function MenuDisplay({
                   transition={{ duration: 0.75, delay: (idx % 4) * 0.12, ease: [0.16, 1, 0.3, 1] }}
                   style={{ height: '100%' }}
                 >
-                  <ProductCard product={product} isEn={isEn} campaigns={campaigns} translations={translations} onClick={() => setSelectedProduct(product)} />
+                  <ProductCard product={product} isEn={isEn} campaigns={campaigns} translations={translations} onSelect={handleSelectProduct} />
                 </motion.div>
               ))}
             </div>
@@ -461,7 +482,7 @@ export function MenuDisplay({
       <ProductDetailSheet
         open={!!selectedProduct}
         product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        onClose={handleCloseSheet}
         locale={locale}
         campaigns={campaigns}
         translations={translations}
@@ -478,7 +499,7 @@ interface ProductCardProps {
   isEn: boolean
   campaigns: MenuCampaign[]
   translations: MenuDisplayProps['translations']
-  onClick: () => void
+  onSelect: (product: Product) => void
 }
 
 function ingredientDisplayName(ing: ProductIngredient, isEn: boolean) {
@@ -486,7 +507,8 @@ function ingredientDisplayName(ing: ProductIngredient, isEn: boolean) {
   return ing.name_tr
 }
 
-function ProductCard({ product, isEn, campaigns, translations, onClick }: ProductCardProps) {
+const ProductCard = memo(function ProductCard({ product, isEn, campaigns, translations, onSelect }: ProductCardProps) {
+  const onClick = useCallback(() => onSelect(product), [onSelect, product])
   const name = isEn ? product.name_en : product.name_tr
   const desc = isEn ? product.description_en : product.description_tr
   const price = calculateFinalPrice(product, campaigns)
@@ -534,5 +556,5 @@ function ProductCard({ product, isEn, campaigns, translations, onClick }: Produc
       </div>
     </button>
   )
-}
+})
 
