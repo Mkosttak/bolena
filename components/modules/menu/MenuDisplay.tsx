@@ -61,14 +61,36 @@ export function MenuDisplay({
 
   const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? '')
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
   const observerRef = useRef<IntersectionObserver | null>(null)
   const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const navScrollRef = useRef<HTMLDivElement>(null)
 
+  const updateScrollState = useCallback(() => {
+    const el = navScrollRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }, [])
+
+  useEffect(() => {
+    const el = navScrollRef.current
+    if (!el) return
+    updateScrollState()
+    el.addEventListener('scroll', updateScrollState, { passive: true })
+    const ro = new ResizeObserver(updateScrollState)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener('scroll', updateScrollState)
+      ro.disconnect()
+    }
+  }, [updateScrollState, sections.length])
+
   const scrollNav = (direction: 'left' | 'right') => {
     if (navScrollRef.current) {
-      const scrollAmount = 300
+      const scrollAmount = 280
       navScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' })
     }
   }
@@ -183,33 +205,66 @@ export function MenuDisplay({
           width: 100%;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
         }
         .md-nav-arrow {
           display: none;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
+          width: 38px;
+          height: 38px;
           border-radius: 50%;
           background: #FFFFFF;
-          border: 1px solid rgba(27,60,42,0.1);
+          border: 1px solid rgba(27,60,42,0.12);
           color: #1B3C2A;
           cursor: pointer;
           flex-shrink: 0;
-          box-shadow: 0 2px 8px rgba(27,60,42,0.05);
-          transition: all 0.2s;
+          box-shadow: 0 2px 10px rgba(27,60,42,0.06);
+          transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+          z-index: 2;
         }
-        .md-nav-arrow:hover {
+        .md-nav-arrow:hover:not(.disabled) {
           background: #1B3C2A;
           color: #FFFFFF;
           border-color: #1B3C2A;
+          transform: scale(1.06);
+          box-shadow: 0 6px 18px rgba(27,60,42,0.18);
+        }
+        .md-nav-arrow:active:not(.disabled) {
+          transform: scale(0.96);
+        }
+        .md-nav-arrow.disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          pointer-events: none;
         }
         @media (min-width: 768px) {
           .md-nav-arrow { display: flex; }
         }
-        .md-nav-inner {
+        .md-nav-scroll-wrap {
+          position: relative;
           flex: 1;
+          min-width: 0;
+        }
+        .md-nav-fade {
+          position: absolute;
+          top: 0; bottom: 0;
+          width: 28px;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+        .md-nav-fade.visible { opacity: 1; }
+        .md-nav-fade.left {
+          left: 0;
+          background: linear-gradient(to right, var(--background, #FAF8F2) 0%, transparent 100%);
+        }
+        .md-nav-fade.right {
+          right: 0;
+          background: linear-gradient(to left, var(--background, #FAF8F2) 0%, transparent 100%);
+        }
+        .md-nav-inner {
           display: flex;
           overflow-x: auto;
           gap: 0.75rem;
@@ -424,26 +479,44 @@ export function MenuDisplay({
         {sections.length > 1 && (
           <nav className="md-nav" aria-label={isEn ? 'Category navigation' : 'Kategori navigasyonu'}>
             <div className="md-nav-shell">
-              <button className="md-nav-arrow" onClick={() => scrollNav('left')} aria-label="Scroll left">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <button
+                type="button"
+                className={cn('md-nav-arrow', !canScrollLeft && 'disabled')}
+                onClick={() => scrollNav('left')}
+                aria-label={isEn ? 'Scroll left' : 'Sola kaydır'}
+                aria-disabled={!canScrollLeft}
+              >
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <div className="md-nav-inner" ref={navScrollRef}>
-                {sections.map((s) => (
-                  <button
-                    key={s.id}
-                    ref={(el) => { pillRefs.current[s.id] = el }}
-                    className={cn('md-cat-btn', activeId === s.id && 'active')}
-                    onClick={() => scrollTo(s.id)}
-                    aria-current={activeId === s.id ? 'true' : undefined}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+
+              <div className="md-nav-scroll-wrap">
+                <div className={cn('md-nav-fade left', canScrollLeft && 'visible')} aria-hidden />
+                <div className="md-nav-inner" ref={navScrollRef}>
+                  {sections.map((s) => (
+                    <button
+                      key={s.id}
+                      ref={(el) => { pillRefs.current[s.id] = el }}
+                      className={cn('md-cat-btn', activeId === s.id && 'active')}
+                      onClick={() => scrollTo(s.id)}
+                      aria-current={activeId === s.id ? 'true' : undefined}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+                <div className={cn('md-nav-fade right', canScrollRight && 'visible')} aria-hidden />
               </div>
-              <button className="md-nav-arrow" onClick={() => scrollNav('right')} aria-label="Scroll right">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+
+              <button
+                type="button"
+                className={cn('md-nav-arrow', !canScrollRight && 'disabled')}
+                onClick={() => scrollNav('right')}
+                aria-label={isEn ? 'Scroll right' : 'Sağa kaydır'}
+                aria-disabled={!canScrollRight}
+              >
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
