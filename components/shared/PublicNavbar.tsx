@@ -56,11 +56,11 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
           position: absolute;
         }
         .pnav.scrolled {
-          background: rgba(250, 248, 242, 0.94);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(27, 60, 42, 0.1);
-          box-shadow: 0 1px 24px rgba(0,0,0,0.06);
+          background: rgba(250, 248, 242, 0.92);
+          backdrop-filter: blur(24px) saturate(140%);
+          -webkit-backdrop-filter: blur(24px) saturate(140%);
+          border-bottom: 1px solid rgba(27, 60, 42, 0.08);
+          box-shadow: 0 4px 24px -8px rgba(27,60,42,0.08), 0 1px 0 0 rgba(196,132,26,0.08);
         }
         .pnav.top {
           background: transparent;
@@ -79,8 +79,8 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
         .pnav-inner {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 clamp(1.25rem, 4vw, 2.5rem);
-          height: 72px;
+          padding: 0 clamp(1.25rem, 4vw, 2.75rem);
+          height: 76px;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -89,21 +89,35 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
         .pnav-brand {
           display: flex;
           align-items: center;
-          gap: 0.625rem;
+          gap: 0.7rem;
           text-decoration: none;
           flex-shrink: 0;
+          transition: transform 0.25s ease;
         }
+        .pnav-brand:hover { transform: translateY(-1px); }
         .pnav-brand-logo {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
+          width: 38px;
+          height: 38px;
+          border-radius: 11px;
           overflow: hidden;
           position: relative;
           border: 1px solid rgba(27,60,42,0.12);
+          transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .pnav-brand:hover .pnav-brand-logo {
+          border-color: rgba(196,132,26,0.45);
+          box-shadow: 0 2px 12px -2px rgba(196,132,26,0.25);
+        }
+        .pnav.top .pnav-brand-logo, .pnav.menu-mode .pnav-brand-logo {
+          border-color: rgba(250,248,242,0.18);
+        }
+        .pnav.top .pnav-brand:hover .pnav-brand-logo, .pnav.menu-mode .pnav-brand:hover .pnav-brand-logo {
+          border-color: rgba(196,132,26,0.6);
+          box-shadow: 0 2px 14px -2px rgba(196,132,26,0.35);
         }
         .pnav-brand-name {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: 18px;
+          font-size: 19px;
           font-weight: 800;
           letter-spacing: -0.02em;
           color: #1B3C2A;
@@ -112,21 +126,21 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
         }
         .pnav-brand-sub {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 8.5px;
-          font-weight: 700;
-          letter-spacing: 0.22em;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.26em;
           text-transform: uppercase;
           color: #C4841A;
-          margin-top: 1px;
+          margin-top: 3px;
           line-height: 1;
         }
         .pnav.top .pnav-brand-name, .pnav.menu-mode .pnav-brand-name { color: #FAF8F2; }
-        .pnav.top .pnav-brand-sub, .pnav.menu-mode .pnav-brand-sub { color: rgba(250,248,242,0.7); }
+        .pnav.top .pnav-brand-sub, .pnav.menu-mode .pnav-brand-sub { color: rgba(232,198,132,0.85); }
 
         .pnav-links {
           display: none;
           align-items: center;
-          gap: 0;
+          gap: 0.125rem;
           list-style: none;
           margin: 0; padding: 0;
         }
@@ -134,42 +148,52 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
 
         .pnav-link {
           position: relative;
-          padding: 0.375rem 0.875rem;
+          padding: 0.5rem 0.95rem;
           font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13.5px;
           font-weight: 600;
           letter-spacing: 0.01em;
-          color: rgba(27,60,42,0.55);
+          color: rgba(27,60,42,0.6);
           text-decoration: none;
-          transition: color 0.2s;
+          transition: color 0.2s ease, background-color 0.2s ease;
           white-space: nowrap;
+          border-radius: 8px;
         }
         .pnav-link::after {
           content: '';
           position: absolute;
-          bottom: -2px;
-          left: 0.875rem;
-          right: 0.875rem;
-          height: 1.5px;
-          background: #1B3C2A;
-          transform: scaleX(0);
-          transform-origin: center;
-          transition: transform 0.25s ease;
+          bottom: 0px;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background: #C4841A;
+          border-radius: 2px;
+          transform: translateX(-50%);
+          transition: width 0.28s cubic-bezier(0.22,1,0.36,1);
         }
-        .pnav-link:hover { color: #1B3C2A; }
-        .pnav-link:hover::after { transform: scaleX(0.6); }
-        .pnav-link.active { color: #1B3C2A; font-weight: 700; }
-        .pnav-link.active::after { transform: scaleX(1); }
+        .pnav-link:hover {
+          color: #1B3C2A;
+          background-color: rgba(27,60,42,0.04);
+        }
+        .pnav-link:hover::after { width: 14px; }
+        .pnav-link.active {
+          color: #1B3C2A;
+          font-weight: 700;
+        }
+        .pnav-link.active::after { width: 22px; }
 
-        .pnav.top .pnav-link, .pnav.menu-mode .pnav-link { color: rgba(250,248,242,0.6); }
-        .pnav.top .pnav-link:hover, .pnav.menu-mode .pnav-link:hover { color: #FAF8F2; }
+        .pnav.top .pnav-link, .pnav.menu-mode .pnav-link { color: rgba(250,248,242,0.65); }
+        .pnav.top .pnav-link:hover, .pnav.menu-mode .pnav-link:hover {
+          color: #FAF8F2;
+          background-color: rgba(250,248,242,0.06);
+        }
         .pnav.top .pnav-link.active, .pnav.menu-mode .pnav-link.active { color: #FAF8F2; }
-        .pnav.top .pnav-link::after, .pnav.menu-mode .pnav-link::after { background: #FAF8F2; }
+        .pnav.top .pnav-link::after, .pnav.menu-mode .pnav-link::after { background: #E8C684; }
 
         .pnav-right {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.875rem;
           flex-shrink: 0;
         }
         .pnav-hamburger {
