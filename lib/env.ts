@@ -3,10 +3,27 @@ import { z } from 'zod'
 
 /**
  * Tek noktadan, tip-güvenli env erişimi.
- * - Build sırasında eksik/geçersiz env varsa derleme PATLAR (eksik prod deploy'u erken yakalar).
- * - Runtime'da `process.env.X` yerine `env.X` kullanın.
- * - Test/CI'da `SKIP_ENV_VALIDATION=true` ile atlanabilir.
+ *
+ * Validation davranışı:
+ * - Development/Test: gerçek validation. Eksik env varsa erken patlat.
+ * - SKIP_ENV_VALIDATION=true: tamamen atla (CI test job'ları için).
+ * - Vercel BUILD phase (NEXT_PHASE=phase-production-build): atla.
+ *   Sebep: sitemap/feed/route handler'ları build-time generate edilebilir,
+ *   o anda Vercel runtime env'leri set etmiş olsa bile build container'ı
+ *   bunları doğrulamaya hazır olmayabilir. Runtime'da yine her şey
+ *   process.env üzerinden çalışır.
+ *
+ * Defensive route handler'lar (sitemap.ts, feed.xml/route.ts, api/health)
+ * env import etmez, direkt process.env + fallback kullanır.
  */
+
+const isProductionBuild =
+  process.env.NEXT_PHASE === 'phase-production-build' ||
+  process.env.npm_lifecycle_event === 'build'
+
+const skipValidation =
+  process.env.SKIP_ENV_VALIDATION === 'true' || isProductionBuild
+
 export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -24,6 +41,6 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
-  skipValidation: process.env.SKIP_ENV_VALIDATION === 'true',
+  skipValidation,
   emptyStringAsUndefined: true,
 })
