@@ -942,6 +942,7 @@
   "whatsappWidget": {
     "badge": "Bolena line",
     "ariaLabel": "Chat with Bolena Cafe on WhatsApp",
+    "scrollTopAriaLabel": "Scroll to top",
     "welcome": "Welcome.",
     "home": {
       "greeting1": "You can reach us for more information.",

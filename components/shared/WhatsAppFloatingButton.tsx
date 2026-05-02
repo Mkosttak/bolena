@@ -1,19 +1,17 @@
 'use client'
 
 import type { SVGProps } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircleMore, Sparkles, X } from 'lucide-react'
+import { ChevronUp } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { WHATSAPP_NUMBER, WHATSAPP_URL } from '@/lib/constants/social'
 
 type WidgetPageKey = 'home' | 'menu' | 'contact' | 'blog'
 
-const DELAY_MS = 15000 // 15 seconds
-const TYPING_MS = 3000  // 3 seconds typing effect
-const DISMISS_KEY = 'bolena_wa_bubble_dismissed_v2'
+const SCROLL_THRESHOLD = 380
 
 function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -36,130 +34,97 @@ export function WhatsAppFloatingButton() {
   const pageKey = getPageKey(pathname)
   const isHiddenRoute = pageKey === 'blog'
 
-  const [isVisible, setIsVisible] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
-  const [wasDismissed, setWasDismissed] = useState(() => {
-    if (typeof window === 'undefined') return true
-    return !!localStorage.getItem(DISMISS_KEY)
-  })
+  const [showScrollTop, setShowScrollTop] = useState(false)
 
-  // Randomly pick one of the 3 greetings — stable, initialised once on mount
-  const [randomIndex] = useState(() => Math.floor(Math.random() * 3) + 1)
-  const selectedMessageKey = `${pageKey}.greeting${randomIndex}`
-
-  const messageText = t(selectedMessageKey)
   const prefill = t(`${pageKey}.prefill`)
   const href = `${WHATSAPP_URL}?text=${encodeURIComponent(prefill)}`
 
-  // Show logic
+  // Scroll listener — scroll-top butonun görünürlüğünü kontrol eder
   useEffect(() => {
-    if (isHiddenRoute || wasDismissed) return
+    if (isHiddenRoute) return
 
-    const showTimeout = setTimeout(() => {
-      setIsVisible(true)
-      setIsTyping(true)
+    let rafId = 0
+    const onScroll = () => {
+      // requestAnimationFrame ile throttle
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        setShowScrollTop(window.scrollY > SCROLL_THRESHOLD)
+        rafId = 0
+      })
+    }
+    onScroll() // initial check
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [isHiddenRoute])
 
-      // Turn off typing after delay
-      const typingTimeout = setTimeout(() => {
-        setIsTyping(false)
-      }, TYPING_MS)
+  const scrollToTop = useCallback(() => {
+    if (typeof window === 'undefined') return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
+  }, [])
 
-      return () => clearTimeout(typingTimeout)
-    }, DELAY_MS)
-
-    return () => clearTimeout(showTimeout)
-  }, [isHiddenRoute, wasDismissed])
-
-  const handleDismiss = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsVisible(false)
-    setWasDismissed(true)
-    localStorage.setItem(DISMISS_KEY, 'true')
-  }
-
-  if (isHiddenRoute) {
-    return null
-  }
+  if (isHiddenRoute) return null
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-[90] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+      {/* ── Scroll to Top — WhatsApp ikonun ÜSTÜNDE ─────────────── */}
       <AnimatePresence>
-        {isVisible && !wasDismissed && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 0.9, y: 10, filter: 'blur(10px)' }}
-            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-            className="pointer-events-auto relative mb-2 w-full max-w-[280px] sm:max-w-[320px]"
+        {showScrollTop && (
+          <motion.button
+            type="button"
+            onClick={scrollToTop}
+            aria-label={t('scrollTopAriaLabel') ?? 'Sayfanın en üstüne çık'}
+            initial={{ opacity: 0, scale: 0.5, y: 24, rotate: -90 }}
+            animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 16, rotate: 90 }}
+            transition={{
+              type: 'spring',
+              stiffness: 360,
+              damping: 22,
+              mass: 0.8,
+            }}
+            whileHover={{
+              scale: 1.06,
+              y: -2,
+              transition: { type: 'spring', stiffness: 400, damping: 18 },
+            }}
+            whileTap={{ scale: 0.92 }}
+            className={cn(
+              'pointer-events-auto group relative inline-flex h-12 w-12 items-center justify-center rounded-full sm:h-13 sm:w-13',
+              // Marka palette — krem arka plan + koyu yeşil ikon, altın aksent
+              'bg-[#FAF8F2] text-[#1B3C2A]',
+              'shadow-[0_8px_24px_-6px_rgba(27,60,42,0.28),0_2px_8px_-2px_rgba(27,60,42,0.18)]',
+              'border border-[#1B3C2A]/10',
+              'transition-shadow duration-300 hover:shadow-[0_14px_32px_-8px_rgba(27,60,42,0.4),0_4px_12px_-2px_rgba(27,60,42,0.22)]',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C4841A]',
+            )}
+            style={{ width: 48, height: 48 }}
           >
-            <div 
-              className={cn(
-                "relative overflow-hidden rounded-[24px] border border-[#173424]/10 bg-white/95 p-4 shadow-[0_20px_50px_rgba(26,53,36,0.15)] backdrop-blur-xl sm:p-5",
-                "before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(255,255,255,0.4),rgba(255,255,255,0))]"
-              )}
-            >
-              {/* Close Button */}
-              <button
-                onClick={handleDismiss}
-                className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#173424]/5 text-[#173424]/40 transition-all hover:bg-[#173424]/10 hover:text-[#173424] sm:right-4 sm:top-4"
-                aria-label={t('close')}
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="relative shrink-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#173424] text-[#D5AD5C] sm:h-11 sm:w-11">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />
-                </div>
-
-                <div className="flex-1 pt-0.5">
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#173424]/40">
-                    Bolena Destek
-                  </p>
-                  
-                  <div className="min-h-[40px]">
-                    {isTyping ? (
-                      <div className="flex items-center gap-1.5 pt-2">
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 1.2, delay: 0 }}
-                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
-                        />
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }}
-                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
-                        />
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }}
-                          className="h-1.5 w-1.5 rounded-full bg-[#173424]/40"
-                        />
-                      </div>
-                    ) : (
-                      <motion.p
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-[13px] font-medium leading-[1.6] text-[#173424] sm:text-sm"
-                      >
-                        {messageText}
-                      </motion.p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Pointer triangle */}
-            <div className="absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b border-r border-[#173424]/10 bg-white/95" />
-          </motion.div>
+            {/* Subtle altın halka — hover'da görünür */}
+            <span
+              className="pointer-events-none absolute inset-[-3px] rounded-full border border-[#C4841A]/0 transition-all duration-300 group-hover:border-[#C4841A]/35 group-hover:inset-[-5px]"
+              aria-hidden
+            />
+            {/* İç hover glow */}
+            <span
+              className="pointer-events-none absolute inset-0 rounded-full bg-[#C4841A]/0 transition-colors duration-300 group-hover:bg-[#C4841A]/[0.06]"
+              aria-hidden
+            />
+            <ChevronUp
+              className="relative h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5"
+              strokeWidth={2.5}
+            />
+          </motion.button>
         )}
       </AnimatePresence>
 
+      {/* ── WhatsApp Floating Button ──────────────────────────── */}
       <a
         href={href}
         target="_blank"
@@ -168,24 +133,15 @@ export function WhatsAppFloatingButton() {
         className={cn(
           'pointer-events-auto group relative inline-flex h-14 w-14 items-center justify-center rounded-full sm:h-16 sm:w-16',
           'bg-[linear-gradient(135deg,#25d366_0%,#1ea952_100%)] text-white shadow-[0_15px_35px_-12px_rgba(37,211,102,0.6)]',
-          'transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(37,211,102,0.8)]'
+          'transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-18px_rgba(37,211,102,0.8)]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25d366]',
         )}
       >
         <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <span className="absolute inset-[-6px] rounded-full border border-[#25d366]/20" />
-        
-        {/* Unread badge icon */}
-        {!wasDismissed && !isVisible && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 sm:h-5 sm:w-5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-            <span className="relative inline-flex h-4 w-4 rounded-full bg-red-500 sm:h-5 sm:w-5" />
-          </span>
-        )}
-
         <WhatsAppIcon className="relative h-7 w-7 sm:h-8 sm:w-8" />
         <span className="sr-only">{WHATSAPP_NUMBER}</span>
       </a>
     </div>
   )
 }
-

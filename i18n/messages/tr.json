@@ -948,6 +948,7 @@
   "whatsappWidget": {
     "badge": "Bolena hattı",
     "ariaLabel": "Bolena Cafe ile WhatsApp üzerinden yazış",
+    "scrollTopAriaLabel": "Sayfanın en üstüne çık",
     "welcome": "Hoş geldiniz.",
     "home": {
       "greeting1": "Bilgi almak için bize ulaşabilirsiniz.",
