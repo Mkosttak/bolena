@@ -90,7 +90,7 @@ function scheduleChimeAt(audioCtx: AudioContext): void {
 
   const master = audioCtx.createGain()
   master.gain.setValueAtTime(0.0001, now)
-  master.gain.exponentialRampToValueAtTime(0.28, now + 0.03)
+  master.gain.exponentialRampToValueAtTime(0.45, now + 0.03)
   master.gain.exponentialRampToValueAtTime(0.0001, now + 0.60)
   master.connect(audioCtx.destination)
 
@@ -107,7 +107,7 @@ function scheduleChimeAt(audioCtx: AudioContext): void {
 
     const g = audioCtx.createGain()
     g.gain.setValueAtTime(0.0001, t0)
-    g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.025)
+    g.gain.exponentialRampToValueAtTime(0.45, t0 + 0.025)
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
 
     osc.connect(g)
@@ -153,10 +153,10 @@ export function attachKitchenNotificationAudioUnlock(): () => void {
         .then(() => {
           el.pause()
           el.currentTime = 0
-          el.volume = prev > 0.05 ? prev : 0.80
+          el.volume = prev > 0.05 ? prev : 1.0
         })
         .catch(() => {
-          el.volume = prev > 0.05 ? prev : 0.80
+          el.volume = prev > 0.05 ? prev : 1.0
         })
     }
     const c = getContext()
@@ -173,13 +173,15 @@ export function attachKitchenNotificationAudioUnlock(): () => void {
 }
 
 export function playKitchenNotificationChime(): void {
-  const DELAYS = [0, 600, 1200]
+  // Chime'in kendi suresi ~500 ms — aralari ~1100 ms sessizlik birakacak sekilde
+  // 1600 ms'lik adimlarla calistir. Toplam: ~3.7 saniyelik dikkat sinyali.
+  const DELAYS = [0, 1600, 3200]
   for (const delay of DELAYS) {
     setTimeout(() => {
       const dataUrl = buildKitchenChimeWavDataUrl()
       if (dataUrl) {
         const clone = new Audio(dataUrl)
-        clone.volume = 0.80
+        clone.volume = 1.0
         void clone.play().catch(() => playWebAudioChimeFallback())
       } else {
         playWebAudioChimeFallback()
