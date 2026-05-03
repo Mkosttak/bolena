@@ -54,7 +54,11 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
     keywords: meta.keywords,
     alternates: {
       canonical: `${SITE_URL}/${locale}/menu`,
-      languages: { tr: `${SITE_URL}/tr/menu`, en: `${SITE_URL}/en/menu` },
+      languages: {
+        tr: `${SITE_URL}/tr/menu`,
+        en: `${SITE_URL}/en/menu`,
+        'x-default': `${SITE_URL}/tr/menu`,
+      },
     },
     openGraph: {
       title: meta.title,

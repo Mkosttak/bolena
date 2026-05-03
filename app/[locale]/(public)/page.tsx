@@ -34,7 +34,11 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
     description: meta.description,
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
-      languages: { tr: `${SITE_URL}/tr`, en: `${SITE_URL}/en` },
+      languages: {
+        tr: `${SITE_URL}/tr`,
+        en: `${SITE_URL}/en`,
+        'x-default': `${SITE_URL}/tr`,
+      },
     },
     openGraph: {
       title: meta.title,
