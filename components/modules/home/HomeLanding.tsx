@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight, ShieldCheck, ChefHat, Leaf, MapPin, Phone } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -39,12 +39,25 @@ function GoogleLogo() {
 export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingProps) {
   const t = useTranslations('home')
   const heroRef = useRef<HTMLElement>(null)
+  const heroContentRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
   })
   const heroImgY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
   const heroContentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0])
+
+  // LCP fix: h1 doğrudan DOM'da render edilir (opacity:1), scroll fade imperative olarak uygulanır.
+  // motion.div SSR'da opacity değerini inline style olarak set etmez — bu 3+ sn LCP gecikmesine
+  // yol açıyor. MotionValue subscription ile hydration sonrası çalışır, initial paint etkilenmez.
+  useEffect(() => {
+    const unsubscribe = heroContentOpacity.on('change', (v) => {
+      if (heroContentRef.current) {
+        heroContentRef.current.style.opacity = String(v)
+      }
+    })
+    return unsubscribe
+  }, [heroContentOpacity])
 
   const features = [
     { icon: ShieldCheck, title: t('assuranceCard1Title'), desc: t('assuranceCard1Desc') },
@@ -175,13 +188,14 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
         style={{ minHeight: '100svh', background: '#FDFCF8' }}
       >
         <motion.div
-          style={{ 
-            y: heroImgY, 
-            position: 'absolute', 
-            inset: 0, 
-            scale: 1.2, // Increased scale to ensure coverage during parallax
+          style={{
+            y: heroImgY,
+            position: 'absolute',
+            inset: 0,
+            scale: 1.2,
             width: '100%',
-            height: '100%' 
+            height: '100%',
+            willChange: 'transform', // forced reflow azaltır — kendi compositor layer'ında işlenir
           }}
           className="bg-[#FDFCF8]"
         >
@@ -204,8 +218,10 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           }}
         />
 
-        <motion.div
-          style={{ opacity: heroContentOpacity, position: 'relative', zIndex: 10 }}
+        {/* LCP fix: motion.div yerine plain div — h1 SSR'da opacity:1 ile anında görünür */}
+        <div
+          ref={heroContentRef}
+          style={{ position: 'relative', zIndex: 10 }}
         >
           <div
             className="w-full mx-auto"
@@ -279,7 +295,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ─── TICKER ───────────────────────────────────────────── */}
@@ -664,7 +680,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                     alt={card.alt}
                     fill
                     sizes="(max-width: 640px) 48vw, (max-width: 1024px) 45vw, 540px"
-                    quality={72}
+                    quality={55}
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   <div
