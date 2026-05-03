@@ -191,11 +191,11 @@ export function MenuDisplay({
           position: sticky;
           top: 0;
           z-index: 40;
-          padding: 0 clamp(1rem, 4vw, 2rem) 0.25rem;
-          background: rgba(250,248,242,0.95);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(27,60,42,0.08);
+          padding: 0 clamp(1rem, 4vw, 2rem);
+          background: rgba(250,248,242,0.92);
+          backdrop-filter: blur(14px) saturate(140%);
+          -webkit-backdrop-filter: blur(14px) saturate(140%);
+          box-shadow: 0 1px 0 rgba(27,60,42,0.06), 0 8px 24px -16px rgba(27,60,42,0.12);
           margin-bottom: 0.75rem;
         }
         .md-nav-shell {
@@ -211,30 +211,29 @@ export function MenuDisplay({
           display: none;
           align-items: center;
           justify-content: center;
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          background: #FFFFFF;
-          border: 1px solid rgba(27,60,42,0.12);
-          color: #1B3C2A;
+          background: rgba(255,255,255,0.95);
+          border: 1px solid rgba(27,60,42,0.08);
+          color: rgba(27,60,42,0.75);
           cursor: pointer;
           flex-shrink: 0;
-          box-shadow: 0 2px 10px rgba(27,60,42,0.06);
-          transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+          box-shadow: 0 2px 8px rgba(27,60,42,0.05);
+          transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
           z-index: 2;
         }
         .md-nav-arrow:hover:not(.disabled) {
-          background: #1B3C2A;
-          color: #FFFFFF;
-          border-color: #1B3C2A;
-          transform: scale(1.06);
-          box-shadow: 0 6px 18px rgba(27,60,42,0.18);
+          background: #FFFFFF;
+          color: #1B3C2A;
+          border-color: rgba(27,60,42,0.18);
+          box-shadow: 0 6px 14px -4px rgba(27,60,42,0.14);
         }
         .md-nav-arrow:active:not(.disabled) {
-          transform: scale(0.96);
+          transform: scale(0.94);
         }
         .md-nav-arrow.disabled {
-          opacity: 0.35;
+          opacity: 0.3;
           cursor: not-allowed;
           pointer-events: none;
         }
@@ -249,26 +248,26 @@ export function MenuDisplay({
         .md-nav-fade {
           position: absolute;
           top: 0; bottom: 0;
-          width: 28px;
+          width: 36px;
           pointer-events: none;
           z-index: 1;
           opacity: 0;
-          transition: opacity 0.2s ease;
+          transition: opacity 0.25s ease;
         }
         .md-nav-fade.visible { opacity: 1; }
         .md-nav-fade.left {
           left: 0;
-          background: linear-gradient(to right, var(--background, #FAF8F2) 0%, transparent 100%);
+          background: linear-gradient(to right, #FAF8F2 0%, rgba(250,248,242,0.6) 55%, rgba(250,248,242,0) 100%);
         }
         .md-nav-fade.right {
           right: 0;
-          background: linear-gradient(to left, var(--background, #FAF8F2) 0%, transparent 100%);
+          background: linear-gradient(to left, #FAF8F2 0%, rgba(250,248,242,0.6) 55%, rgba(250,248,242,0) 100%);
         }
         .md-nav-inner {
           display: flex;
           overflow-x: auto;
-          gap: 0.75rem;
-          padding: 0.75rem 0;
+          gap: 0.55rem;
+          padding: 0.65rem 0.25rem;
           scrollbar-width: none;
           -ms-overflow-style: none;
         }
@@ -276,39 +275,37 @@ export function MenuDisplay({
 
         .md-cat-btn {
           flex: 0 0 auto;
-          min-width: 110px;
-          height: 42px;
+          min-width: 100px;
+          height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0 1.25rem;
+          padding: 0 1.1rem;
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 600;
-          letter-spacing: 0.02em;
-          color: rgba(27,60,42,0.6);
-          background: rgba(255,255,255,0.7);
-          border: 1px solid rgba(27,60,42,0.1);
+          letter-spacing: 0.025em;
+          color: rgba(27,60,42,0.62);
+          background: rgba(255,255,255,0.65);
+          border: 1px solid rgba(27,60,42,0.08);
           border-radius: 999px;
           cursor: pointer;
           white-space: nowrap;
-          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 2px 8px rgba(27,60,42,0.02);
+          transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+          box-shadow: 0 1px 2px rgba(27,60,42,0.03);
         }
-        .md-cat-btn:hover {
+        .md-cat-btn:hover:not(.active) {
           color: #1B3C2A;
-          background: rgba(255,255,255,1);
-          border-color: rgba(27,60,42,0.2);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(27,60,42,0.06);
+          background: #FFFFFF;
+          border-color: rgba(27,60,42,0.16);
+          box-shadow: 0 4px 10px -2px rgba(27,60,42,0.08);
         }
         .md-cat-btn.active {
           color: #FAF8F2;
           font-weight: 700;
-          background: linear-gradient(135deg, #214732 0%, #11261B 100%);
+          background: linear-gradient(135deg, #234A36 0%, #11261B 100%);
           border-color: transparent;
-          box-shadow: 0 8px 16px rgba(27,60,42,0.2);
-          transform: translateY(-2px);
+          box-shadow: 0 6px 14px -4px rgba(17,38,27,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
         }
 
         @media (max-width: 740px) {
