@@ -123,16 +123,23 @@ export function WorkingHoursClient({ embeddedInHub = false }: WorkingHoursClient
             </div>
           ) : (
             <div className="space-y-2">
-              {weeklyHours.map((row, idx) => (
-                <WeeklyHoursRow
-                  key={row.id}
-                  row={row}
-                  onUpdate={(input) => updateMutation.mutate({ id: row.id, input })}
-                  isLoading={updateMutation.isPending}
-                  t={t}
-                  zebra={idx % 2 === 0}
-                />
-              ))}
+              {/* Hafta Pazartesi ile başlar (Pazar 0 → 7 olarak sıralanır). */}
+              {[...weeklyHours]
+                .sort((a, b) => {
+                  const da = a.day_of_week === 0 ? 7 : a.day_of_week
+                  const db = b.day_of_week === 0 ? 7 : b.day_of_week
+                  return da - db
+                })
+                .map((row, idx) => (
+                  <WeeklyHoursRow
+                    key={row.id}
+                    row={row}
+                    onUpdate={(input) => updateMutation.mutate({ id: row.id, input })}
+                    isLoading={updateMutation.isPending}
+                    t={t}
+                    zebra={idx % 2 === 0}
+                  />
+                ))}
             </div>
           )}
         </CardContent>

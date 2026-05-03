@@ -1,9 +1,10 @@
 'use client'
 
-import { MapPin, PhoneCall, ArrowUpRight } from 'lucide-react'
+import { MapPin, PhoneCall, ArrowUpRight, Sparkles } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useTranslations } from 'next-intl'
-import { format } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
+import { format, parseISO } from 'date-fns'
+import { tr as trLocale, enUS } from 'date-fns/locale'
 import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -61,25 +62,41 @@ interface ContactClientProps {
 export function ContactClient({ locale }: ContactClientProps) {
   const t = useTranslations('contact')
   const tNav = useTranslations('nav')
+  const activeLocale = useLocale()
+  const dateLocale = activeLocale === 'en' ? enUS : trLocale
 
   const [activePanel, setActivePanel] = useState<number>(0)
 
+  // Cache çok agresif değil — admin değişiklik yapınca ~30sn içinde yansır
   const { data: weeklyHours = [], isLoading: hoursLoading } = useQuery({
     queryKey: workingHoursKeys.weekly(),
     queryFn: fetchWeeklyHours,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   })
 
   const { data: exceptions = [] } = useQuery({
     queryKey: workingHoursKeys.exceptions(),
     queryFn: fetchWorkingHoursExceptions,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   })
 
   const now = new Date()
   const todayStr = format(now, 'yyyy-MM-dd')
   const todayDow = now.getDay()
   const todayException = exceptions.find((e) => e.date === todayStr)
+
+  // Önümüzdeki 30 gün içindeki istisnalar (bugün dahil), tarih sırası
+  const thirtyDaysLater = new Date(now)
+  thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30)
+  const upcomingExceptions = exceptions
+    .filter((e) => {
+      const d = parseISO(e.date)
+      return d >= new Date(todayStr) && d <= thirtyDaysLater
+    })
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 6)
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col bg-[#FAF8F2] text-[#1B3C2A] selection:bg-[#c4841a]/30">
@@ -191,6 +208,55 @@ export function ContactClient({ locale }: ContactClientProps) {
                 })
               )}
             </div>
+
+            {/* Yaklaşan özel günler — admin'de eklenen istisnalar burada görünür */}
+            {!hoursLoading && upcomingExceptions.length > 0 && (
+              <div className="mt-6 lg:mt-8 w-full max-w-xl">
+                <div className="flex items-center gap-2 mb-3 lg:mb-4">
+                  <Sparkles className="h-3.5 w-3.5 text-[#c4841a]" strokeWidth={2} />
+                  <h3 className="text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.2em] text-[#c4841a]">
+                    {t('upcomingExceptions')}
+                  </h3>
+                </div>
+                <div className="flex flex-col gap-1.5 lg:gap-2">
+                  {upcomingExceptions.map((exc) => {
+                    const date = parseISO(exc.date)
+                    const isExcToday = exc.date === todayStr
+                    const dateLabel = format(date, 'd MMMM EEEE', { locale: dateLocale })
+                    const hoursLabel = formatHoursRange(exc, t('closed'))
+                    const description = activeLocale === 'en'
+                      ? (exc.description_en ?? exc.description_tr)
+                      : (exc.description_tr ?? exc.description_en)
+                    return (
+                      <div
+                        key={exc.date}
+                        className={`group flex items-center justify-between rounded-xl border px-3 py-2 lg:px-4 lg:py-2.5 transition-all ${
+                          isExcToday
+                            ? 'border-[#c4841a]/40 bg-[#c4841a]/5'
+                            : 'border-[#1B3C2A]/10 bg-[#FAF8F2]/40 hover:bg-[#FAF8F2]/80 hover:border-[#1B3C2A]/20'
+                        }`}
+                      >
+                        <div className="flex flex-col min-w-0">
+                          <span className={`text-xs lg:text-sm font-medium capitalize ${isExcToday ? 'text-[#c4841a]' : 'text-[#1B3C2A]/85'}`}>
+                            {dateLabel}
+                          </span>
+                          {description && (
+                            <span className="text-[10px] lg:text-[11px] text-[#1B3C2A]/50 truncate mt-0.5">
+                              {description}
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-[11px] lg:text-xs font-semibold tabular-nums whitespace-nowrap ml-3 ${
+                          exc.is_open ? 'text-[#1B3C2A]/75' : 'text-red-600/70'
+                        }`}>
+                          {hoursLabel}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
