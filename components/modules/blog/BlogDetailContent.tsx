@@ -1,5 +1,12 @@
+'use client'
+
+// NOT: Client component — sanitize-html DOMPurify'i browser-side calistirir
+// (server-side `jsdom` peer dependency sorunu icin). Render edilen icerik
+// sabit (ISR), hydration mismatch yok.
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useMemo } from 'react'
 import { format } from 'date-fns'
 import { tr as trLocale, enUS } from 'date-fns/locale'
 import type { Route } from 'next'
@@ -21,6 +28,8 @@ export function BlogDetailContent({ post, locale, translations }: BlogDetailCont
   const title = locale === 'en' && post.title_en ? post.title_en : post.title_tr
   const content = locale === 'en' && post.content_en ? post.content_en : post.content_tr
   const dateLocale = locale === 'en' ? enUS : trLocale
+  // Sanitize'ı memoize — content stabil, gereksiz re-sanitize yok
+  const sanitizedContent = useMemo(() => sanitizeBlogContent(content), [content])
 
   return (
     <article style={{ maxWidth: 800, margin: '0 auto', padding: '2rem clamp(1.25rem, 5vw, 2.5rem) 4rem' }}>
@@ -134,7 +143,7 @@ export function BlogDetailContent({ post, locale, translations }: BlogDetailCont
       {/* Content */}
       <div
         className="blog-content prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: sanitizeBlogContent(content) }}
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
 
       <style>{`
