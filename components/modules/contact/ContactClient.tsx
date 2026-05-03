@@ -4,7 +4,6 @@ import { MapPin, PhoneCall, ArrowUpRight } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations, useLocale } from 'next-intl'
 import { format } from 'date-fns'
-import { tr as trLocale, enUS } from 'date-fns/locale'
 import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -63,7 +62,6 @@ export function ContactClient({ locale }: ContactClientProps) {
   const t = useTranslations('contact')
   const tNav = useTranslations('nav')
   const activeLocale = useLocale()
-  const dateLocale = activeLocale === 'en' ? enUS : trLocale
 
   const [activePanel, setActivePanel] = useState<number>(0)
 
@@ -228,20 +226,9 @@ export function ContactClient({ locale }: ContactClientProps) {
                 ))
               ) : (
                 DAY_ORDER.map((dayNum) => {
-                  const { effective, tag, exceptionDate, isToday: rowToday, description } = resolveDay(dayNum)
+                  const { effective, tag, isToday: rowToday, description } = resolveDay(dayNum)
                   const dayName = t(`days.${dayNum}` as `days.${number}`)
                   const hoursLabel = formatHoursRange(effective, t('closed'))
-
-                  // Tag → kısa renkli alt etiket (sadece istisna varsa)
-                  const tagLabel =
-                    tag === 'opened' ? t('exceptionOpened')
-                    : tag === 'closed' ? t('exceptionClosed')
-                    : tag === 'changed' ? t('exceptionChanged')
-                    : null
-                  // Tarih kısa: "12 May" / "May 12"
-                  const exceptionDateLabel = exceptionDate
-                    ? format(new Date(exceptionDate), activeLocale === 'en' ? 'MMM d' : 'd MMM', { locale: dateLocale })
-                    : null
 
                   return (
                     <div
@@ -257,7 +244,7 @@ export function ContactClient({ locale }: ContactClientProps) {
                           <span className="text-xs lg:text-base font-light tracking-widest uppercase">{dayName}</span>
                           <span className="flex-grow border-b border-dotted border-[#1B3C2A]/20 mb-1 lg:mb-1.5 opacity-30" />
                         </div>
-                        {tag && tagLabel && (
+                        {tag && description && (
                           <span
                             className={`mt-1 text-[9px] lg:text-[10px] font-medium tracking-wide ${
                               tag === 'closed'
@@ -267,10 +254,7 @@ export function ContactClient({ locale }: ContactClientProps) {
                                   : 'text-[#c4841a]/85'
                             }`}
                           >
-                            {exceptionDateLabel ? `${exceptionDateLabel} · ${tagLabel}` : tagLabel}
-                            {description && (
-                              <span className="text-[#1B3C2A]/45"> — {description}</span>
-                            )}
+                            {description}
                           </span>
                         )}
                       </div>

@@ -757,7 +757,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
           {/* Header row */}
           <Reveal>
             <div
-              className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6"
+              className="flex flex-row items-start justify-between sm:items-end gap-3 sm:gap-6"
               style={{ marginBottom: 'clamp(2.5rem,5vh,3.5rem)' }}
             >
               <div>
@@ -778,8 +778,16 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               </div>
 
               {/* Rating badge */}
+              <style>{`
+                @media (max-width: 639px) {
+                  .home-rating-badge { padding: 0.5rem 0.75rem !important; gap: 0.5rem !important; border-radius: 0.875rem !important; }
+                  .home-rating-badge .home-rating-num { font-size: 1.35rem !important; }
+                  .home-rating-badge svg { width: 12px !important; height: 12px !important; }
+                  .home-rating-badge .home-rating-stars { gap: 1px !important; margin-bottom: 0 !important; }
+                }
+              `}</style>
               <div
-                className="flex items-center gap-3 flex-shrink-0 rounded-2xl"
+                className="home-rating-badge flex items-center gap-3 flex-shrink-0 rounded-2xl"
                 style={{
                   background: 'rgba(255,255,255,0.07)',
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -788,7 +796,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                 }}
               >
                 <span
-                  className="font-heading"
+                  className="home-rating-num font-heading"
                   style={{
                     fontSize: '2.5rem',
                     fontWeight: 800,
@@ -800,7 +808,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                   {t('reviewsRating')}
                 </span>
                 <div>
-                  <div className="flex gap-0.5 mb-1">
+                  <div className="home-rating-stars flex gap-0.5 mb-1">
                     {Array.from({ length: 5 }).map((_, idx) => (
                       <StarFull key={idx} />
                     ))}
