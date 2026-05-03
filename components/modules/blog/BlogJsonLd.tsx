@@ -3,6 +3,8 @@ import {
   buildKeywords,
   buildSeoDescription,
   countWords,
+  stripHtml,
+  smartTruncate,
 } from '@/lib/utils/blog-seo'
 
 interface BlogJsonLdProps {
@@ -41,6 +43,18 @@ export function BlogJsonLd({ post, locale, siteUrl }: BlogJsonLdProps) {
   const wordCount = countWords(contentHtml)
   const url = `${siteUrl}/${locale}/blog/${post.slug}`
 
+  // Article body — Google AI Overview ve rich result icin substantif metin (~500 char).
+  const articleBody = smartTruncate(stripHtml(contentHtml), 500)
+
+  // about[] — yazinin konu kapsamini Schema.org Thing referanslari ile bildirir.
+  // Yapay zeka aramalarinda (ChatGPT, Perplexity) bu sinyal "topical entity" olarak
+  // okunur ve glutensiz / colyak / Ankara gibi konularla iliskilendirilir.
+  const aboutEntities: Array<{ '@type': string; name: string; sameAs?: string }> = [
+    { '@type': 'Thing', name: 'Gluten-free diet', sameAs: 'https://en.wikipedia.org/wiki/Gluten-free_diet' },
+    { '@type': 'MedicalCondition', name: 'Celiac disease', sameAs: 'https://en.wikipedia.org/wiki/Coeliac_disease' },
+    { '@type': 'Place', name: 'Ankara, Turkey', sameAs: 'https://en.wikipedia.org/wiki/Ankara' },
+  ]
+
   const blogPosting = {
     '@type': 'BlogPosting',
     '@id': `${url}#article`,
@@ -76,10 +90,13 @@ export function BlogJsonLd({ post, locale, siteUrl }: BlogJsonLdProps) {
       : undefined,
     keywords: keywords.length > 0 ? keywords.join(', ') : undefined,
     articleSection: post.tags?.[0],
+    articleBody: articleBody || undefined,
     wordCount: wordCount > 0 ? wordCount : undefined,
     timeRequired: post.reading_time_minutes
       ? `PT${post.reading_time_minutes}M`
       : undefined,
+    about: aboutEntities,
+    isAccessibleForFree: true,
   }
 
   const breadcrumbList = {

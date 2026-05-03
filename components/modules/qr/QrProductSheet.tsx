@@ -185,12 +185,9 @@ export function QrProductSheet({
     if (!line) return
 
     addItem(line)
-    toast(t('toastCartPendingTitle'), {
+    toast.success(t('toastCartPendingTitle'), {
       description: t('toastCartPendingDesc'),
       duration: 3500,
-      position: 'top-center',
-      className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex flex-col items-center p-4 text-center',
-      descriptionClassName: 'text-gray-300 text-center',
       action: {
         label: t('navCart'),
         onClick: () => document.getElementById('cart-tab-btn')?.click()
@@ -210,23 +207,16 @@ export function QrProductSheet({
       if (result.success) {
         onDirectOrderSuccess?.()
         await queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
-        toast(t('toastDirectSentTitle'), {
+        toast.success(t('toastDirectSentTitle'), {
           description: t('toastDirectSentDesc'),
           duration: 4000,
-          position: 'top-center',
-          className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl flex p-4',
-          descriptionClassName: 'text-gray-300',
-          icon: <Send className="w-4 h-4 text-emerald-400" />,
+          icon: <Send className="size-4" />,
         })
         onClose()
       } else {
-        toast(t('orderFailedTitle'), {
+        toast.error(t('orderFailedTitle'), {
           description: result.error ?? t('orderFailedDesc'),
           duration: 5000,
-          position: 'top-center',
-          className: 'bg-red-950/90 text-white border border-red-900/50 backdrop-blur-xl shadow-2xl rounded-2xl flex p-4',
-          descriptionClassName: 'text-red-200',
-          icon: <AlertCircle className="w-4 h-4 text-red-400" />,
         })
       }
     })
@@ -291,9 +281,15 @@ export function QrProductSheet({
               <X className="w-4 h-4 text-gray-600" />
             </button>
 
-            <div 
-              className="overflow-y-auto overscroll-contain flex-1 min-h-0 pb-28 qr-scrollbar"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+            <div
+              className="overflow-y-auto overscroll-contain flex-1 min-h-0 qr-scrollbar"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                // Action bar (~88px) + safe-area home indicator dinamik —
+                // sabit pb-28 (112px) yerine cihaz bazlı, alt boşluğu
+                // ortadan kaldırır.
+                paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))',
+              }}
             >
               <div className="relative aspect-[16/9] w-full bg-gray-100">
                 <Image
@@ -448,7 +444,9 @@ export function QrProductSheet({
               </div>
             </div>
 
-            <div className="absolute bottom-0 inset-x-0 bg-[#FAF8F2]/95 backdrop-blur-md border-t border-gray-200/80 px-5 py-4 safe-area-padding-bottom">
+            {/* Solid bg — translucent + backdrop-blur sheet ile aynı krem
+                ton, alt kısımda görsel "açıklık" algısı oluşturmasın */}
+            <div className="absolute bottom-0 inset-x-0 bg-[#FAF8F2] border-t border-[#1B3C2A]/8 px-5 py-4 safe-area-padding-bottom shadow-[0_-8px_24px_-12px_rgba(15,34,24,0.12)]">
               {requiredError && (
                 <div className="flex items-center gap-2 mb-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 max-w-[390px] mx-auto">
                   <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />

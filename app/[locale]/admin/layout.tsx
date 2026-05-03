@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -7,6 +8,48 @@ import { MobileSidebar } from '@/components/shared/MobileSidebar'
 import { AuthInitializer } from '@/components/shared/AuthInitializer'
 import { GlobalErrorBoundary } from '@/components/shared/GlobalErrorBoundary'
 import type { ModuleName } from '@/types'
+
+/**
+ * Admin sayfalari TAMAMEN arama motoru / yapay zeka aramasi disinda tutulur.
+ *
+ * Bunu garanti altina almak icin **uc katmanli savunma**:
+ *  1. `app/robots.ts` → /admin/* disallow (crawler URL'yi ziyaret etmesin)
+ *  2. `proxy.ts` → tum admin response'larina X-Robots-Tag HTTP header (URL ziyaret
+ *     edilse bile indekslenmesin)
+ *  3. Bu metadata → her admin sayfasinin <head>'ine `<meta name="robots">` koyar
+ *     (third-party scraper'lar bile yanlislikla indekslemesin)
+ *
+ * Ayrica meta `title` ve `description` jenerik tutulur — bot tesadufen sayfayi
+ * indeksleyse bile snippet'inde anlamsiz/markasiz icerik gorunsun. Kullanici
+ * Bolena admin'inin varligindan haberdar olamaz.
+ */
+export const metadata: Metadata = {
+  title: 'Restricted',
+  description: '',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
+    notranslate: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+      noimageindex: true,
+      'max-snippet': 0,
+      'max-image-preview': 'none',
+    },
+  },
+  // Eski /admin URL'leri varsa Google'a "boyle bir kanonik yok" sinyali ver
+  alternates: { canonical: undefined },
+  // Sosyal paylasimda da gosterilmesin
+  openGraph: { title: '', description: '', images: [] },
+  twitter: { title: '', description: '', images: [] },
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode

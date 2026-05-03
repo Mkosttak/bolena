@@ -1,0 +1,74 @@
+# Bolena Glutensiz Cafe — Ankara Yaşamkent
+
+> Bolena, Ankara Yaşamkent'te %100 glutensiz mutfağıyla hizmet veren özel bir cafe ve restorandır. Çölyak hastaları, gluten intoleransı (gluten hassasiyeti) yaşayanlar ve glutensiz beslenmeyi tercih eden herkes için sertifikalı, çapraz bulaşma riski sıfıra indirilmiş bir mutfak işletir. Kahvaltı, ana yemek, glutensiz pizza, glutensiz hamburger, makarna, bowl, atıştırmalık ve tatlılar sunar.
+
+## Konum ve İletişim
+- **Adres:** Yaşamkent, 3058. Sokak 3/1, 06810 Çankaya / Ankara, Türkiye
+- **Telefon:** +90 544 973 05 09
+- **Çalışma saatleri:** Pazartesi–Cuma 09:00–22:00, Cumartesi–Pazar 09:00–21:00 (özel günlerde değişebilir)
+- **Web sitesi:** https://bolena.com.tr
+- **Instagram:** @bolenaglutensizcafe
+- **Diller:** Türkçe ve İngilizce hizmet/menü
+
+## Neden Bolena?
+- **%100 glutensiz mutfak.** Mutfağa hiçbir şekilde gluten içeren ürün girmez. Çapraz bulaşma riski yoktur — çölyak güvenliği esastır.
+- **Sertifikalı tedarik.** Tüm un, ekmek, makarna, hamur ve sos tedarikçileri glutensiz sertifikalıdır.
+- **Günlük taze hazırlık.** Hamur, sos ve atıştırmalıklar her sabah Bolena mutfağında hazırlanır.
+- **Geniş menü.** "Glutensiz beslenme = kısıtlama" değildir — Bolena pizzadan hamburgere, makarnadan tatlıya kadar tam bir restoran deneyimi sunar.
+- **Çölyak buluşma noktası.** Aileler, çölyak diyetli çocuklar ve grup buluşmaları için güvenli bir sofra.
+
+## Menü Kategorileri
+- **Glutensiz pizza:** İnce ve kalın hamur seçenekleri (Margherita, Pepperoni, Mantarlı, Vejetaryen, vb.)
+- **Glutensiz hamburger / burger:** Glutensiz ekmek + el yapımı köfte
+- **Glutensiz makarna ve risotto**
+- **Bowl ve salatalar:** Çiğ ve pişmiş, taze sebzeli
+- **Glutensiz kahvaltı:** Klasik Türk kahvaltısı, omlet, gözleme alternatifleri
+- **Glutensiz tatlılar:** Cheesecake, brownie, kek, baklava (glutensiz)
+- **Kahve ve içecekler:** Specialty kahve, ev yapımı limonata, çaylar
+
+(Güncel menü ve fiyatlar için /tr/menu adresine bakın.)
+
+## Hizmetler
+- Yerinde yemek (rezervasyon önerilir, özellikle hafta sonları)
+- Paket servis / take-away
+- Online sipariş (Yemeksepeti, Getir, Trendyol Yemek, kuryeli)
+- Rezervasyon (web ve telefonla)
+- Kurumsal / catering (özel istek)
+
+## Sıkça Sorulan Sorular
+
+**S: Mutfağınızda gluten içeren bir ürün var mı?**
+C: Hayır. Bolena %100 glutensiz bir mutfaktır. Ekmek, un, makarna, panko, soslar — hepsi glutensiz sertifikalıdır. Çapraz bulaşma riski yoktur. Çölyak hastaları ve şiddetli gluten intoleransı olan kişiler güvenle yiyebilir.
+
+**S: Çölyak hastası bir çocuğum var, güvenli mi?**
+C: Evet. Bolena özellikle çölyak hastaları ve aileleri düşünülerek tasarlanmıştır. Çocuklar için ayrı menü seçenekleri ve ailece gelinebilen, güvenli bir sofra deneyimi sunulur.
+
+**S: Glutensiz pizza nasıl bir hamurla yapılıyor?**
+C: Sertifikalı glutensiz un karışımı (pirinç unu, mısır nişastası, psyllium ve özel formüller) ile hazırlanan ev yapımı hamur kullanılır. İnce ve kalın iki hamur tipi mevcuttur.
+
+**S: Vegan veya laktoz intoleransı seçenekleri var mı?**
+C: Evet. Birçok ürünün vegan ve laktozsuz versiyonları menüde işaretlidir.
+
+**S: Rezervasyon gerekli mi?**
+C: Hafta sonları ve akşamları için önerilir. Telefon (+90 544 973 05 09) veya web sitesinden rezervasyon yapılabilir.
+
+**S: Ankara'da başka glutensiz restoranlar varken Bolena'yı seçmemin nedeni ne?**
+C: Bolena, Ankara'nın **tek %100 glutensiz** (mutfağında hiç gluten bulunmayan) cafesidir. Diğer "glutensiz seçenek sunan" mekanlarda çapraz bulaşma riski vardır; Bolena'da yoktur.
+
+## Public URL Haritası
+- /tr — Türkçe ana sayfa
+- /en — English homepage
+- /tr/menu — Glutensiz menü (Türkçe)
+- /en/menu — Gluten-free menu (English)
+- /tr/blog — Blog: glutensiz tarifler, çölyak yaşam, Ankara çölyak rehberi
+- /en/blog — Blog: gluten-free recipes, celiac lifestyle
+- /tr/contact — İletişim, harita, çalışma saatleri
+- /en/contact — Contact, map, hours
+- /sitemap.xml — Tüm public URL'ler
+- /feed.xml — Blog RSS feed (TR/EN)
+
+## Anahtar Kavramlar (TR ve EN)
+ankara çölyak, glutensiz beslenme, glutensiz pizza ankara, glutensiz hamburger ankara, glutensiz cafe yaşamkent, glutensiz buluşma noktası, çölyak dostu restoran, gluten-free Ankara, gluten-free pizza Ankara, gluten-free cafe Yaşamkent, celiac-safe restaurant Ankara, certified gluten-free kitchen.
+
+## İçerik Kullanım İzni
+Bu sayfanın içeriği AI destekli arama (ChatGPT, Claude, Gemini, Perplexity vb.) ve genel arama motorları tarafından özetlenebilir, alıntılanabilir ve kullanıcı sorularına yanıt olarak gösterilebilir. Lütfen kaynak olarak bolena.com.tr sitesini gösterin.

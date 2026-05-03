@@ -4,9 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { SiteFooter } from '@/components/shared/SiteFooter'
 import { BlogListSection } from '@/components/modules/blog/BlogListSection'
+import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 import type { BlogPost } from '@/types'
 
 export const dynamic = 'force-dynamic'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
 
 interface BlogIndexPageProps {
   params: Promise<{ locale: string }>
@@ -15,20 +18,48 @@ interface BlogIndexPageProps {
 export async function generateMetadata({ params }: BlogIndexPageProps): Promise<Metadata> {
   const { locale } = await params
   const isEn = locale === 'en'
+  const title = isEn
+    ? 'Blog — Gluten-Free Recipes, Celiac Tips & News'
+    : 'Blog — Glutensiz Tarifler, Çölyak Rehberi ve Haberler'
+  const description = isEn
+    ? 'Gluten-free recipes, celiac-friendly tips, Ankara gluten-free guide and news from Bolena Cafe — Turkey\'s 100% gluten-free kitchen.'
+    : 'Glutensiz tarifler, çölyak dostu yaşam ipuçları, Ankara glutensiz rehberi ve Bolena\'dan haberler. %100 glutensiz mutfaktan içerikler.'
+
   return {
-    title: isEn ? 'Blog — Bolena Cafe' : 'Blog — Bolena Cafe',
-    description: isEn
-      ? 'Gluten-free recipes, health tips and news from Bolena Cafe.'
-      : 'Bolena Cafe\'den glutensiz tarifler, sağlık önerileri ve haberler.',
+    title,
+    description,
+    keywords: isEn
+      ? ['gluten-free recipes', 'celiac blog', 'gluten-free Ankara', 'Bolena blog', 'gluten-free lifestyle']
+      : ['glutensiz tarifler', 'çölyak blog', 'glutensiz yaşam', 'ankara çölyak rehberi', 'glutensiz beslenme', 'glutensiz pizza tarifi'],
     alternates: {
-      canonical: `/${locale}/blog`,
-      languages: { tr: '/tr/blog', en: '/en/blog' },
+      canonical: `${SITE_URL}/${locale}/blog`,
+      languages: {
+        tr: `${SITE_URL}/tr/blog`,
+        en: `${SITE_URL}/en/blog`,
+      },
     },
     openGraph: {
-      title: isEn ? 'Blog — Bolena Cafe' : 'Blog — Bolena Cafe',
-      description: isEn
-        ? 'Gluten-free recipes, health tips and news.'
-        : 'Glutensiz tarifler, sağlık önerileri ve haberler.',
+      type: 'website',
+      title,
+      description,
+      url: `${SITE_URL}/${locale}/blog`,
+      siteName: 'Bolena Glutensiz Cafe',
+      locale: isEn ? 'en_US' : 'tr_TR',
+      alternateLocale: isEn ? ['tr_TR'] : ['en_US'],
+      images: [
+        {
+          url: '/images/menu/hero_v2.png',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/images/menu/hero_v2.png'],
     },
   }
 }
@@ -47,8 +78,16 @@ export default async function BlogIndexPage({ params }: BlogIndexPageProps) {
     .lte('published_at', today)
     .order('published_at', { ascending: false })
 
+  const isEn = locale === 'en'
+
   return (
     <div style={{ background: '#FAF8F2', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <BreadcrumbJsonLd
+        items={[
+          { name: isEn ? 'Home' : 'Ana Sayfa', url: `${SITE_URL}/${locale}` },
+          { name: 'Blog', url: `${SITE_URL}/${locale}/blog` },
+        ]}
+      />
       <PublicNavbar
         locale={locale}
         menuLabel={tNav('menu')}

@@ -5,20 +5,38 @@ import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { SiteFooter } from '@/components/shared/SiteFooter'
 import { MenuDisplay } from '@/components/modules/menu/MenuDisplay'
 import { MenuHero } from '@/components/modules/menu/MenuHero'
+import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 import type { Category, MenuCampaign, Product } from '@/types'
 
 export const revalidate = 1800
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
 
-const META = {
+const META: Record<'tr' | 'en', { title: string; description: string; keywords: string[] }> = {
   tr: {
-    title: 'Menü | Bolena Glutensiz Cafe',
-    description: 'Bolena\'nın 100% glutensiz menüsünü keşfedin. Kahvaltılar, ana yemekler, tatlılar ve içecekler — hepsi sertifikalı glutensiz mutfakta hazırlanır.',
+    title: 'Glutensiz Menü — Pizza, Hamburger, Kahvaltı | Bolena Cafe Ankara',
+    description: 'Ankara Yaşamkent\'te %100 glutensiz menü: glutensiz pizza, hamburger, makarna, kahvaltı, bowl ve tatlılar. Çölyak güvenli, sertifikalı mutfak.',
+    keywords: [
+      'glutensiz menü',
+      'glutensiz pizza ankara',
+      'glutensiz hamburger ankara',
+      'glutensiz kahvaltı',
+      'glutensiz makarna',
+      'glutensiz tatlı',
+      'çölyak menü',
+      'ankara glutensiz restoran menü',
+    ],
   },
   en: {
-    title: 'Menu | Bolena Gluten-Free Cafe',
-    description: 'Explore Bolena\'s 100% gluten-free menu. Breakfasts, mains, desserts and drinks — all prepared in our certified gluten-free kitchen.',
+    title: 'Gluten-Free Menu — Pizza, Burger, Breakfast | Bolena Ankara',
+    description: 'Ankara Yaşamkent 100% gluten-free menu: gluten-free pizza, burger, pasta, breakfast, bowls and desserts. Celiac-safe certified kitchen.',
+    keywords: [
+      'gluten-free menu',
+      'gluten-free pizza ankara',
+      'gluten-free burger ankara',
+      'gluten-free breakfast',
+      'celiac menu ankara',
+    ],
   },
 }
 
@@ -32,6 +50,7 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
   return {
     title: meta.title,
     description: meta.description,
+    keywords: meta.keywords,
     alternates: {
       canonical: `${SITE_URL}/${locale}/menu`,
       languages: { tr: `${SITE_URL}/tr/menu`, en: `${SITE_URL}/en/menu` },
@@ -43,10 +62,20 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
       siteName: 'Bolena Glutensiz Cafe',
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
       type: 'website',
+      images: [
+        {
+          url: '/images/menu/hero_v2.png',
+          width: 1200,
+          height: 630,
+          alt: meta.title,
+        },
+      ],
     },
     twitter: {
+      card: 'summary_large_image',
       title: meta.title,
       description: meta.description,
+      images: ['/images/menu/hero_v2.png'],
     },
   }
 }
@@ -90,8 +119,16 @@ export default async function MenuPage({ params }: MenuPageProps) {
     emptyState: tMenu('emptyState'),
   }
 
+  const isEn = locale === 'en'
+
   return (
     <div className="min-h-screen flex flex-col bg-background selection:bg-primary/20">
+      <BreadcrumbJsonLd
+        items={[
+          { name: isEn ? 'Home' : 'Ana Sayfa', url: `${SITE_URL}/${locale}` },
+          { name: isEn ? 'Menu' : 'Menü', url: `${SITE_URL}/${locale}/menu` },
+        ]}
+      />
       <PublicNavbar
         locale={locale}
         menuLabel={tNav('menu')}

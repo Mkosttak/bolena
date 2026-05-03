@@ -48,18 +48,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     const { data: posts } = await supabase
       .from('blog_posts')
-      .select('slug, updated_at, published_at')
+      .select('slug, updated_at, published_at, cover_image_url')
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(1000)
 
     if (posts) {
-      blogEntries = posts.flatMap((post: { slug: string; updated_at: string; published_at: string | null }) =>
+      blogEntries = posts.flatMap((post: { slug: string; updated_at: string; published_at: string | null; cover_image_url: string | null }) =>
         ['tr', 'en'].map((locale) => ({
           url: `${BASE_URL}/${locale}/blog/${post.slug}`,
           lastModified: new Date(post.updated_at ?? post.published_at ?? now),
           changeFrequency: 'monthly' as const,
           priority: 0.6,
+          // Google Image Sitemap — kapak gorseli indekslensin
+          ...(post.cover_image_url ? { images: [post.cover_image_url] } : {}),
           alternates: {
             languages: {
               tr: `${BASE_URL}/tr/blog/${post.slug}`,

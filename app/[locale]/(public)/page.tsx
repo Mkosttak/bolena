@@ -8,6 +8,7 @@ import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { SiteFooter } from '@/components/shared/SiteFooter'
 import { HomeLanding } from '@/components/modules/home/HomeLanding'
 import { LocalBusinessJsonLd } from '@/components/shared/LocalBusinessJsonLd'
+import { FaqJsonLd, BOLENA_FAQ } from '@/components/shared/FaqJsonLd'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,9 +75,12 @@ export default async function HomePage({ params }: HomePageProps) {
       ? `${todayEntry.open_time} – ${todayEntry.close_time}`
       : null
 
+  const faqItems = BOLENA_FAQ[locale === 'en' ? 'en' : 'tr']
+
   return (
     <div style={{ background: '#FAF8F2', minHeight: '100vh' }}>
       <LocalBusinessJsonLd locale={locale} siteUrl={SITE_URL} />
+      <FaqJsonLd items={faqItems} />
       <PublicNavbar
         locale={locale}
         menuLabel={tNav('menu')}

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import type { Route } from 'next'
 import { createClient } from '@/lib/supabase/server'
@@ -7,6 +8,32 @@ import {
 } from '@/lib/utils/post-login-redirect'
 import type { ModuleName } from '@/types'
 import { LoginForm } from './LoginForm'
+
+// Login sayfasi indekslenmesin — admin'in varligini gizleme stratejisinin parcasi
+export const metadata: Metadata = {
+  title: 'Restricted',
+  description: '',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
+    notranslate: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+      noimageindex: true,
+      'max-snippet': 0,
+      'max-image-preview': 'none',
+    },
+  },
+  openGraph: { title: '', description: '', images: [] },
+  twitter: { title: '', description: '', images: [] },
+}
 
 interface LoginPageProps {
   params: Promise<{ locale: string }>
