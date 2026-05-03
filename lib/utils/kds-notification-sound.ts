@@ -173,9 +173,10 @@ export function attachKitchenNotificationAudioUnlock(): () => void {
 }
 
 export function playKitchenNotificationChime(): void {
-  // Chime'in kendi suresi ~500 ms — aralari ~1100 ms sessizlik birakacak sekilde
-  // 1600 ms'lik adimlarla calistir. Toplam: ~3.7 saniyelik dikkat sinyali.
-  const DELAYS = [0, 1600, 3200]
+  // Her chime ~500 ms — 1500 ms'lik adimlarla calistir → her ses arasinda
+  // tam ~1 saniye sessizlik kalir. Toplam: ~3.5 saniyelik esit aralikli dikkat
+  // sinyali ("ding ... ding ... ding").
+  const DELAYS = [0, 1500, 3000]
   for (const delay of DELAYS) {
     setTimeout(() => {
       const dataUrl = buildKitchenChimeWavDataUrl()
