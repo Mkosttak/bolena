@@ -29,6 +29,11 @@ const cspDirectives: Record<string, string[]> = {
     `https://${supabaseHost}`,
     `wss://${supabaseHost}`,
   ],
+  'frame-src': [
+    "'self'",
+    'https://www.google.com',
+    'https://maps.google.com',
+  ],
   'frame-ancestors': ["'none'"],
   'form-action': ["'self'"],
   'base-uri': ["'self'"],

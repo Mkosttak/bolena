@@ -80,11 +80,17 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       .eq('is_active', true),
 
     // 2. Aktif masa siparişleri (unique masa sayısı için)
+    // - tables INNER JOIN + is_active=true: pasif masaya bağlı eski/orphan
+    //   siparişler sayılmasın (uniqueActiveTables > total fallacy'sini önler).
+    // - order_items INNER JOIN: TableCard.tsx ile tutarlı tanım — masa sadece
+    //   "içinde ürün olan aktif order" varsa dolu sayılır. Aksi halde garson
+    //   tıkladı ama ürün girmedi → boş aktif order da masayı doldurur (yanlış).
     supabase
       .from('orders')
-      .select('table_id')
+      .select('table_id, tables!inner(is_active), order_items!inner(id)')
       .eq('status', 'active')
-      .not('table_id', 'is', null),
+      .not('table_id', 'is', null)
+      .eq('tables.is_active', true),
 
     // 3. KDS bekleyen
     supabase
@@ -171,7 +177,17 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   ])
 
   // — Hesaplamalar —
-  const uniqueActiveTables = new Set(activeTableOrders?.map(o => o.table_id)).size
+  // Defensive: aynı masada birden fazla aktif order varsa Set ile distinct.
+  // null table_id'ler zaten query'de filtrelendi ama tip safety için filter.
+  const uniqueActiveTables = new Set(
+    (activeTableOrders ?? [])
+      .map((o) => o.table_id)
+      .filter((id): id is string => typeof id === 'string'),
+  ).size
+
+  // Defansif clamping: aktif sayı total'dan buyuk olamaz (RLS / data drift edge)
+  const totalTablesActive = totalTablesCount ?? 0
+  const tablesActiveClamped = Math.min(uniqueActiveTables, totalTablesActive)
 
   const upcomingReservations = todayReservations?.filter(r => r.status === 'confirmed').length || 0
   const seatedReservations = todayReservations?.filter(r => r.status === 'seated').length || 0
@@ -199,8 +215,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
 
   return {
     tables: {
-      active: uniqueActiveTables,
-      total: totalTablesCount || 0
+      active: tablesActiveClamped,
+      total: totalTablesActive,
     },
     kds: {
       pending: pendingKds || 0,

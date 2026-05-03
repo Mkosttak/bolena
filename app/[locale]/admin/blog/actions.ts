@@ -4,7 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { requireModuleAccess } from '@/lib/auth/guards'
 import { blogSchema } from '@/lib/validations/blog.schema'
 import type { BlogInput } from '@/lib/validations/blog.schema'
-import { sanitizeBlogContent } from '@/lib/utils/sanitize-html'
+// Server-safe regex-based sanitize (jsdom-free, Vercel runtime'da guvenli).
+// BlogDetailContent (client) render'da DOMPurify ile ikinci katman uygular.
+import { sanitizeBlogContentServer as sanitizeBlogContent } from '@/lib/utils/sanitize-html-server'
 
 function calcReadingTime(html: string): number {
   const text = html.replace(/<[^>]+>/g, ' ')

@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#FAF8F2',
-    theme_color: '#1B3C2A',
+    theme_color: '#FAF8F2',
     icons: [
       {
         src: '/images/bolena_logo.png',

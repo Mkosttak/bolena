@@ -104,7 +104,7 @@ export function ProductDetailSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
+            transition={{ duration: isMobile ? 0.4 : 0.22, ease: [0.22, 1, 0.36, 1] }}
             onClick={onClose}
             className="fixed inset-0 z-[1000] bg-black/50 backdrop-blur-sm"
             aria-hidden="true"
@@ -122,8 +122,16 @@ export function ProductDetailSheet({
               aria-label={name}
               initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.96, y: 16 }}
               animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-              exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.97, y: 8 }}
-              transition={{ type: 'spring', damping: 32, stiffness: 340 }}
+              exit={
+                isMobile
+                  ? { y: '100%', transition: { duration: 0.32, ease: [0.4, 0, 1, 1] } }
+                  : { opacity: 0, scale: 0.97, y: 8, transition: { duration: 0.2 } }
+              }
+              transition={
+                isMobile
+                  ? { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
+                  : { type: 'spring', damping: 32, stiffness: 340 }
+              }
               style={
                 isMobile
                   ? { y: dragY, opacity: sheetOpacity, maxHeight: '92dvh' }
