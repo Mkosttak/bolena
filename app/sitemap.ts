@@ -30,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           languages: {
             tr: `${BASE_URL}/tr${path}`,
             en: `${BASE_URL}/en${path}`,
+            'x-default': `${BASE_URL}/tr${path}`,
           },
         },
       })
@@ -66,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             languages: {
               tr: `${BASE_URL}/tr/blog/${post.slug}`,
               en: `${BASE_URL}/en/blog/${post.slug}`,
+              'x-default': `${BASE_URL}/tr/blog/${post.slug}`,
             },
           },
         })),

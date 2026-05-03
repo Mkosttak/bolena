@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: BlogIndexPageProps): Promise<
       languages: {
         tr: `${SITE_URL}/tr/blog`,
         en: `${SITE_URL}/en/blog`,
+        'x-default': `${SITE_URL}/tr/blog`,
       },
     },
     openGraph: {

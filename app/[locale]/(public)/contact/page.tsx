@@ -45,7 +45,11 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
     keywords: meta.keywords,
     alternates: {
       canonical: `${SITE_URL}/${locale}/contact`,
-      languages: { tr: `${SITE_URL}/tr/contact`, en: `${SITE_URL}/en/contact` },
+      languages: {
+        tr: `${SITE_URL}/tr/contact`,
+        en: `${SITE_URL}/en/contact`,
+        'x-default': `${SITE_URL}/tr/contact`,
+      },
     },
     openGraph: {
       title: meta.title,

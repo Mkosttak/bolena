@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google'
+import { getLocale } from 'next-intl/server'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import './globals.css'
 
@@ -102,13 +103,21 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Lighthouse / a11y / SEO icin <html lang> sart — ekran okuyucular ve Google'a
+  // sayfanin dilini bildirir. next-intl middleware locale'i request'ten cozer.
+  const locale = await getLocale()
+
   return (
-    <html className={`h-full antialiased ${playfair.variable} ${jakarta.variable}`} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`h-full antialiased ${playfair.variable} ${jakarta.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full font-sans" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
