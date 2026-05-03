@@ -56,33 +56,50 @@ export default async function BlogIndexPage({ params }: BlogIndexPageProps) {
         blogLabel={tNav('blog')}
       />
 
-      {/* Hero */}
-      <div style={{
-        paddingTop: 'calc(72px + 4rem)',
-        paddingBottom: '3rem',
-        background: 'linear-gradient(180deg, rgba(27,60,42,0.04) 0%, transparent 100%)',
-        textAlign: 'center',
-        padding: 'calc(72px + 4rem) clamp(1.25rem, 5vw, 2.5rem) 3rem',
-      }}>
-        <h1 style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
-          fontWeight: 800,
-          color: '#1B3C2A',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.1,
-          margin: 0,
-        }}>
+      {/* Hero — kompakt */}
+      <div
+        style={{
+          background: 'linear-gradient(180deg, rgba(27,60,42,0.04) 0%, transparent 100%)',
+          textAlign: 'center',
+          padding: 'calc(72px + 1.75rem) clamp(1.25rem, 5vw, 2.5rem) 1.25rem',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: '#C4841A',
+            margin: '0 0 0.5rem',
+          }}
+        >
+          {tBlog('eyebrow')}
+        </p>
+        <h1
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(1.65rem, 3.5vw, 2.4rem)',
+            fontWeight: 800,
+            color: '#1B3C2A',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.1,
+            margin: 0,
+          }}
+        >
           {tBlog('title')}
         </h1>
-        <p style={{
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontSize: '1rem',
-          color: 'rgba(27,60,42,0.55)',
-          marginTop: '1rem',
-          maxWidth: 480,
-          margin: '0.75rem auto 0',
-        }}>
+        <p
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '0.875rem',
+            lineHeight: 1.55,
+            color: 'rgba(27,60,42,0.55)',
+            maxWidth: 460,
+            margin: '0.5rem auto 0',
+          }}
+        >
           {tBlog('subtitle')}
         </p>
       </div>
