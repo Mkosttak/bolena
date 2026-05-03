@@ -576,7 +576,7 @@ export function AddProductModal({ open, orderId, onClose, onSuccess }: AddProduc
             >
               <ChevronLeft className="h-4 w-4 text-muted-foreground" />
             </button>
-            <div ref={scrollRef} className="w-full overflow-x-auto no-scrollbar p-1.5 sm:px-8">
+            <div ref={scrollRef} className="w-full overflow-x-auto no-scrollbar py-1.5 px-8">
               <div className="flex gap-1.5 w-max px-0.5">
                 <button
                   onClick={() => setSelectedCategoryId(null)}

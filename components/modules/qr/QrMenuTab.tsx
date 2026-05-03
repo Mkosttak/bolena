@@ -208,10 +208,14 @@ export function QrMenuTab({
                   }}
                   className="space-y-3"
                 >
-                  <div className="px-1">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#1B3C2A]/42">
+                  <div className="px-1 text-center pt-1">
+                    <h3
+                      className="font-heading text-[1.5rem] sm:text-[1.75rem] font-bold text-[#173322]"
+                      style={{ letterSpacing: '-0.02em', lineHeight: 1.15 }}
+                    >
                       {group.label}
-                    </p>
+                    </h3>
+                    <div className="mx-auto mt-1.5 h-px w-12 bg-gradient-to-r from-transparent via-[#C4841A]/60 to-transparent" />
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {group.products.map((product, idx) => (
