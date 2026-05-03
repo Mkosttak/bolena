@@ -561,8 +561,15 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                 </div>
               )
 
+              // Migros (p4) mobilde gizli — 2x2 grid daha temiz dursun
+              const hideOnMobile = p.key === 'p4'
+
               return (
-                <Reveal key={p.key} delay={i * 0.07}>
+                <Reveal
+                  key={p.key}
+                  delay={i * 0.07}
+                  className={hideOnMobile ? 'hidden sm:block' : undefined}
+                >
                   {p.noLink ? (
                     <div className="h-full">{CardContent}</div>
                   ) : (
