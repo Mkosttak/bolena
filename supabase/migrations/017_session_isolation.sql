@@ -128,7 +128,12 @@ RETURNS TABLE(
 $$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp;
 
 -- ── 4. add_order_item_via_qr — session_token doğrulaması eklendi
--- Eski imza korunur (p_qr_token + p_order_id), session_token ek katman.
+-- 014'teki 12-parametreli eski imzayı düşür; yeni imza session_token içerir.
+DROP FUNCTION IF EXISTS add_order_item_via_qr(
+  UUID, UUID,
+  UUID, TEXT, TEXT,
+  NUMERIC, INTEGER, TEXT, JSONB, JSONB, NUMERIC, BOOLEAN
+);
 CREATE OR REPLACE FUNCTION add_order_item_via_qr(
   p_qr_token            UUID,
   p_order_id            UUID,
