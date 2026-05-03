@@ -131,6 +131,15 @@ export function BlogForm({ post, locale }: BlogFormProps) {
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Boyut kontrolü (Supabase free tier varsayilan 50MB; 8MB'dan buyukse uyar)
+    const MAX_BYTES = 8 * 1024 * 1024
+    if (file.size > MAX_BYTES) {
+      toast.error(`Dosya çok büyük (${(file.size / 1024 / 1024).toFixed(1)} MB). En fazla 8 MB.`)
+      e.target.value = ''
+      return
+    }
+
     setIsCoverUploading(true)
     try {
       const supabase = createClient()
@@ -138,15 +147,32 @@ export function BlogForm({ post, locale }: BlogFormProps) {
         await supabase.storage.from('bolena-cafe').remove([pendingCoverPath.current])
       }
       const prefix = post?.id ?? crypto.randomUUID()
-      const path = `blog/${prefix}/cover/${Date.now()}.webp`
-      const { error } = await supabase.storage.from('bolena-cafe').upload(path, file, { upsert: true })
-      if (error) throw error
+      // Dosyanin gercek uzantisini koru — yanlis '.webp' uzantisi tarayicilarin
+      // Content-Type ile uzantinin uyusmamasindan dolayi onizlememe sorununa yol acabiliyor.
+      const extFromName = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
+      const extFromType = file.type.split('/')[1]?.split('+')[0]?.toLowerCase() ?? ''
+      const ext = (extFromType || extFromName || 'bin').replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin'
+      const path = `blog/${prefix}/cover/${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('bolena-cafe')
+        .upload(path, file, { upsert: true, contentType: file.type || undefined })
+
+      if (uploadError) {
+        // Asil hatayi konsola da yazalim — RLS / bucket / network gibi sorunlari
+        // teshis edebilmek icin
+        console.error('Blog cover upload error:', uploadError)
+        toast.error(`Kapak görseli yüklenemedi: ${uploadError.message}`)
+        return
+      }
       const { data: urlData } = supabase.storage.from('bolena-cafe').getPublicUrl(path)
       pendingCoverPath.current = path
       setValue('cover_image_url', urlData.publicUrl, { shouldDirty: true })
       setCoverPreview(urlData.publicUrl)
-    } catch {
-      toast.error('Kapak görseli yüklenemedi')
+      toast.success('Kapak görseli yüklendi')
+    } catch (err) {
+      console.error('Blog cover upload exception:', err)
+      const message = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu'
+      toast.error(`Kapak görseli yüklenemedi: ${message}`)
     } finally {
       setIsCoverUploading(false)
       e.target.value = ''
@@ -214,13 +240,20 @@ export function BlogForm({ post, locale }: BlogFormProps) {
         ? await updateBlogPost(post.id, data)
         : await createBlogPost(data)
 
-      if (result.error) {
+      if (result?.error) {
         toast.error(result.error)
         return
       }
+
       toast.success(post ? 'Blog yazısı güncellendi' : 'Blog yazısı oluşturuldu')
-      router.push(`/${locale}/admin/blog`)
+      // Listeyi tazele + admin blog sayfasina don
       router.refresh()
+      router.push(`/${locale}/admin/blog`)
+    } catch (err) {
+      // Server action throw ettiginde de kullaniciya geri bildirim gostermek icin
+      console.error('Blog form submit error:', err)
+      const message = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu'
+      toast.error(`${post ? 'Güncelleme' : 'Oluşturma'} başarısız: ${message}`)
     } finally {
       setIsLoading(false)
     }
