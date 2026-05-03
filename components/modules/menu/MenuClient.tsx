@@ -137,6 +137,19 @@ export function MenuClient({ locale }: MenuClientProps) {
     }
   }, [updateScrollState])
 
+  // Sol/sağ ok tıklaması — pointer-events-none yerine her zaman tıklanabilir.
+  // Smooth scroll bittikten sonra state'i manuel güncelle (scroll event bazen
+  // smooth animasyon sırasında throttle olabiliyor → kenarlarda state stuck kalıyordu).
+  const handleScrollNav = useCallback((direction: 'left' | 'right') => {
+    const el = tabsScrollRef.current
+    if (!el) return
+    el.scrollBy({ left: direction === 'left' ? -240 : 240, behavior: 'smooth' })
+    // Smooth scroll ~300-400ms sürer; sonrasında force refresh
+    setTimeout(updateScrollState, 350)
+    // Anlık feedback için de bir kez çalıştır (smooth başlangıcında)
+    requestAnimationFrame(updateScrollState)
+  }, [updateScrollState])
+
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: menuKeys.categories(),
     queryFn: fetchCategories,
@@ -232,12 +245,12 @@ export function MenuClient({ locale }: MenuClientProps) {
                     type="button"
                     aria-label="Sola kaydır"
                     aria-disabled={!canScrollLeft}
-                    onClick={() => tabsScrollRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}
+                    onClick={() => handleScrollNav('left')}
                     className={cn(
-                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all',
+                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all cursor-pointer',
                       canScrollLeft
-                        ? 'cursor-pointer border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
-                        : 'pointer-events-none cursor-not-allowed border-border/40 text-muted-foreground/40 opacity-50'
+                        ? 'border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
+                        : 'border-border/40 text-muted-foreground/40 opacity-50 hover:border-border hover:text-muted-foreground hover:opacity-70'
                     )}
                   >
                     <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
@@ -286,12 +299,12 @@ export function MenuClient({ locale }: MenuClientProps) {
                     type="button"
                     aria-label="Sağa kaydır"
                     aria-disabled={!canScrollRight}
-                    onClick={() => tabsScrollRef.current?.scrollBy({ left: 240, behavior: 'smooth' })}
+                    onClick={() => handleScrollNav('right')}
                     className={cn(
-                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all',
+                      'shrink-0 flex h-9 w-9 items-center justify-center rounded-full border bg-background shadow-sm transition-all cursor-pointer',
                       canScrollRight
-                        ? 'cursor-pointer border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
-                        : 'pointer-events-none cursor-not-allowed border-border/40 text-muted-foreground/40 opacity-50'
+                        ? 'border-border text-foreground opacity-100 hover:scale-105 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md'
+                        : 'border-border/40 text-muted-foreground/40 opacity-50 hover:border-border hover:text-muted-foreground hover:opacity-70'
                     )}
                   >
                     <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
