@@ -39,10 +39,8 @@ import {
   Plus,
   X,
   Globe,
-  Search,
   CalendarDays,
   User,
-  Hash,
   ChevronLeft,
   ChevronRight,
   Check,
@@ -72,7 +70,6 @@ export function BlogForm({ post, locale }: BlogFormProps) {
       [
         { key: 'tr' as const, label: t('stepTurkish') },
         { key: 'en' as const, label: t('stepEnglish') },
-        { key: 'seo' as const, label: t('stepSeo') },
         { key: 'settings' as const, label: t('stepSettings') },
       ] as const,
     [t]
@@ -83,7 +80,6 @@ export function BlogForm({ post, locale }: BlogFormProps) {
   const [coverPreview, setCoverPreview] = useState<string | null>(post?.cover_image_url ?? null)
   const [isCoverUploading, setIsCoverUploading] = useState(false)
   const [tagInput, setTagInput] = useState('')
-  const [kwInput, setKwInput] = useState('')
   const coverInputRef = useRef<HTMLInputElement>(null)
   const pendingCoverPath = useRef<string | null>(null)
 
@@ -117,10 +113,7 @@ export function BlogForm({ post, locale }: BlogFormProps) {
   })
 
   const tags = watch('tags')
-  const focusKeywords = watch('focus_keywords')
   const isPublished = watch('is_published')
-  const metaTitle = watch('meta_title')
-  const metaDescription = watch('meta_description')
 
   const handleTitleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!post && !watch('slug')) {
@@ -201,17 +194,6 @@ export function BlogForm({ post, locale }: BlogFormProps) {
 
   const removeTag = (tag: string) => {
     setValue('tags', tags.filter((t) => t !== tag), { shouldDirty: true })
-  }
-
-  const addKeyword = () => {
-    const trimmed = kwInput.trim()
-    if (!trimmed || focusKeywords.includes(trimmed)) { setKwInput(''); return }
-    setValue('focus_keywords', [...focusKeywords, trimmed], { shouldDirty: true })
-    setKwInput('')
-  }
-
-  const removeKeyword = (kw: string) => {
-    setValue('focus_keywords', focusKeywords.filter((k) => k !== kw), { shouldDirty: true })
   }
 
   const goToStep = (index: number) => {
@@ -414,85 +396,8 @@ export function BlogForm({ post, locale }: BlogFormProps) {
           </div>
         )}
 
-        {/* Step: SEO */}
-        {step === 2 && (
-          <div className="space-y-6 animate-in fade-in-50 duration-200">
-            <div className="rounded-xl border bg-muted/30 p-4 space-y-2 shadow-inner">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Search className="h-3 w-3" /> Google Önizleme
-              </p>
-              <p className="text-blue-600 dark:text-blue-400 text-[15px] font-medium line-clamp-1">
-                {metaTitle || watch('title_tr') || 'Yazı Başlığı'}
-              </p>
-              <p className="text-green-700 dark:text-green-500 text-xs">
-                {`bolena.com/${locale}/blog/${watch('slug') || 'slug'}`}
-              </p>
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {metaDescription || watch('excerpt_tr') || 'Yazı açıklaması burada görünecek.'}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="meta_title">
-                SEO Başlığı
-                <span className="ml-2 text-xs text-muted-foreground">({(metaTitle ?? '').length}/60)</span>
-              </Label>
-              <Input
-                id="meta_title"
-                {...register('meta_title')}
-                placeholder="Arama sonuçlarında görünecek başlık"
-                maxLength={60}
-                className="h-11"
-              />
-              {errors.meta_title && <p className="text-sm text-destructive">{errors.meta_title.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="meta_description">
-                Meta Açıklama
-                <span className="ml-2 text-xs text-muted-foreground">({(metaDescription ?? '').length}/160)</span>
-              </Label>
-              <Textarea
-                id="meta_description"
-                {...register('meta_description')}
-                placeholder="Arama sonuçlarında görünecek açıklama"
-                rows={3}
-                maxLength={160}
-              />
-              {errors.meta_description && <p className="text-sm text-destructive">{errors.meta_description.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1.5">
-                <Hash className="h-3.5 w-3.5" /> Anahtar Kelimeler
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={kwInput}
-                  onChange={(e) => setKwInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addKeyword() } }}
-                  placeholder="glutensiz, çölyak, sağlıklı..."
-                  className="h-11"
-                />
-                <Button type="button" variant="outline" size="icon" className="shrink-0 h-11 w-11" onClick={addKeyword}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {focusKeywords.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {focusKeywords.map((kw) => (
-                    <Badge key={kw} variant="secondary" className="gap-1 pr-1">
-                      {kw}
-                      <button type="button" className="rounded p-0.5 hover:bg-muted" onClick={() => removeKeyword(kw)}>
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Step: Settings */}
-        {step === 3 && (
+        {step === 2 && (
           <div className="space-y-8 animate-in fade-in-50 duration-200">
             <div className="space-y-2">
               <Label htmlFor="slug">Slug (URL) <span className="text-destructive">*</span></Label>
