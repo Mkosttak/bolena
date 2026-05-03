@@ -26,6 +26,8 @@ export const metadata: Metadata = {
     icon: '/images/bolena_logo.png',
     apple: '/images/bolena_logo.png',
   },
+  // Mutlak path — locale prefix'siz çözülmesi için (yoksa /tr/manifest.webmanifest 404)
+  manifest: '/manifest.webmanifest',
   alternates: {
     types: {
       'application/rss+xml': `${SITE_URL}/feed.xml`,

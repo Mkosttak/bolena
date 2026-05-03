@@ -33,7 +33,10 @@ const cspDirectives: Record<string, string[]> = {
   'form-action': ["'self'"],
   'base-uri': ["'self'"],
   'object-src': ["'none'"],
-  'upgrade-insecure-requests': [],
+  // NOT: 'upgrade-insecure-requests' Report-Only modda spec gereği yoksayılır
+  // (browser console warning verir). Vercel zaten HTTPS-only servis ediyor;
+  // bu directive sadece eski HTTP linkleri rewrite eder. Şimdilik atlandı.
+  // CSP enforce moda geçerken (Content-Security-Policy header) eklenebilir.
 }
 
 const cspHeader = Object.entries(cspDirectives)
