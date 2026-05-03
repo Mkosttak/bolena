@@ -80,11 +80,14 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       .eq('is_active', true),
 
     // 2. Aktif masa siparişleri (unique masa sayısı için)
-    // tables INNER JOIN + is_active=true: pasif masaya bağlı eski/orphan
-    // siparişler sayılmasın (uniqueActiveTables > total fallacy'sini önler).
+    // - tables INNER JOIN + is_active=true: pasif masaya bağlı eski/orphan
+    //   siparişler sayılmasın (uniqueActiveTables > total fallacy'sini önler).
+    // - order_items INNER JOIN: TableCard.tsx ile tutarlı tanım — masa sadece
+    //   "içinde ürün olan aktif order" varsa dolu sayılır. Aksi halde garson
+    //   tıkladı ama ürün girmedi → boş aktif order da masayı doldurur (yanlış).
     supabase
       .from('orders')
-      .select('table_id, tables!inner(is_active)')
+      .select('table_id, tables!inner(is_active), order_items!inner(id)')
       .eq('status', 'active')
       .not('table_id', 'is', null)
       .eq('tables.is_active', true),
