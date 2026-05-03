@@ -86,7 +86,13 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Middleware (next-intl locale prefix) bu path'leri ATLAYACAK:
+  // - _next assets
+  // - api route'ları
+  // - root-level static dosyalar (manifest, robots, sitemap, feed, favicon)
+  // - görsel uzantıları
+  // Aksi halde /manifest.webmanifest > /tr/manifest.webmanifest redirect olur > 404.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|feed\\.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)',
   ],
 }
