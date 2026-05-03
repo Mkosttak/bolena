@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowUpRight, ShieldCheck, ChefHat, Leaf, MapPin, Phone } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Reveal } from '@/components/shared/Reveal'
+import { cn } from '@/lib/utils'
 
 interface HomeLandingProps {
   locale: string
@@ -372,12 +373,16 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
             return (
               <Reveal key={feat.title} delay={i * 0.09}>
                 <div
-                  className={`flex flex-col gap-5 ${i < 2 ? 'sm:border-r border-black/10' : ''}`}
+                  className={cn(
+                    'flex flex-col gap-4 sm:gap-5',
+                    // Mobile: center align + simetrik padding
+                    // Desktop (sm+): sola yasli, sutunlar arasi border-r
+                    'items-center text-center sm:items-start sm:text-left',
+                    'px-4 sm:px-0',
+                    i < 2 ? 'sm:border-r border-black/10' : '',
+                  )}
                   style={{
-                    padding: 'clamp(1.75rem,4vh,2.5rem) 0',
-                    paddingRight: i < 2 ? 'clamp(1rem, 3vw, 2.5rem)' : 0,
-                    paddingLeft: i > 0 ? 'clamp(1rem, 3vw, 2.5rem)' : 0,
-                    borderBottom: '1px solid rgba(28,28,26,0.1)',
+                    padding: 'clamp(1.5rem,3.5vh,2.5rem) 0',
                   }}
                 >
                   <div
@@ -387,12 +392,11 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                       height: 44,
                       background: 'rgba(26,53,36,0.07)',
                       color: '#1A3524',
-                      alignSelf: 'flex-start',
                     }}
                   >
                     <Icon className="w-5 h-5" strokeWidth={1.75} />
                   </div>
-                  <div>
+                  <div className="w-full max-w-md sm:max-w-none">
                     <p
                       className="font-sans"
                       style={{
