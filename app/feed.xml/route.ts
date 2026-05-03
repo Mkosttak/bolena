@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 // Cache HTTP header ile (s-maxage=3600), CDN edge'de saatlik tutulur.
 export const dynamic = 'force-dynamic'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 function escapeCdata(text: string): string {
   // CDATA içinde "]]>" tek geçersiz dizidir; güvenle bölelim

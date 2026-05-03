@@ -36,7 +36,7 @@ export function LocalBusinessJsonLd({ locale, siteUrl }: LocalBusinessJsonLdProp
       `${siteUrl}/images/menu/healthy.png`,
     ],
     telephone: '+905449730509',
-    email: 'bilgi@bolena.com.tr',
+    email: 'bilgi@bolenaglutensiz.com',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Yaşamkent, 3058. Sokak 3/1',

@@ -9,7 +9,7 @@ import type { BlogPost } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 interface BlogIndexPageProps {
   params: Promise<{ locale: string }>
