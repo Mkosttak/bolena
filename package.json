@@ -24,6 +24,19 @@
     "ci:verify": "npm run lint && npm run typecheck && npm run test",
     "prepare": "husky"
   },
+  "browserslist": [
+    "chrome >= 91",
+    "edge >= 91",
+    "firefox >= 90",
+    "safari >= 15",
+    "opera >= 77",
+    "ios_saf >= 15",
+    "and_chr >= 91",
+    "and_ff >= 90",
+    "samsung >= 15",
+    "not dead",
+    "not op_mini all"
+  ],
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix"
