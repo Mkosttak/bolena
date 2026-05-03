@@ -1,9 +1,9 @@
 'use client'
 
-import { MapPin, PhoneCall, ArrowUpRight, Sparkles } from 'lucide-react'
+import { MapPin, PhoneCall, ArrowUpRight } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations, useLocale } from 'next-intl'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { tr as trLocale, enUS } from 'date-fns/locale'
 import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -85,18 +85,53 @@ export function ContactClient({ locale }: ContactClientProps) {
   const now = new Date()
   const todayStr = format(now, 'yyyy-MM-dd')
   const todayDow = now.getDay()
-  const todayException = exceptions.find((e) => e.date === todayStr)
 
-  // Önümüzdeki 30 gün içindeki istisnalar (bugün dahil), tarih sırası
-  const thirtyDaysLater = new Date(now)
-  thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30)
-  const upcomingExceptions = exceptions
-    .filter((e) => {
-      const d = parseISO(e.date)
-      return d >= new Date(todayStr) && d <= thirtyDaysLater
-    })
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 6)
+  /**
+   * Verilen haftanın gününün **bir sonraki** takvim tarihini döner (yyyy-MM-dd).
+   * Bugün ise bugünü döner.
+   * Örnek: bugün Cuma (5), targetDow = Pazartesi (1) → 3 gün sonraki Pazartesi.
+   */
+  const nextDateOfDow = (targetDow: number): string => {
+    const todayDow0 = now.getDay()
+    const daysToAdd = (targetDow - todayDow0 + 7) % 7
+    const next = new Date(now)
+    next.setDate(now.getDate() + daysToAdd)
+    return format(next, 'yyyy-MM-dd')
+  }
+
+  // Hızlı lookup: { 'yyyy-MM-dd' → exception }
+  const exceptionByDate = new Map(exceptions.map((e) => [e.date, e]))
+
+  type ExceptionTag = 'opened' | 'closed' | 'changed' | null
+
+  /** Haftalık satır + istisna karşılaştırması → effectiveHours + tag */
+  const resolveDay = (dayNum: number) => {
+    const targetDate = nextDateOfDow(dayNum)
+    const weekly = weeklyHours.find((h) => h.day_of_week === dayNum)
+    const exception = exceptionByDate.get(targetDate)
+    const isToday = targetDate === todayStr
+
+    if (!exception) {
+      return { effective: weekly, tag: null as ExceptionTag, exceptionDate: null, isToday, description: null }
+    }
+
+    let tag: ExceptionTag = null
+    const weeklyOpen = !!weekly?.is_open
+    const excOpen = !!exception.is_open
+    if (excOpen && !weeklyOpen) tag = 'opened'
+    else if (!excOpen && weeklyOpen) tag = 'closed'
+    else if (excOpen && weeklyOpen) {
+      const wOpen = weekly?.open_time
+      const wClose = weekly?.close_time
+      if (wOpen !== exception.open_time || wClose !== exception.close_time) tag = 'changed'
+    }
+
+    const description = activeLocale === 'en'
+      ? (exception.description_en ?? exception.description_tr)
+      : (exception.description_tr ?? exception.description_en)
+
+    return { effective: exception, tag, exceptionDate: targetDate, isToday, description }
+  }
 
   return (
     <div className="h-dvh overflow-hidden flex flex-col bg-[#FAF8F2] text-[#1B3C2A] selection:bg-[#c4841a]/30">
@@ -193,70 +228,58 @@ export function ContactClient({ locale }: ContactClientProps) {
                 ))
               ) : (
                 DAY_ORDER.map((dayNum) => {
-                  const dayHours = weeklyHours.find((hour) => hour.day_of_week === dayNum)
-                  const isToday = todayDow === dayNum
-                  const effectiveHours = isToday && todayException ? todayException : dayHours
+                  const { effective, tag, exceptionDate, isToday: rowToday, description } = resolveDay(dayNum)
                   const dayName = t(`days.${dayNum}` as `days.${number}`)
+                  const hoursLabel = formatHoursRange(effective, t('closed'))
+
+                  // Tag → kısa renkli alt etiket (sadece istisna varsa)
+                  const tagLabel =
+                    tag === 'opened' ? t('exceptionOpened')
+                    : tag === 'closed' ? t('exceptionClosed')
+                    : tag === 'changed' ? t('exceptionChanged')
+                    : null
+                  // Tarih kısa: "12 May" / "May 12"
+                  const exceptionDateLabel = exceptionDate
+                    ? format(new Date(exceptionDate), activeLocale === 'en' ? 'MMM d' : 'd MMM', { locale: dateLocale })
+                    : null
 
                   return (
-                    <div key={dayNum} className={`flex items-end justify-between py-2.5 lg:py-4 border-b border-[#1B3C2A]/10 transition-colors ${isToday ? 'text-[#c4841a] font-medium' : 'text-[#1B3C2A]/80 hover:text-[#1B3C2A]'}`}>
-                      <span className="text-xs lg:text-base font-light tracking-widest uppercase">{dayName}</span>
-                      <span className="flex-grow border-b border-dotted border-[#1B3C2A]/20 mx-3 lg:mx-6 mb-1 lg:mb-1.5 opacity-30"></span>
-                      <span className="text-xs lg:text-base tracking-wide">{formatHoursRange(effectiveHours, t('closed'))}</span>
+                    <div
+                      key={dayNum}
+                      className={`flex items-start justify-between py-2.5 lg:py-4 border-b border-[#1B3C2A]/10 transition-colors ${
+                        rowToday && todayDow === dayNum
+                          ? 'text-[#c4841a] font-medium'
+                          : 'text-[#1B3C2A]/80 hover:text-[#1B3C2A]'
+                      }`}
+                    >
+                      <div className="flex flex-col min-w-0 flex-grow">
+                        <div className="flex items-end gap-2">
+                          <span className="text-xs lg:text-base font-light tracking-widest uppercase">{dayName}</span>
+                          <span className="flex-grow border-b border-dotted border-[#1B3C2A]/20 mb-1 lg:mb-1.5 opacity-30" />
+                        </div>
+                        {tag && tagLabel && (
+                          <span
+                            className={`mt-1 text-[9px] lg:text-[10px] font-medium tracking-wide ${
+                              tag === 'closed'
+                                ? 'text-red-600/70'
+                                : tag === 'opened'
+                                  ? 'text-[#1B3C2A]/55'
+                                  : 'text-[#c4841a]/85'
+                            }`}
+                          >
+                            {exceptionDateLabel ? `${exceptionDateLabel} · ${tagLabel}` : tagLabel}
+                            {description && (
+                              <span className="text-[#1B3C2A]/45"> — {description}</span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs lg:text-base tracking-wide ml-3 whitespace-nowrap mt-px">{hoursLabel}</span>
                     </div>
                   )
                 })
               )}
             </div>
-
-            {/* Yaklaşan özel günler — admin'de eklenen istisnalar burada görünür */}
-            {!hoursLoading && upcomingExceptions.length > 0 && (
-              <div className="mt-6 lg:mt-8 w-full max-w-xl">
-                <div className="flex items-center gap-2 mb-3 lg:mb-4">
-                  <Sparkles className="h-3.5 w-3.5 text-[#c4841a]" strokeWidth={2} />
-                  <h3 className="text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.2em] text-[#c4841a]">
-                    {t('upcomingExceptions')}
-                  </h3>
-                </div>
-                <div className="flex flex-col gap-1.5 lg:gap-2">
-                  {upcomingExceptions.map((exc) => {
-                    const date = parseISO(exc.date)
-                    const isExcToday = exc.date === todayStr
-                    const dateLabel = format(date, 'd MMMM EEEE', { locale: dateLocale })
-                    const hoursLabel = formatHoursRange(exc, t('closed'))
-                    const description = activeLocale === 'en'
-                      ? (exc.description_en ?? exc.description_tr)
-                      : (exc.description_tr ?? exc.description_en)
-                    return (
-                      <div
-                        key={exc.date}
-                        className={`group flex items-center justify-between rounded-xl border px-3 py-2 lg:px-4 lg:py-2.5 transition-all ${
-                          isExcToday
-                            ? 'border-[#c4841a]/40 bg-[#c4841a]/5'
-                            : 'border-[#1B3C2A]/10 bg-[#FAF8F2]/40 hover:bg-[#FAF8F2]/80 hover:border-[#1B3C2A]/20'
-                        }`}
-                      >
-                        <div className="flex flex-col min-w-0">
-                          <span className={`text-xs lg:text-sm font-medium capitalize ${isExcToday ? 'text-[#c4841a]' : 'text-[#1B3C2A]/85'}`}>
-                            {dateLabel}
-                          </span>
-                          {description && (
-                            <span className="text-[10px] lg:text-[11px] text-[#1B3C2A]/50 truncate mt-0.5">
-                              {description}
-                            </span>
-                          )}
-                        </div>
-                        <span className={`text-[11px] lg:text-xs font-semibold tabular-nums whitespace-nowrap ml-3 ${
-                          exc.is_open ? 'text-[#1B3C2A]/75' : 'text-red-600/70'
-                        }`}>
-                          {hoursLabel}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
