@@ -7,9 +7,9 @@ import { BlogListSection } from '@/components/modules/blog/BlogListSection'
 import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 import type { BlogPost } from '@/types'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 interface BlogIndexPageProps {
   params: Promise<{ locale: string }>

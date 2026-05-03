@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { ContactClient } from '@/components/modules/contact/ContactClient'
 import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 const META: Record<'tr' | 'en', { title: string; description: string; keywords: string[] }> = {
   tr: {

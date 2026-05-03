@@ -11,7 +11,7 @@ interface LocaleLayoutProps {
   params: Promise<{ locale: string }>
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 const META_BY_LOCALE: Record<string, { title: string; description: string; ogLocale: string }> = {
   tr: {
