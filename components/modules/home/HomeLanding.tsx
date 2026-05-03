@@ -672,7 +672,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                     className="absolute inset-0"
                     style={{
                       background:
-                        'linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.72) 100%)',
+                        'linear-gradient(to bottom, rgba(0,0,0,0) 18%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.88) 100%)',
                     }}
                   />
                   <div
@@ -703,6 +703,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                           letterSpacing: '-0.02em',
                           color: '#FDFCF8',
                           marginBottom: '0.35rem',
+                          textShadow: '0 2px 12px rgba(0,0,0,0.45)',
                         }}
                       >
                         {card.title}
@@ -712,9 +713,10 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                         style={{
                           fontSize: 'clamp(11px, 1.3vw, 13px)',
                           lineHeight: 1.6,
-                          color: 'rgba(253,252,248,0.6)',
+                          color: 'rgba(253,252,248,0.92)',
                           maxWidth: 320,
                           marginBottom: '0.875rem',
+                          textShadow: '0 1px 6px rgba(0,0,0,0.55)',
                         }}
                       >
                         {card.desc}
