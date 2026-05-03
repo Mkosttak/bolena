@@ -103,6 +103,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: '/favicon.ico', destination: '/icon.png', permanent: true },
+    ]
+  },
   webpack(config) {
     // @sentry/nextjs opsiyonel — kurulu değilse boş modül döndür
     config.resolve.alias['@sentry/nextjs'] = false
