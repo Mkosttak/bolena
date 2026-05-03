@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
 const isProd = process.env.NODE_ENV === 'production'
 
-const supabaseHost = 'guuqyqtcmlijhlvcblyh.supabase.co'
+const supabaseHost = 'wrnwkuummzlyplpcleoz.supabase.co'
 
 const cspDirectives: Record<string, string[]> = {
   'default-src': ["'self'"],
@@ -87,6 +87,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  serverExternalPackages: ['@sentry/nextjs'],
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -101,6 +102,11 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  webpack(config) {
+    // @sentry/nextjs opsiyonel — kurulu değilse boş modül döndür
+    config.resolve.alias['@sentry/nextjs'] = false
+    return config
   },
   async headers() {
     return [
