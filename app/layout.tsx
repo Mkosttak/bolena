@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import './globals.css'
@@ -22,10 +22,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
 export const metadata: Metadata = {
   title: 'Bolena Cafe — %100 Glutensiz Mutfak | Ankara Yaşamkent',
   description: 'Bolena Cafe, Ankara\'nın Yaşamkent semtinde %100 glutensiz pizza, burger, bowl ve tatlılar sunan özel bir cafe. Çölyak dostu, sertifikalı mutfak.',
-  icons: {
-    icon: '/images/bolena_logo.png',
-    apple: '/images/bolena_logo.png',
-  },
+  // icons: app/icon.png + app/apple-icon.png (Next.js file convention) otomatik
+  // <link rel="icon"> ve apple-touch-icon üretir — manuel metadata.icons gereksiz.
   // Mutlak path — locale prefix'siz çözülmesi için (yoksa /tr/manifest.webmanifest 404)
   manifest: '/manifest.webmanifest',
   alternates: {
@@ -33,6 +31,15 @@ export const metadata: Metadata = {
       'application/rss+xml': `${SITE_URL}/feed.xml`,
     },
   },
+}
+
+// iOS Safari status bar / Android Chrome address bar — sayfa arka planı ile uyumlu krem ton.
+// Koyu mod cihazlarda da koyu yesil yerine ayni krem tonu, hero ile gecis daha yumusak.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAF8F2' },
+    { media: '(prefers-color-scheme: dark)', color: '#FAF8F2' },
+  ],
 }
 
 export default function RootLayout({
