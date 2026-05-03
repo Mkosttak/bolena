@@ -44,7 +44,7 @@ function makePost(overrides: Partial<BlogPost> = {}): BlogPost {
 
 const translations = {
   readMore: 'Devamını Oku',
-  by: 'Yazan:',
+  by: 'Yazar:',
   minRead: 'dk okuma',
 }
 
