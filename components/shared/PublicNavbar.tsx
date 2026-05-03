@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import type { Route } from 'next'
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion'
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher'
+import { MobileMenuToggle } from '@/components/shared/MobileMenuToggle'
 import { cn } from '@/lib/utils'
 
 interface PublicNavbarProps {
@@ -196,34 +197,17 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
           gap: 0.875rem;
           flex-shrink: 0;
         }
-        .pnav-hamburger {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          align-items: flex-end;
-          justify-content: center;
-          width: 36px;
-          height: 36px;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-        }
-        .pnav-hamburger span {
-          display: block;
-          height: 1.5px;
-          border-radius: 2px;
-          background: #1B3C2A;
-          transition: width 0.2s, background 0.3s;
-        }
-        .pnav-hamburger span:nth-child(1) { width: 22px; }
-        .pnav-hamburger span:nth-child(2) { width: 16px; }
-        .pnav-hamburger span:nth-child(3) { width: 22px; }
-        .pnav-hamburger:hover span { width: 22px; }
-        .pnav.top .pnav-hamburger span, .pnav.menu-mode .pnav-hamburger span { background: #FAF8F2; }
+        /* MobileMenuToggle bileşeni hamburger UI'ını yönetir.
+           CSS span hamburger eski kodu kaldırıldı — SVG icon kullanan
+           modüler component (responsive sm:hidden Tailwind ile). */
 
-        @media (min-width: 640px) {
-          .pnav-hamburger { display: none; }
+        /* Mobil: EN sub-baslik tasmasini onlemek icin sikilastirma */
+        @media (max-width: 639px) {
+          .pnav-inner { gap: 0.5rem; padding: 0 0.875rem; }
+          .pnav-right { gap: 0.5rem; }
+          .pnav-brand { gap: 0.55rem; }
+          .pnav-brand-sub { font-size: 8.5px; letter-spacing: 0.18em; }
+          .pnav-hamburger { width: 32px; }
         }
 
         /* Mobile panel */
@@ -370,15 +354,12 @@ export function PublicNavbar({ locale, menuLabel, contactLabel, blogLabel }: Pub
           {/* Right: language + hamburger */}
           <div className="pnav-right">
             <LanguageSwitcher inverted={isHome && !scrolled} />
-            <button
-              className="pnav-hamburger"
+            <MobileMenuToggle
+              open={mobileOpen}
               onClick={() => setMobileOpen(true)}
-              aria-label={locale === 'tr' ? 'Menüyü Aç' : 'Open Menu'}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+              inverted={(isHome || isMenu) && !scrolled}
+              ariaLabel={locale === 'tr' ? 'Menüyü Aç' : 'Open Menu'}
+            />
           </div>
         </div>
       </header>
