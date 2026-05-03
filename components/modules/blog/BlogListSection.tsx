@@ -34,11 +34,11 @@ export function BlogListSection({ posts, locale, translations }: BlogListSection
   }
 
   return (
-    <section style={{ maxWidth: 880, margin: '0 auto', padding: '3rem clamp(1.25rem, 5vw, 2.5rem)' }}>
+    <section style={{ maxWidth: 880, margin: '0 auto', padding: '1.5rem clamp(1.25rem, 5vw, 2.5rem) 3rem' }}>
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr',
-        gap: '1.75rem',
+        gap: '1.5rem',
       }}>
         {posts.map((post) => (
           <BlogCard
