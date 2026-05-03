@@ -471,72 +471,67 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
             </div>
           </Reveal>
 
-          {/* Platform cards grid — Forced single row */}
+          {/* Platform cards — mobil 2 sütun, tablet 3, desktop 5 */}
           <div
-            className="grid gap-2 sm:gap-4"
-            style={{ 
-              gridTemplateColumns: 'repeat(5, 1fr)',
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4"
+            style={{
               maxWidth: 1400,
-              margin: '0 auto'
+              margin: '0 auto',
             }}
           >
             {platforms.map((p, i) => {
               const CardContent = (
                 <div
-                  className="group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1.5 h-full"
+                  className="group flex flex-col rounded-2xl transition-all duration-300 hover:-translate-y-1.5 h-full p-4 sm:p-5 lg:p-6"
                   style={{
                     background: `linear-gradient(145deg, ${p.gradFrom} 0%, ${p.gradTo} 100%)`,
                     border: `1px solid ${p.borderColor}`,
-                    padding: 'clamp(1.25rem,3vw,1.75rem)',
-                    boxShadow: p.isPhone 
-                      ? '0 10px 30px rgba(26,53,36,0.2)' 
+                    boxShadow: p.isPhone
+                      ? '0 10px 30px rgba(26,53,36,0.2)'
                       : `0 4px 20px ${p.borderColor}`,
-                    minHeight: 180,
-                    cursor: p.noLink ? 'default' : 'pointer'
+                    minHeight: 160,
+                    cursor: p.noLink ? 'default' : 'pointer',
                   }}
                 >
                   {/* Brand logo / initial badge */}
                   <div className="flex items-start justify-between mb-auto">
                     <div
-                      className="relative overflow-hidden inline-flex items-center justify-center rounded-xl font-sans"
+                      className="relative overflow-hidden inline-flex items-center justify-center rounded-xl font-sans h-11 w-11 sm:h-12 sm:w-12 lg:h-[52px] lg:w-[52px]"
                       style={{
-                        width: 52,
-                        height: 52,
                         background: p.isPhone ? 'rgba(255,255,255,0.1)' : '#fff',
                         color: p.accent,
-                        fontSize: 22,
                         fontWeight: 900,
                         boxShadow: p.isPhone ? 'none' : `0 2px 10px ${p.borderColor}`,
                         letterSpacing: '-0.02em',
                       }}
                     >
                       {p.isPhone ? (
-                        <Phone className="w-6 h-6" style={{ color: p.accent }} strokeWidth={1.5} />
+                        <Phone className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: p.accent }} strokeWidth={1.5} />
                       ) : p.logo ? (
                         <Image
                           src={p.logo}
                           alt={p.name}
                           fill
+                          sizes="(max-width: 640px) 44px, 52px"
                           className="object-contain p-1.5"
                         />
                       ) : null}
                     </div>
                     <ArrowUpRight
-                      className="w-4 h-4 opacity-30 group-hover:opacity-80 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 flex-shrink-0"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-30 group-hover:opacity-80 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 flex-shrink-0"
                       style={{ color: p.accent }}
                       strokeWidth={2.5}
                     />
                   </div>
 
-                  <div style={{ marginTop: '1.1rem' }}>
+                  <div className="mt-3 sm:mt-4">
                     <p
-                      className="font-heading"
+                      className="font-heading text-sm sm:text-base lg:text-[1.1rem]"
                       style={{
-                        fontSize: 'clamp(0.75rem, 1.6vw, 1.1rem)',
                         fontWeight: 700,
                         letterSpacing: '-0.02em',
                         color: p.isPhone ? '#FDFCF8' : '#1C1C1A',
-                        marginBottom: '0.2rem',
+                        marginBottom: '0.25rem',
                         lineHeight: 1.2,
                       }}
                     >
@@ -551,9 +546,8 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                       </p>
                     )}
                     <span
-                      className="inline-flex items-center gap-1 font-sans transition-all duration-200"
+                      className="inline-flex items-center gap-1 font-sans transition-all duration-200 text-[9px] sm:text-[10px] lg:text-[10.5px]"
                       style={{
-                        fontSize: 'clamp(8px, 1.2vw, 10.5px)',
                         fontWeight: 800,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
