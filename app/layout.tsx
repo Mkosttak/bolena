@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { WebSiteJsonLd } from '@/components/shared/WebSiteJsonLd'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -17,7 +18,7 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ['300', '400', '500', '600', '700', '800'],
 })
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -86,6 +87,16 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
+  // Geo meta — "yakınımdaki glutensiz cafe", "Ankara glutensiz" yerel aramalarında sinyal
+  other: {
+    'geo.region': 'TR-06',
+    'geo.placename': 'Ankara, Yaşamkent, Çankaya',
+    'geo.position': '39.9423;32.6827',
+    'ICBM': '39.9423, 32.6827',
+    'abstract': "Ankara'nın tek %100 glutensiz mutfağı. Çölyak hastaları için en güvenli ve en geniş menüye sahip cafe. Glutensiz pizza, hamburger, makarna, kahvaltı, bowl ve tatlılar Yaşamkent'te.",
+    'classification': 'Restaurant, Cafe, Gluten-Free Dining',
+    'coverage': 'Ankara, Turkey',
+  },
   alternates: {
     types: {
       'application/rss+xml': `${SITE_URL}/feed.xml`,
@@ -110,6 +121,7 @@ export default function RootLayout({
   return (
     <html className={`h-full antialiased ${playfair.variable} ${jakarta.variable}`} suppressHydrationWarning>
       <body className="min-h-full font-sans" suppressHydrationWarning>
+        <WebSiteJsonLd siteUrl={SITE_URL} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -10,9 +10,10 @@ import { HomeLanding } from '@/components/modules/home/HomeLanding'
 import { LocalBusinessJsonLd } from '@/components/shared/LocalBusinessJsonLd'
 import { FaqJsonLd, BOLENA_FAQ } from '@/components/shared/FaqJsonLd'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
+const OG_IMAGE = `${SITE_URL}/images/menu/hero_v2.png`
 
 const META = {
   tr: {
@@ -42,6 +43,23 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       siteName: 'Bolena Glutensiz Cafe',
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
       type: 'website',
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: meta.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: meta.title,
+      description: meta.description,
+      images: [OG_IMAGE],
+    },
+    // Geo meta — yerel arama ve AI konum sorgularında güçlü sinyal
+    other: {
+      'geo.region': 'TR-06',
+      'geo.placename': 'Ankara, Yaşamkent',
+      'geo.position': '39.9423;32.6827',
+      'ICBM': '39.9423, 32.6827',
+      'abstract': locale === 'tr'
+        ? "Ankara'nın tek %100 glutensiz mutfağı. Çölyak hastaları için en güvenli seçim. Glutensiz pizza, hamburger, makarna, kahvaltı ve tatlılar Yaşamkent'te."
+        : "Ankara's only 100% gluten-free kitchen. The safest choice for celiac disease. Gluten-free pizza, burger, pasta, breakfast and desserts in Yaşamkent.",
     },
   }
 }

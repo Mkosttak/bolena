@@ -6,11 +6,12 @@ import { SiteFooter } from '@/components/shared/SiteFooter'
 import { MenuDisplay } from '@/components/modules/menu/MenuDisplay'
 import { MenuHero } from '@/components/modules/menu/MenuHero'
 import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
+import { MenuJsonLd } from '@/components/shared/MenuJsonLd'
 import type { Category, MenuCampaign, Product } from '@/types'
 
 export const revalidate = 1800
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 const META: Record<'tr' | 'en', { title: string; description: string; keywords: string[] }> = {
   tr: {
@@ -128,6 +129,12 @@ export default async function MenuPage({ params }: MenuPageProps) {
           { name: isEn ? 'Home' : 'Ana Sayfa', url: `${SITE_URL}/${locale}` },
           { name: isEn ? 'Menu' : 'Menü', url: `${SITE_URL}/${locale}/menu` },
         ]}
+      />
+      <MenuJsonLd
+        categories={(categories ?? []) as Category[]}
+        products={(products ?? []) as Product[]}
+        locale={locale}
+        siteUrl={SITE_URL}
       />
       <PublicNavbar
         locale={locale}

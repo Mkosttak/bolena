@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz.com'
 
 /**
  * Robots policy:
@@ -65,5 +65,9 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
     host: BASE_URL,
+    // AI motorlar için ek referans dosyaları
+    // llms.txt ve ai-content endpoint'i robots.txt'de linklenmez (standart değil)
+    // ama bu dosyalara crawl izni /robots kuralıyla dolaylı verilir ('/' allow).
+
   }
 }
