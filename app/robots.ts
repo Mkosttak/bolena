@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 /**
  * Robots policy:

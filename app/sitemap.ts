@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 // build sırasında env'ler eksik olabilir. Direkt process.env + fallback'lerle
 // defensive yapı: env yoksa sadece static entries döner, build patlamaz.
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com.tr'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 

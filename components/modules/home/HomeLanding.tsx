@@ -215,39 +215,32 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
               paddingTop: '8rem',
             }}
           >
-            <div style={{ overflow: 'hidden' }}>
-              <motion.h1
-                initial={{ y: '105%' }}
-                animate={{ y: 0 }}
-                transition={{ duration: 1, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="font-heading"
+            {/* LCP elementi — motion delay LCP'yi 2sn geciktiriyordu, statik render */}
+            <h1
+              className="font-heading"
+              style={{
+                fontSize: 'clamp(2.85rem, 9.5vw, 7.5rem)',
+                fontWeight: 800,
+                lineHeight: 0.93,
+                letterSpacing: '-0.04em',
+                color: '#FDFCF8',
+                margin: 0,
+                textShadow: '0 2px 24px rgba(0,0,0,0.35)',
+              }}
+            >
+              {t('heroTitle')}
+              <br />
+              <span
                 style={{
-                  fontSize: 'clamp(2.85rem, 9.5vw, 7.5rem)',
-                  fontWeight: 800,
-                  lineHeight: 0.93,
-                  letterSpacing: '-0.04em',
-                  color: '#FDFCF8',
-                  margin: 0,
-                  textShadow: '0 2px 24px rgba(0,0,0,0.35)',
+                  color: '#E8C684',
+                  textShadow: '0 2px 18px rgba(0,0,0,0.45)',
                 }}
               >
-                {t('heroTitle')}
-                <br />
-                <span
-                  style={{
-                    color: '#E8C684',
-                    textShadow: '0 2px 18px rgba(0,0,0,0.45)',
-                  }}
-                >
-                  {t('heroTitleAccent')}
-                </span>
-              </motion.h1>
-            </div>
+                {t('heroTitleAccent')}
+              </span>
+            </h1>
 
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            <div
               className="flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-0 sm:justify-between mt-7"
               style={{ paddingBottom: 'clamp(2rem,5vh,3.5rem)' }}
             >
@@ -284,7 +277,7 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                   <ArrowUpRight className="w-4 h-4" strokeWidth={2.5} />
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </section>

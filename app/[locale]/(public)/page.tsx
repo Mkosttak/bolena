@@ -12,7 +12,7 @@ import { FaqJsonLd, BOLENA_FAQ } from '@/components/shared/FaqJsonLd'
 
 export const dynamic = 'force-dynamic'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 const META = {
   tr: {

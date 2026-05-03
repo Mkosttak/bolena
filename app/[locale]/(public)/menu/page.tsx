@@ -10,7 +10,7 @@ import type { Category, MenuCampaign, Product } from '@/types'
 
 export const revalidate = 1800
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 const META: Record<'tr' | 'en', { title: string; description: string; keywords: string[] }> = {
   tr: {

@@ -15,7 +15,7 @@ import {
 
 export const revalidate = 3600
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolena.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bolenaglutensiz.com'
 
 interface BlogDetailPageProps {
   params: Promise<{ locale: string; slug: string }>
