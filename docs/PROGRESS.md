@@ -1,6 +1,19 @@
 # Bolena Cafe — Proje Durumu
 
-**Son güncelleme:** 2026-06-02 (kalemsel bölüşmede adet bazlı seçim)
+**Son güncelleme:** 2026-06-02 (QR realtime düzeltmesi + kalemsel bölüşme adet seçici)
+
+## 2026-06-02 — QR siparişlerin masalar ekranına realtime düşmemesi
+
+- **Sorun:** QR'dan sipariş verildiğinde KDS anlık güncelleniyordu, ama masalar **listesi** geç (15s), masa **detay** ekranı hiç (60s'lik fallback poll'a kadar) güncellenmiyordu.
+- **Kök neden:** Çalışan ekranlar (KDS, rezervasyon, platform) `order_items` için **tek `event: '*'` binding** kullanıyor. Çalışmayan ekranlar (`TableOrderScreen`, `TablesClient`) aynı tabloya **ayrı `INSERT`/`UPDATE`/`DELETE` binding'leri** veriyordu. `@supabase/realtime-js` aynı kanalda aynı tabloya çoklu event-binding'inde binding-id eşleşmesini bozup event'leri hiç teslim etmiyor → ekranlar yalnız polling'e düşüyordu. ("Payments publication'da yok" durumu kanalı bozmuyor; rezervasyon ekranı payments'a abone olup çalıştığı için bu kanıtlandı.)
+- **Çözüm:**
+  - [TableOrderScreen.tsx](components/modules/tables/TableOrderScreen.tsx): order_items/orders/payments için tek `event: '*'` + server-side `filter` (rezervasyon/platform pattern'i). Client-side `order_id` karşılaştırmaları kaldırıldı.
+  - [TablesClient.tsx](components/modules/tables/TablesClient.tsx): order_items tek `event: '*'`; gereksiz/publication'da olmayan `payments` binding'i kaldırıldı (orders '*' ödeme durumunu kapsar).
+  - [020_payments_realtime.sql](supabase/migrations/020_payments_realtime.sql): `payments` realtime publication'a eklendi (idempotent) → çoklu cihaz ödeme senkronu. **Prod'da elle koşulmalı.**
+- **Testler:** `npm run typecheck` ✅ · `eslint` ✅ 0 error/0 warning · `vitest run tables.actions` ✅ 11 passed.
+- **Not:** Kod düzeltmesi migration olmadan da QR sorununu çözer; migration yalnız payment realtime'ı içindir.
+
+## 2026-06-02 — Kalemsel bölüşmede adet seçici (+/−)
 
 ## 2026-06-02 — Kalemsel bölüşmede adet seçici (+/−)
 

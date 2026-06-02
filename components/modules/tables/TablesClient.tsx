@@ -39,10 +39,14 @@ export function TablesClient({ locale }: TablesClientProps) {
     const supabase = createClient()
     const invalidate = () => queryClient.invalidateQueries({ queryKey: tablesKeys.list() })
 
+    // TEK `event: '*'` binding kullan — aynı tabloya ayrı INSERT/UPDATE/DELETE
+    // binding'leri vermek realtime-js'te event teslimini bozuyordu (QR siparişleri
+    // listeye geç düşüyordu). orders '*' ödeme durumu değişimini de kapsar.
     const channel = supabase
       .channel('tables-client-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_items' }, async (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, async (payload) => {
         invalidate()
+        if (payload.eventType !== 'INSERT') return
         const newItem = payload.new as { order_id?: string }
         if (!newItem.order_id) return
 
@@ -73,10 +77,7 @@ export function TablesClient({ locale }: TablesClientProps) {
           icon: '📱',
         })
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_items' }, invalidate)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'order_items' }, invalidate)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, invalidate)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, invalidate)
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }

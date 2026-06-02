@@ -123,6 +123,11 @@ export function TableOrderScreen({
   useEffect(() => { addModalOpenRef.current = addModalOpen }, [addModalOpen])
 
   // Realtime aboneliği
+  // ÖNEMLİ: Her tablo için TEK bir `event: '*'` binding + server-side `filter`
+  // kullanılır. Aynı tabloya ayrı INSERT/UPDATE/DELETE binding'leri vermek
+  // (@supabase/realtime-js) binding-id eşleşmesini bozup event'lerin hiç
+  // ulaşmamasına yol açıyordu — QR siparişleri bu yüzden ekrana düşmüyordu.
+  // KDS ve rezervasyon/platform ekranları da tek `*` binding kullanır.
   useEffect(() => {
     if (!orderId) return
     const supabase = createClient()
@@ -131,13 +136,11 @@ export function TableOrderScreen({
       .channel(`table-order-${orderId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'order_items' },
+        { event: '*', schema: 'public', table: 'order_items', filter: `order_id=eq.${orderId}` },
         (payload) => {
-          const row = payload.new as { order_id?: string } | null
-          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
           // Modal kapalıyken QR siparişte yeni ürün geldi → bildirim
-          if (isQrOrderRef.current && !addModalOpenRef.current) {
+          if (payload.eventType === 'INSERT' && isQrOrderRef.current && !addModalOpenRef.current) {
             toast.info(t('newQrOrderOnTable'), {
               duration: 30000,
               icon: '📱',
@@ -148,45 +151,23 @@ export function TableOrderScreen({
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'order_items' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { order_id?: string } | null
-          if (row?.order_id !== orderId) return
-          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
-        }
+        { event: '*', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
+        () => queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'order_items' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { order_id?: string } | null
-          if (row?.order_id !== orderId) return
-          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { id?: string } | null
-          if (row?.id !== orderId) return
-          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'payments' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { order_id?: string } | null
-          if (row?.order_id !== orderId) return
-          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
-        }
+        { event: '*', schema: 'public', table: 'payments', filter: `order_id=eq.${orderId}` },
+        () => queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
       )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
+    // t / tableName bilerek hariç: next-intl `t` referansı her render değişir;
+    // deps'e eklemek kanalı sürekli yeniden abone eder (event kaybı). Bunlar
+    // ekran ömründe sabit, sadece orderId değişiminde yeniden abone olmak doğru.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, queryClient])
 
   // Tek round-trip: order + items + payments
