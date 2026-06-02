@@ -2,6 +2,16 @@
 
 **Son güncelleme:** 2026-06-02 (QR realtime düzeltmesi + kalemsel bölüşme adet seçici)
 
+## 2026-06-02 — QR realtime (asıl kök neden): `payments` binding'i kanalı bozuyordu
+
+- **Sorun:** Tüm denemelere rağmen masa detay + ödeme ekranına siparişler ya hiç ya çok geç (60sn poll) düşüyordu.
+- **Asıl kök neden:** TableOrderScreen (ve ReservationOrderScreen) `payments` tablosuna `postgres_changes` binding'i veriyordu, ama `payments` **supabase_realtime publication'ında değil**. Publication'da olmayan tabloya binding → tüm kanal **CHANNEL_ERROR** → o kanaldaki order_items/orders dahil hiçbir event gelmiyor, yalnız poll çalışıyordu. (KDS ve masalar listesi payments'a abone olmadığı için çalışıyordu — önceki turda listeden payments'ı kaldırınca düzelmişti, ama detayda tutmuştum.)
+- **Çözüm:**
+  - [TableOrderScreen.tsx](components/modules/tables/TableOrderScreen.tsx): `payments` binding'i kaldırıldı (yalnız order_items + orders). Ödeme değişimi `addPayment`'in orders.payment_status güncellemesiyle `orders` event'i üzerinden gelir; fetchFullOrder payments'ı da getirir. Fallback poll 60sn→10sn.
+  - [ReservationOrderScreen.tsx](components/modules/reservations/ReservationOrderScreen.tsx): `payments` binding'i `orders` binding'iyle değiştirildi.
+- **Testler:** `typecheck` ✅ · `eslint` ✅ 0/0.
+- **Not:** migration 020 (payments→publication) koşulursa payments realtime de açılabilir, ama gerekmiyor — orders event'i kapsıyor.
+
 ## 2026-06-02 — QR realtime (devam): server-side `filter` realtime'ı engelliyordu
 
 - **Sorun:** Önceki turda TableOrderScreen `event: '*'` + server-side `filter: order_id=eq.${orderId}`'a çevrildi ama QR siparişleri masa detayına **hâlâ** anlık düşmüyordu (yalnız refresh ile geliyordu).

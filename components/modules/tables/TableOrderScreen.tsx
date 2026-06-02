@@ -123,12 +123,14 @@ export function TableOrderScreen({
   useEffect(() => { addModalOpenRef.current = addModalOpen }, [addModalOpen])
 
   // Realtime aboneliği
-  // ÖNEMLİ: Her tablo için TEK bir `event: '*'` binding kullanılır ve eşleşme
-  // CLIENT-SIDE yapılır (server-side `filter` KULLANILMAZ). Denemelerde:
-  //   • Aynı tabloya ayrı INSERT/UPDATE/DELETE binding'i  → event hiç gelmiyor.
-  //   • `event: '*'` + server-side `filter`               → event hiç gelmiyor.
-  //   • `event: '*'` + client-side guard (KDS pattern'i)  → çalışıyor.
-  // KDS ve masalar listesi de tam olarak bu pattern'i kullanıyor.
+  // ÖNEMLİ: Yalnızca `order_items` ve `orders` tablolarına abone olunur —
+  // ikisi de supabase_realtime publication'ında. `payments` tablosu
+  // publication'da OLMADIĞI için ona binding eklemek tüm kanalı CHANNEL_ERROR'a
+  // düşürüyordu → hiçbir event gelmiyor, yalnızca 60sn poll çalışıyordu ("geç").
+  // Ödeme değişimleri zaten orders.payment_status güncellemesiyle (addPayment)
+  // `orders` event'i üzerinden gelir; fetchFullOrder payments'ı da getirir.
+  // Eşleşme CLIENT-SIDE (server-side `filter` da event teslimini engelliyordu).
+  // KDS ve masalar listesi de birebir bu pattern'i kullanır.
   useEffect(() => {
     if (!orderId) return
     const supabase = createClient()
@@ -161,15 +163,6 @@ export function TableOrderScreen({
           queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
         }
       )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'payments' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { order_id?: string } | null
-          if (row?.order_id !== orderId) return
-          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
-        }
-      )
       .subscribe()
 
     return () => {
@@ -188,7 +181,7 @@ export function TableOrderScreen({
     queryFn: () => fetchFullOrder(orderId!),
     enabled: !!orderId,
     refetchOnMount: true,
-    refetchInterval: 60_000,
+    refetchInterval: 10_000, // realtime ana yol; bu yalnız güvenlik ağı
     refetchOnWindowFocus: true,
   })
 
