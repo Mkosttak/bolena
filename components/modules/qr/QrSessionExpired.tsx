@@ -2,7 +2,7 @@
 
 import { QrIntlProvider } from './QrIntlProvider'
 import { useLocale, useTranslations } from 'next-intl'
-import { CheckCircle2, QrCode, Star, ExternalLink, Receipt } from 'lucide-react'
+import { CheckCircle2, Globe, Star, ExternalLink, Receipt } from 'lucide-react'
 import { SITE_LOGO_SRC, GOOGLE_REVIEW_URL } from '@/lib/site-brand'
 import { INSTAGRAM_URL } from '@/lib/constants/social'
 import { calculatePaid } from '@/lib/utils/order.utils'
@@ -62,6 +62,14 @@ function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) 
         <h1 className="font-heading text-3xl font-bold text-[#173322]">
           {t('sessionExpiredTitle')}
         </h1>
+
+        {/* Hesap kapatıldı bilgisi */}
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-600/15 bg-emerald-600/10 px-3 py-1">
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2} />
+          <span className="text-[11px] font-semibold tracking-wide text-emerald-800">
+            {t('sessionExpiredClosedNote')}
+          </span>
+        </div>
 
         {/* Alt yazı */}
         <p className="mt-3 max-w-[260px] text-sm leading-6 text-[#1B3C2A]/55">
@@ -157,19 +165,12 @@ function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) 
         </div>
 
         <a
-          href={`/${locale || 'tr'}/menu`}
+          href={`/${locale || 'tr'}`}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#25523A] to-[#142C1F] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(27,60,42,0.25)] ring-1 ring-white/10 transition-transform active:scale-[0.98]"
         >
-          {t('sessionExpiredOrderBtn')}
+          <Globe className="h-4 w-4" />
+          {t('sessionExpiredWebsiteBtn')}
         </a>
-
-        {/* Yeni sipariş ipucu */}
-        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[#1B3C2A]/8 bg-white/50 px-4 py-3 backdrop-blur-sm">
-          <QrCode className="h-4 w-4 shrink-0 text-[#C4841A]" />
-          <p className="text-xs font-medium text-[#1B3C2A]/55">
-            {t('sessionExpiredScanHint')}
-          </p>
-        </div>
       </div>
     </div>
   )

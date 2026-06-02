@@ -5,8 +5,10 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 import { Send, Loader2, X, AlertTriangle, Minus, Plus, Trash2 } from 'lucide-react'
 import { useQrSessionStore } from '@/lib/stores/qr-session.store'
+import { qrKeys } from '@/lib/queries/qr.queries'
 import { submitQrOrder } from '@/app/qr/[token]/[session]/actions'
 import type { QrCartItem, SelectedExtra, RemovedIngredient } from '@/types'
 
@@ -96,6 +98,7 @@ export function QrDraftPopup({
   const t = useTranslations('qr')
   const items = useQrSessionStore((s) => s.items)
   const clearCart = useQrSessionStore((s) => s.clearCart)
+  const queryClient = useQueryClient()
   const [isPending, startTransition] = useTransition()
 
   const localTotal = items.reduce((sum, item) => {
@@ -111,6 +114,10 @@ export function QrDraftPopup({
         clearCart()
         toast.success(t('orderSentTitle'), { description: t('orderSentDesc') })
         onSent()
+      } else if (result.error === 'session_expired') {
+        // Masa kapatılmış → anlamlı mesaj + ekranı kapanış (teşekkür) ekranına geçir.
+        toast.error(t('orderSessionEndedTitle'), { description: t('orderSessionEndedDesc') })
+        queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
       } else {
         toast.error(t('orderFailedTitle'), {
           description: result.error ?? t('orderFailedDesc'),

@@ -213,6 +213,14 @@ export function QrProductSheet({
           icon: <Send className="size-4" />,
         })
         onClose()
+      } else if (result.error === 'session_expired') {
+        // Masa kapatılmış → anlamlı mesaj + ekranı kapanış (teşekkür) ekranına geçir.
+        toast.error(t('orderSessionEndedTitle'), {
+          description: t('orderSessionEndedDesc'),
+          duration: 5000,
+        })
+        await queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
+        onClose()
       } else {
         toast.error(t('orderFailedTitle'), {
           description: result.error ?? t('orderFailedDesc'),
