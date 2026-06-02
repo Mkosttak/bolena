@@ -372,6 +372,37 @@ export function PaymentModal({
                       `}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Adet seçici (+/−) — split modda en solda, tüm aktif/ödenmemiş kalemler */}
+                        {showStepper && (
+                          <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-border/60 bg-background px-1 py-0.5">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
+                              onClick={() => decItem(item)}
+                              disabled={selQ <= 0}
+                              aria-label={tCommon('decrease')}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="min-w-[34px] text-center text-xs font-bold tabular-nums">
+                              {selQ}
+                              <span className="text-muted-foreground/60">/{availQ}</span>
+                            </span>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
+                              onClick={() => incItem(item)}
+                              disabled={selQ >= availQ}
+                              aria-label={tCommon('increase')}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
 
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -410,38 +441,6 @@ export function PaymentModal({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        {/* Adet seçici (+/−) — split modda tüm aktif/ödenmemiş kalemler */}
-                        {showStepper && (
-                          <div className="flex items-center gap-0.5 rounded-full border border-border/60 bg-background px-1 py-0.5">
-                            <Button
-                              type="button"
-                              size="icon"
-                              variant="ghost"
-                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
-                              onClick={() => decItem(item)}
-                              disabled={selQ <= 0}
-                              aria-label={tCommon('decrease')}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="min-w-[34px] text-center text-xs font-bold tabular-nums">
-                              {selQ}
-                              <span className="text-muted-foreground/60">/{availQ}</span>
-                            </span>
-                            <Button
-                              type="button"
-                              size="icon"
-                              variant="ghost"
-                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
-                              onClick={() => incItem(item)}
-                              disabled={selQ >= availQ}
-                              aria-label={tCommon('increase')}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        )}
-
                         {!splitMode && !isCancelled && (
                           <Button
                             size="icon"
