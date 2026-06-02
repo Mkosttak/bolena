@@ -390,13 +390,17 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                     'px-4',
                     // Desktop: ayrac cizgilerine yapismamasi icin sutun ici bosluk.
                     // Ilk sutun basligla hizali (sol bosluksuz), son sutun sag bosluksuz.
-                    i === 0 && 'sm:pl-0 sm:pr-8 lg:pr-10',
-                    i === 1 && 'sm:px-8 lg:px-10',
-                    i === 2 && 'sm:pl-8 lg:pl-10 sm:pr-0',
+                    i === 0 && 'sm:pl-0 sm:pr-10 lg:pr-14',
+                    i === 1 && 'sm:px-10 lg:px-14',
+                    i === 2 && 'sm:pl-10 lg:pl-14 sm:pr-0',
                     i < 2 ? 'sm:border-r border-black/10' : '',
                   )}
                   style={{
-                    padding: 'clamp(1.5rem,3.5vh,2.5rem) 0',
+                    // NOT: yatay padding'i inline `padding` shorthand ile verirsek
+                    // (örn. '... 0') Tailwind sınıflarını ezip sol/sağ boşluğu sıfırlar.
+                    // Bu yüzden yalnız dikey padding inline; yatay boşluk class'lardan gelir.
+                    paddingTop: 'clamp(1.5rem,3.5vh,2.5rem)',
+                    paddingBottom: 'clamp(1.5rem,3.5vh,2.5rem)',
                   }}
                 >
                   <div
