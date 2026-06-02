@@ -149,8 +149,38 @@ export function QrOrderScreen({
     refetchInterval: 5000,
     refetchIntervalInBackground: true,
   })
+  // Masa kapatma tespiti — KRİTİK:
+  // anon orders RLS'i `status='active'` şartı koşuyor. Masa kapanınca
+  // (status='completed') anon order'ı ARTIK okuyamaz → ne realtime orders
+  // event'i gelir ne de fetchFullOrder durumu görür (null → 'active' sanılır).
+  // Bu yüzden SECURITY DEFINER `get_order_by_session_token` RPC'si periyodik
+  // çağrılır (RLS baypas) → kapanış birkaç saniye içinde güvenilir algılanır.
+  const [statusClient] = useState(() => createClient())
+  const { data: liveSessionStatus } = useQuery({
+    queryKey: ['qr-session-status', sessionToken],
+    queryFn: async () => {
+      const { data } = await statusClient.rpc('get_order_by_session_token', {
+        p_session_token: sessionToken,
+      })
+      return ((data?.[0]?.order_status as string | undefined) ?? null)
+    },
+    enabled: !isSessionExpired,
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
+  })
+
+  useEffect(() => {
+    if (liveSessionStatus && liveSessionStatus !== 'active') {
+      // Polled dış durumu local state'e senkron et (poll'u durdurmak için).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsSessionExpired(true)
+    }
+  }, [liveSessionStatus])
+
   const isSessionExpiredResolved =
-    isSessionExpired || ((latestFullOrder?.order?.status ?? 'active') !== 'active')
+    isSessionExpired ||
+    (liveSessionStatus != null && liveSessionStatus !== 'active') ||
+    ((latestFullOrder?.order?.status ?? 'active') !== 'active')
 
   const handleTabChange = (tab: QrTab) => {
     // Cart sekmesine geçerken iletilmemiş ürün varsa popup aç

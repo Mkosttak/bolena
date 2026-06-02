@@ -2,6 +2,14 @@
 
 **Son güncelleme:** 2026-06-02 (QR realtime düzeltmesi + kalemsel bölüşme adet seçici)
 
+## 2026-06-02 — QR masa kapanış tespiti + teşekkür ekranı yeniden tasarım
+
+- **Sorun:** Admin masayı kapatınca QR müşteri ekranı kapanmıyordu (refresh gerekiyordu, 10sn'de bile olmuyordu).
+- **Kök neden:** anon `orders` SELECT RLS'i `status='active'` şartı koşuyor. Masa kapanınca (completed) anon order'ı artık okuyamaz → ne realtime orders event'i gelir ne fetchFullOrder durumu görür (null→'active'). Yalnız refresh'teki server-side SECURITY DEFINER RPC tespit ediyordu.
+- **Çözüm:** [QrOrderScreen.tsx](components/modules/qr/QrOrderScreen.tsx) `get_order_by_session_token` RPC'sini (RLS baypas, anon çağırabilir) 4sn'de bir poll eder; `order_status !== 'active'` → kapanış ekranı. Migration gerektirmez, ~4sn içinde algılar.
+- **Teşekkür ekranı yeniden tasarım** [QrSessionExpired.tsx](components/modules/qr/QrSessionExpired.tsx): tik ikonu kaldırıldı, Bolena logosu büyütüldü (kart içinde), kapanış notundaki tik kaldırıldı. Instagram + Web Sitesi artık tek kutuda ikiye bölünmüş yan yana butonlar ("Yeni lezzetleri kaçırmayın" başlığı korundu, alt açıklama kaldırıldı). Yeni i18n: sessionExpiredInstagramShort, sessionExpiredWebsiteShort (tr+en).
+- **Testler:** `typecheck` ✅ · `eslint` ✅ 0/0 · JSON ✅.
+
 ## 2026-06-02 — QR müşteri tarafı realtime hızlandırması
 
 - **İstek:** Admin sipariş ekleyip/silince QR müşteri ekranındaki sepet/hesap (sepetim) anlık güncellensin (admin tarafıyla aynı hızda).

@@ -1098,6 +1098,8 @@
     "sessionExpiredPaidLabel": "Ödenen",
     "sessionExpiredOrderBtn": "Sipariş",
     "sessionExpiredWebsiteBtn": "Web Sitemizi Ziyaret Edin",
+    "sessionExpiredWebsiteShort": "Web Sitesi",
+    "sessionExpiredInstagramShort": "Instagram",
     "sessionExpiredClosedNote": "Masanızın hesabı kapatıldı",
     "sessionExpiredInstagramTitle": "Yeni lezzetleri kaçırmayın",
     "sessionExpiredInstagramDesc": "Buradan Instagram hesabımıza göz atın, yeni lezzetler için bizi takip etmeyi unutmayın.",

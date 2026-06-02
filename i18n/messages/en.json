@@ -1092,6 +1092,8 @@
     "sessionExpiredPaidLabel": "Paid",
     "sessionExpiredOrderBtn": "Order",
     "sessionExpiredWebsiteBtn": "Visit Our Website",
+    "sessionExpiredWebsiteShort": "Website",
+    "sessionExpiredInstagramShort": "Instagram",
     "sessionExpiredClosedNote": "Your table's bill has been closed",
     "sessionExpiredInstagramTitle": "Do not miss new flavors",
     "sessionExpiredInstagramDesc": "Visit our Instagram from here and follow us for new flavors.",

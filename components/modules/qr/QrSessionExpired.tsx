@@ -2,7 +2,7 @@
 
 import { QrIntlProvider } from './QrIntlProvider'
 import { useLocale, useTranslations } from 'next-intl'
-import { CheckCircle2, Globe, Star, ExternalLink, Receipt } from 'lucide-react'
+import { Globe, Star, ExternalLink, Receipt } from 'lucide-react'
 import { SITE_LOGO_SRC, GOOGLE_REVIEW_URL } from '@/lib/site-brand'
 import { INSTAGRAM_URL } from '@/lib/constants/social'
 import { calculatePaid } from '@/lib/utils/order.utils'
@@ -35,21 +35,17 @@ function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) 
       </div>
 
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center text-center">
-        {/* Logo */}
-        <div className="relative mb-5 h-14 w-14">
-          <Image
-            src={SITE_LOGO_SRC}
-            alt="Bolena Cafe"
-            fill
-            className="object-contain"
-          />
-        </div>
-
-        {/* Tamamlandı ikonu */}
-        <div className="relative mb-5">
-          <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-2xl" />
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(250,248,242,0.85))] shadow-[0_20px_45px_-28px_rgba(27,60,42,0.45)]">
-            <CheckCircle2 className="h-9 w-9 text-emerald-500" strokeWidth={1.5} />
+        {/* Büyük Bolena logosu (tik ikonu kaldırıldı) */}
+        <div className="relative mb-6 flex h-32 w-32 items-center justify-center rounded-[34px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,248,242,0.88))] shadow-[0_24px_55px_-26px_rgba(27,60,42,0.5)]">
+          <div className="absolute inset-0 -z-10 rounded-[34px] bg-[#c4841a]/15 blur-2xl" />
+          <div className="relative h-24 w-24">
+            <Image
+              src={SITE_LOGO_SRC}
+              alt="Bolena Cafe"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
 
@@ -64,12 +60,9 @@ function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) 
         </h1>
 
         {/* Hesap kapatıldı bilgisi */}
-        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-600/15 bg-emerald-600/10 px-3 py-1">
-          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2} />
-          <span className="text-[11px] font-semibold tracking-wide text-emerald-800">
-            {t('sessionExpiredClosedNote')}
-          </span>
-        </div>
+        <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#1B3C2A]/45">
+          {t('sessionExpiredClosedNote')}
+        </p>
 
         {/* Alt yazı */}
         <p className="mt-3 max-w-[260px] text-sm leading-6 text-[#1B3C2A]/55">
@@ -143,34 +136,40 @@ function QrSessionExpiredInner({ tableName, fullOrder }: QrSessionExpiredProps) 
           </a>
         </div>
 
-        <div className="mt-4 w-full rounded-2xl border border-white/60 bg-white/80 p-5 shadow-[0_8px_30px_rgba(27,60,42,0.08)] backdrop-blur-sm">
-          <p className="text-sm font-semibold text-[#173322]">
+        {/* Instagram + Web Sitesi — tek kutu, ikiye bölünmüş */}
+        <div className="mt-5 w-full overflow-hidden rounded-2xl border border-white/60 bg-white/80 shadow-[0_8px_30px_rgba(27,60,42,0.08)] backdrop-blur-sm">
+          <p className="px-5 pb-3 pt-5 text-center text-sm font-semibold text-[#173322]">
             {t('sessionExpiredInstagramTitle')}
           </p>
-          <p className="mt-1 text-xs leading-5 text-[#1B3C2A]/55">
-            {t('sessionExpiredInstagramDesc')}
-          </p>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[#1B3C2A]/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,248,242,0.9))] px-4 py-3.5 text-sm font-bold text-[#1B3C2A] shadow-[0_8px_20px_rgba(27,60,42,0.12)] transition-transform active:scale-[0.98]"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-            {t('sessionExpiredInstagramBtn')}
-            <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-          </a>
+          <div className="grid grid-cols-2 divide-x divide-[#1B3C2A]/10 border-t border-[#1B3C2A]/10">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-2.5 px-4 py-6 transition-colors active:bg-[#1B3C2A]/5"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#F58529_0%,#DD2A7B_55%,#8134AF_100%)] text-white shadow-[0_8px_18px_rgba(221,42,123,0.35)]">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </span>
+              <span className="text-xs font-bold text-[#1B3C2A]">
+                {t('sessionExpiredInstagramShort')}
+              </span>
+            </a>
+            <a
+              href={`/${locale || 'tr'}`}
+              className="flex flex-col items-center gap-2.5 px-4 py-6 transition-colors active:bg-[#1B3C2A]/5"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#25523A_0%,#142C1F_100%)] text-white shadow-[0_8px_18px_rgba(27,60,42,0.3)]">
+                <Globe className="h-6 w-6" strokeWidth={1.75} />
+              </span>
+              <span className="text-xs font-bold text-[#1B3C2A]">
+                {t('sessionExpiredWebsiteShort')}
+              </span>
+            </a>
+          </div>
         </div>
-
-        <a
-          href={`/${locale || 'tr'}`}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#25523A] to-[#142C1F] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(27,60,42,0.25)] ring-1 ring-white/10 transition-transform active:scale-[0.98]"
-        >
-          <Globe className="h-4 w-4" />
-          {t('sessionExpiredWebsiteBtn')}
-        </a>
       </div>
     </div>
   )
