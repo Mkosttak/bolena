@@ -23,11 +23,16 @@ export function TablesClient({ locale }: TablesClientProps) {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [flashingTableIds, setFlashingTableIds] = useState<Set<string>>(new Set())
   const queryClient = useQueryClient()
+  // Benzersiz kanal adı — liste sayfası sık mount/unmount olur (detaya gidip
+  // geri dönme). Statik adda remount'ta önceki kanalla topic çakışması olup
+  // abonelik sessizce başarısız oluyordu → realtime ölüp yalnız poll kalıyordu.
+  const [channelId] = useState(() => crypto.randomUUID())
 
   const { data: tables, isLoading, refetch } = useQuery({
     queryKey: tablesKeys.list(),
     queryFn: fetchTablesWithOrder,
-    refetchInterval: 15_000,
+    refetchInterval: 10_000, // realtime ana yol; bu güvenlik ağı
+    refetchOnWindowFocus: true,
   })
 
   // Stale closure'ı önlemek için tables verisini ref'te tut
@@ -43,7 +48,7 @@ export function TablesClient({ locale }: TablesClientProps) {
     // binding'leri vermek realtime-js'te event teslimini bozuyordu (QR siparişleri
     // listeye geç düşüyordu). orders '*' ödeme durumu değişimini de kapsar.
     const channel = supabase
-      .channel('tables-client-realtime')
+      .channel(`tables-client-realtime-${channelId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, async (payload) => {
         invalidate()
         if (payload.eventType !== 'INSERT') return
@@ -81,7 +86,7 @@ export function TablesClient({ locale }: TablesClientProps) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [queryClient, t])
+  }, [queryClient, t, channelId])
 
   const { data: categories } = useQuery({
     queryKey: tablesKeys.categories(),
