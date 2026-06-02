@@ -26,7 +26,9 @@ interface QrOrderRouteProps {
 export function QrOrderRoute(props: QrOrderRouteProps) {
   return (
     <QrIntlProvider>
-      <Providers>
+      {/* withToaster=false: QR kendi QrToaster'ını (layout'ta, top-center) kullanır.
+          Aksi halde toast'lar hem üstte (QrToaster) hem altta (Providers) görünür. */}
+      <Providers withToaster={false}>
         <QrOrderScreen {...props} />
       </Providers>
     </QrIntlProvider>

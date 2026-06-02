@@ -104,12 +104,10 @@ export function QrOrderScreen({
           insertToastTimeoutRef.current = setTimeout(() => {
             if (!pendingInsertToastRef.current) return
             pendingInsertToastRef.current = false
-            toast(t('toastItemAddedTitle'), {
+            // Marka stilli QrToaster (top-center, yeşil success) kullanılır —
+            // önceki özel siyah stil yerine tutarlı görünüm.
+            toast.success(t('toastItemAddedTitle'), {
               description: t('toastItemAddedDesc'),
-              duration: 4000,
-              position: 'top-center',
-              className: 'bg-black/90 text-white border-0 backdrop-blur-xl shadow-2xl rounded-2xl mx-auto top-4 flex p-4',
-              descriptionClassName: 'text-gray-300'
             })
           }, 320)
         }

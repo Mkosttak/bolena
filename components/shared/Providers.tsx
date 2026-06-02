@@ -6,9 +6,15 @@ import { Toaster } from '@/components/ui/sonner'
 
 interface ProvidersProps {
   children: React.ReactNode
+  /**
+   * Varsayılan (bottom-center) Toaster'ı mount et.
+   * QR rotaları kendi `QrToaster`'ını (top-center, marka stili) kullanır;
+   * orada `false` geçilir — yoksa toast'lar hem üstte hem altta görünür.
+   */
+  withToaster?: boolean
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, withToaster = true }: ProvidersProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -35,7 +41,7 @@ export function Providers({ children }: ProvidersProps) {
   return (
       <QueryClientProvider client={queryClient}>
         {children}
-        <Toaster richColors position="bottom-center" closeButton />
+        {withToaster && <Toaster richColors position="bottom-center" closeButton />}
       </QueryClientProvider>
   )
 }
