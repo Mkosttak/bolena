@@ -2,6 +2,13 @@
 
 **Son güncelleme:** 2026-06-02 (QR realtime düzeltmesi + kalemsel bölüşme adet seçici)
 
+## 2026-06-02 — QR realtime (devam): server-side `filter` realtime'ı engelliyordu
+
+- **Sorun:** Önceki turda TableOrderScreen `event: '*'` + server-side `filter: order_id=eq.${orderId}`'a çevrildi ama QR siparişleri masa detayına **hâlâ** anlık düşmüyordu (yalnız refresh ile geliyordu).
+- **Kök neden:** Server-side `filter` realtime event teslimini engelliyor. Kanıt: KDS ve masalar listesi (server-side filter YOK) çalışıyor; masa detay (server-side filter VAR) çalışmıyordu.
+- **Çözüm:** Server-side `filter` kaldırıldı; `event: '*'` + **client-side guard** (`row.order_id === orderId`) kullanıldı — birebir KDS pattern'i. Aynı latent bug'ı taşıyan [ReservationOrderScreen.tsx](components/modules/reservations/ReservationOrderScreen.tsx) ve [PlatformOrderScreen.tsx](components/modules/platform-orders/PlatformOrderScreen.tsx) de proaktif düzeltildi.
+- **Testler:** `npm run typecheck` ✅ · `eslint` ✅ 0/0.
+
 ## 2026-06-02 — QR siparişlerin masalar ekranına realtime düşmemesi
 
 - **Sorun:** QR'dan sipariş verildiğinde KDS anlık güncelleniyordu, ama masalar **listesi** geç (15s), masa **detay** ekranı hiç (60s'lik fallback poll'a kadar) güncellenmiyordu.

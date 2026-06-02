@@ -123,11 +123,12 @@ export function TableOrderScreen({
   useEffect(() => { addModalOpenRef.current = addModalOpen }, [addModalOpen])
 
   // Realtime aboneliği
-  // ÖNEMLİ: Her tablo için TEK bir `event: '*'` binding + server-side `filter`
-  // kullanılır. Aynı tabloya ayrı INSERT/UPDATE/DELETE binding'leri vermek
-  // (@supabase/realtime-js) binding-id eşleşmesini bozup event'lerin hiç
-  // ulaşmamasına yol açıyordu — QR siparişleri bu yüzden ekrana düşmüyordu.
-  // KDS ve rezervasyon/platform ekranları da tek `*` binding kullanır.
+  // ÖNEMLİ: Her tablo için TEK bir `event: '*'` binding kullanılır ve eşleşme
+  // CLIENT-SIDE yapılır (server-side `filter` KULLANILMAZ). Denemelerde:
+  //   • Aynı tabloya ayrı INSERT/UPDATE/DELETE binding'i  → event hiç gelmiyor.
+  //   • `event: '*'` + server-side `filter`               → event hiç gelmiyor.
+  //   • `event: '*'` + client-side guard (KDS pattern'i)  → çalışıyor.
+  // KDS ve masalar listesi de tam olarak bu pattern'i kullanıyor.
   useEffect(() => {
     if (!orderId) return
     const supabase = createClient()
@@ -136,8 +137,10 @@ export function TableOrderScreen({
       .channel(`table-order-${orderId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'order_items', filter: `order_id=eq.${orderId}` },
+        { event: '*', schema: 'public', table: 'order_items' },
         (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
           // Modal kapalıyken QR siparişte yeni ürün geldi → bildirim
           if (payload.eventType === 'INSERT' && isQrOrderRef.current && !addModalOpenRef.current) {
@@ -151,13 +154,21 @@ export function TableOrderScreen({
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
-        () => queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { id?: string } | null
+          if (row?.id !== orderId) return
+          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+        }
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'payments', filter: `order_id=eq.${orderId}` },
-        () => queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+        { event: '*', schema: 'public', table: 'payments' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
+          queryClient.invalidateQueries({ queryKey: ordersKeys.full(orderId) })
+        }
       )
       .subscribe()
 

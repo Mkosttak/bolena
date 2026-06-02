@@ -95,21 +95,27 @@ export function ReservationOrderScreen({
   const remaining = calculateRemaining(Number(order.total_amount), payments as Payment[])
 
   // Realtime subscription
+  // Server-side `filter` KULLANMA — realtime teslimini engelliyor (masa detayda
+  // tespit edildi). `event: '*'` + client-side guard kullan (KDS pattern'i).
   useEffect(() => {
     const channel = supabase
       .channel(`reservation-order-${orderId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'order_items', filter: `order_id=eq.${orderId}` },
-        () => {
+        { event: '*', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: ordersKeys.items(orderId) })
           queryClient.invalidateQueries({ queryKey: ordersKeys.order(orderId) })
         }
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'payments', filter: `order_id=eq.${orderId}` },
-        () => {
+        { event: '*', schema: 'public', table: 'payments' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: ordersKeys.payments(orderId) })
           queryClient.invalidateQueries({ queryKey: ordersKeys.order(orderId) })
         }

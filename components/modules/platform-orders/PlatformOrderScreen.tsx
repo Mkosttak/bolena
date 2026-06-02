@@ -93,13 +93,17 @@ export function PlatformOrderScreen({
   })
 
   // Realtime — K-05: sadece platform siparişleri sayfasında
+  // Server-side `filter` KULLANMA — realtime teslimini engelliyor.
+  // `event: '*'` + client-side guard (KDS pattern'i).
   useEffect(() => {
     const channel = supabase
       .channel(`platform-order-${orderId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'order_items', filter: `order_id=eq.${orderId}` },
-        () => {
+        { event: '*', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: ordersKeys.items(orderId) })
           queryClient.invalidateQueries({ queryKey: ordersKeys.order(orderId) })
         }
