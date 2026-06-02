@@ -67,18 +67,25 @@ export function QrOrderScreen({
   useEffect(() => {
     const supabase = createClient()
 
-    // NOT: filter: parametresi Supabase'de REPLICA IDENTITY FULL olmadan sessizce başarısız olur.
-    // Filtresiz abone olup client-side payload kontrolü yapıyoruz — bu production'da da güvenilir çalışır.
+    // Yalnız order_items + orders (ikisi de publication'da). `payments`
+    // publication'da olmadığından binding eklemek tüm kanalı CHANNEL_ERROR'a
+    // düşürür → admin ekleme/silmesi anlık gelmez. Ödeme değişimi orders
+    // güncellemesiyle gelir. order_items için `event: '*'` → admin'in SİLMESİ
+    // (DELETE / quantity=0 UPDATE) de anlık yakalanır; toast yalnız INSERT'te.
+    // Server-side `filter` event teslimini engellediğinden client-side guard.
     const channel = supabase
       .channel(`qr-screen-${initialOrderId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'order_items' },
+        { event: '*', schema: 'public', table: 'order_items' },
         (payload) => {
-          const row = payload.new as { order_id?: string }
-          if (row.order_id !== initialOrderId) return
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== initialOrderId) return
 
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
+
+          // "Ürün eklendi" toast'ı yalnız yeni kalem (INSERT) için.
+          if (payload.eventType !== 'INSERT') return
 
           if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false
@@ -109,24 +116,15 @@ export function QrOrderScreen({
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders' },
+        { event: '*', schema: 'public', table: 'orders' },
         (payload) => {
-          const row = payload.new as { id?: string; status?: string }
-          if (row.id !== initialOrderId) return
+          const row = (payload.new ?? payload.old) as { id?: string; status?: string } | null
+          if (row?.id !== initialOrderId) return
 
           const newStatus = row.status
           if (newStatus && newStatus !== 'active') {
             setIsSessionExpired(true)
           }
-          queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'payments' },
-        (payload) => {
-          const row = (payload.new ?? payload.old) as { order_id?: string } | null
-          if (row?.order_id !== initialOrderId) return
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
         }
       )

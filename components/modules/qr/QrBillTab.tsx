@@ -27,44 +27,31 @@ export function QrBillTab({ sessionToken, orderId, initialOrder }: QrBillTabProp
     initialData: initialOrder ?? undefined,
   })
 
-  // Realtime subscription — hesap sekmesi açıkken aktif
+  // Realtime subscription — hesap sekmesi açıkken aktif.
+  // Yalnız order_items + orders (ikisi de publication'da). `payments`
+  // publication'da olmadığından binding eklemek tüm kanalı CHANNEL_ERROR'a
+  // düşürür → admin'in ekleme/silmesi anlık gelmez, yalnız poll çalışırdı.
+  // Server-side `filter` de event teslimini engelliyor → client-side guard.
+  // Ödeme değişimi orders.payment_status üzerinden (addPayment) gelir.
   useEffect(() => {
     const supabase = createClient()
     const channel = supabase
       .channel(`qr-bill-${orderId}`)
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'order_items',
-          filter: `order_id=eq.${orderId}`,
-        },
-        () => {
+        { event: '*', schema: 'public', table: 'order_items' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { order_id?: string } | null
+          if (row?.order_id !== orderId) return
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
         }
       )
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `id=eq.${orderId}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'payments',
-          filter: `order_id=eq.${orderId}`,
-        },
-        () => {
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { id?: string } | null
+          if (row?.id !== orderId) return
           queryClient.invalidateQueries({ queryKey: qrKeys.order(sessionToken) })
         }
       )

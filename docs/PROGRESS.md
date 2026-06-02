@@ -2,6 +2,19 @@
 
 **Son güncelleme:** 2026-06-02 (QR realtime düzeltmesi + kalemsel bölüşme adet seçici)
 
+## 2026-06-02 — QR müşteri tarafı realtime hızlandırması
+
+- **İstek:** Admin sipariş ekleyip/silince QR müşteri ekranındaki sepet/hesap (sepetim) anlık güncellensin (admin tarafıyla aynı hızda).
+- **Sorun:** QR ekranları da aynı bug'ları taşıyordu → 5–60sn poll'a düşüyordu:
+  - `payments` binding'i (publication'da yok) tüm kanalı bozuyordu.
+  - QrBillTab server-side `filter` kullanıyordu (event teslimini engelliyor).
+  - QrOrderScreen order_items'ta yalnız `event: 'INSERT'` dinliyordu → admin'in **silmesi** (DELETE / quantity=0 UPDATE) realtime'da hiç yakalanmıyordu.
+- **Çözüm:**
+  - [QrOrderScreen.tsx](components/modules/qr/QrOrderScreen.tsx): payments binding kaldırıldı; order_items `INSERT`→`'*'` (silme de yakalanır), toast yalnız INSERT'te; orders `'*'` + client guard.
+  - [QrBillTab.tsx](components/modules/qr/QrBillTab.tsx): server-filter + payments binding kaldırıldı; order_items/orders `'*'` + client guard.
+  - QrCartTab değişmedi — aynı `qrKeys.order(sessionToken)` query'sini paylaştığından parent invalidasyonuyla anında güncellenir.
+- **Testler:** `typecheck` ✅ · `eslint` ✅ 0/0.
+
 ## 2026-06-02 — QR realtime (asıl kök neden): `payments` binding'i kanalı bozuyordu
 
 - **Sorun:** Tüm denemelere rağmen masa detay + ödeme ekranına siparişler ya hiç ya çok geç (60sn poll) düşüyordu.
