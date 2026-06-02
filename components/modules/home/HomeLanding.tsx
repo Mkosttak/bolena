@@ -387,7 +387,12 @@ export function HomeLanding({ locale, openNow, todayHoursLabel }: HomeLandingPro
                     // Mobile: center align + simetrik padding
                     // Desktop (sm+): sola yasli, sutunlar arasi border-r
                     'items-center text-center sm:items-start sm:text-left',
-                    'px-4 sm:px-0',
+                    'px-4',
+                    // Desktop: ayrac cizgilerine yapismamasi icin sutun ici bosluk.
+                    // Ilk sutun basligla hizali (sol bosluksuz), son sutun sag bosluksuz.
+                    i === 0 && 'sm:pl-0 sm:pr-8 lg:pr-10',
+                    i === 1 && 'sm:px-8 lg:px-10',
+                    i === 2 && 'sm:pl-8 lg:pl-10 sm:pr-0',
                     i < 2 ? 'sm:border-r border-black/10' : '',
                   )}
                   style={{
