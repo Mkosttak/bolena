@@ -1,6 +1,14 @@
 # Bolena Cafe — Proje Durumu
 
-**Son güncelleme:** 2026-05-01 (v5 — son sanity check: idempotency UI, i18n eksikleri, audit RLS, prod build verified)
+**Son güncelleme:** 2026-06-02 (kalemsel bölüşmede adet bazlı seçim)
+
+## 2026-06-02 — Kalemsel bölüşmede adet seçici (+/−)
+
+- **Sorun:** `PaymentModal` kalemsel bölüşme (split) modunda bir kalemin tüm adedi tek seçim birimiydi — "2x BOLENA TOST" seçilince iki adet birlikte seçiliyordu; kişi başı bölüşmede tek adet seçilemiyordu.
+- **Çözüm:** Seçim/ödeme takibi `Set<string>` → `Map<string, number>` (adet bazlı). `quantity > 1` olan (ikram/iptal olmayan, henüz ödenmemiş) kalemlerde fiyatın yanında **− [n/toplam] +** adet seçici görünüyor; satıra tıklama tüm kalan adedi seçer/bırakır. Birim fiyat = `total_price / quantity`; indirim her birime eşit oranla yansır. Kısmi ödeme sonrası ödenen adetler `localPaidQty`'de tutulur, "{paid}/{total} ödendi" rozeti gösterilir.
+- **Dosyalar:** [PaymentModal.tsx](components/modules/orders/PaymentModal.tsx); i18n: `orders.splitItemPaidPartial` + `common.increase/decrease` (tr+en).
+- **Testler:** `npm run typecheck` ✅ 0 hata · `eslint PaymentModal.tsx` ✅ 0 error (modal a11y warning'leri — bilinçli, Faz 6) · `vitest run __tests__/{components/orders,actions/orders}` ✅ 24 passed, 1 skipped.
+- **Not:** Adet seçici yalnız çok adetli satırlarda; tek adetli kalemler eskisi gibi tıkla-seç. Sunucu tarafı `addPayment` tutar bazlı çalıştığı için backend değişmedi.
 
 ## Güncel özet (2026-05-01) — Tur 5: Son Sanity Check + Production Build
 

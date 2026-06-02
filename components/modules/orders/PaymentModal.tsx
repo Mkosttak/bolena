@@ -16,6 +16,8 @@ import {
   Users,
   Square,
   CheckSquare,
+  Plus,
+  Minus,
 } from 'lucide-react'
 
 import { ordersKeys } from '@/lib/queries/orders.queries'
@@ -78,9 +80,20 @@ export function PaymentModal({
   const [showDiscount, setShowDiscount] = useState(false)
 
   // ── Split bill state'i ──────────────────────────────────────────────────
+  // Adet bazlı bölüşme: bir kalemden kaç adet seçildiğini / ödendiğini tutar.
+  // (Set yerine Map → "2x BOLENA TOST"in yalnızca 1 adedi seçilebilir.)
   const [splitMode, setSplitMode] = useState(false)
-  const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set())
-  const [localPaidItemIds, setLocalPaidItemIds] = useState<Set<string>>(new Set())
+  const [selectedQty, setSelectedQty] = useState<Map<string, number>>(new Map())
+  const [localPaidQty, setLocalPaidQty] = useState<Map<string, number>>(new Map())
+
+  // ── Adet bazlı yardımcılar ──────────────────────────────────────────────
+  // Birim fiyat: kalem toplamı / adet (total_price tüm adetlerin toplamıdır).
+  const itemUnitPrice = (item: OrderItem) =>
+    item.quantity > 0 ? Number(item.total_price) / item.quantity : Number(item.total_price)
+  const paidQtyOf = (item: OrderItem) => localPaidQty.get(item.id) ?? 0
+  const selectedQtyOf = (item: OrderItem) => selectedQty.get(item.id) ?? 0
+  // Henüz ödenmemiş (seçilebilir) adet sayısı.
+  const availableQtyOf = (item: OrderItem) => item.quantity - paidQtyOf(item)
 
   // ── İndirim yüzde hesabı ────────────────────────────────────────────────
   // Siparişin gerçek indirimini yüzdeye çevirir.
@@ -93,16 +106,20 @@ export function PaymentModal({
     return (Number(order.discount_amount) / subtotal) * 100
   })()
 
-  // Split modda seçili kalemlerin tutarı — indirim her kaleme eşit oranla uygulanır
+  // Split modda seçili adetlerin tutarı — indirim her birime eşit oranla uygulanır
   const splitAmount = items
-    .filter(item => selectedItemIds.has(item.id) && !item.is_complimentary)
+    .filter(item => selectedQtyOf(item) > 0 && !item.is_complimentary && item.quantity > 0)
     .reduce((sum, item) => {
-      const discounted = Number(item.total_price) * (1 - effectiveDiscountPct / 100)
-      return sum + discounted
+      const discountedUnit = itemUnitPrice(item) * (1 - effectiveDiscountPct / 100)
+      return sum + discountedUnit * selectedQtyOf(item)
     }, 0)
 
-  const unpaidItems = items.filter(item => !localPaidItemIds.has(item.id))
-  const allItemsLocallyPaid = unpaidItems.length === 0 && items.length > 0
+  // İptal edilmemiş (quantity > 0) kalemler bölüşmeye dahil.
+  const payableItems = items.filter(item => item.quantity > 0)
+  const unpaidItems = payableItems.filter(item => availableQtyOf(item) > 0)
+  const allItemsLocallyPaid = payableItems.length > 0 && unpaidItems.length === 0
+  // Footer / butonlarda gösterilen toplam seçili adet.
+  const selectedUnitCount = items.reduce((sum, item) => sum + selectedQtyOf(item), 0)
 
   // Normal mod: modal açılınca tutarı sıfırla
   useEffect(() => {
@@ -118,28 +135,44 @@ export function PaymentModal({
     if (!open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSplitMode(false)
-      setSelectedItemIds(new Set())
-      setLocalPaidItemIds(new Set())
+      setSelectedQty(new Map())
+      setLocalPaidQty(new Map())
     }
   }, [open])
 
-  // ── Split yardımcılar ───────────────────────────────────────────────────
-  function toggleItem(itemId: string) {
-    if (localPaidItemIds.has(itemId)) return
-    setSelectedItemIds(prev => {
-      const next = new Set(prev)
-      if (next.has(itemId)) next.delete(itemId)
-      else next.add(itemId)
+  // ── Split yardımcılar (adet bazlı) ──────────────────────────────────────
+  // Bir kalemin seçili adedini ayarlar (0 ≤ qty ≤ ödenmemiş adet).
+  function setItemQty(item: OrderItem, qty: number) {
+    const max = availableQtyOf(item)
+    const clamped = Math.max(0, Math.min(qty, max))
+    setSelectedQty(prev => {
+      const next = new Map(prev)
+      if (clamped <= 0) next.delete(item.id)
+      else next.set(item.id, clamped)
       return next
     })
   }
 
+  // Satıra tıklayınca: seçiliyse tamamen bırak, değilse kalan tüm adedi seç.
+  function toggleItem(item: OrderItem) {
+    if (item.quantity === 0 || availableQtyOf(item) <= 0) return
+    setItemQty(item, selectedQtyOf(item) > 0 ? 0 : availableQtyOf(item))
+  }
+
+  const incItem = (item: OrderItem) => setItemQty(item, selectedQtyOf(item) + 1)
+  const decItem = (item: OrderItem) => setItemQty(item, selectedQtyOf(item) - 1)
+
   function selectAllUnpaid() {
-    setSelectedItemIds(new Set(unpaidItems.map(i => i.id)))
+    const next = new Map<string, number>()
+    payableItems.forEach(item => {
+      const avail = availableQtyOf(item)
+      if (avail > 0) next.set(item.id, avail)
+    })
+    setSelectedQty(next)
   }
 
   function clearSelection() {
-    setSelectedItemIds(new Set())
+    setSelectedQty(new Map())
   }
 
   // ── Mutations ───────────────────────────────────────────────────────────
@@ -197,12 +230,14 @@ export function PaymentModal({
       setNote('')
 
       if (splitMode) {
-        setLocalPaidItemIds(prev => {
-          const next = new Set(prev)
-          selectedItemIds.forEach(id => next.add(id))
+        setLocalPaidQty(prev => {
+          const next = new Map(prev)
+          selectedQty.forEach((qty, id) => {
+            next.set(id, (next.get(id) ?? 0) + qty)
+          })
           return next
         })
-        setSelectedItemIds(new Set())
+        setSelectedQty(new Map())
       }
 
       if (res.closed) {
@@ -249,7 +284,7 @@ export function PaymentModal({
               type="button"
               onClick={() => {
                 setSplitMode(v => !v)
-                setSelectedItemIds(new Set())
+                setSelectedQty(new Map())
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors shrink-0 ${
                 splitMode
@@ -287,7 +322,7 @@ export function PaymentModal({
                   >
                     {t('splitSelectAll')}
                   </button>
-                  {selectedItemIds.size > 0 && (
+                  {selectedUnitCount > 0 && (
                     <>
                       <span className="text-muted-foreground">·</span>
                       <button
@@ -316,19 +351,25 @@ export function PaymentModal({
                 })
 
                 return sortedItems.map((item) => {
-                  const isLocallyPaid = localPaidItemIds.has(item.id)
-                  const isSelected = selectedItemIds.has(item.id)
                   const isCancelled = item.quantity === 0
+                  const paidQ = paidQtyOf(item)
+                  const availQ = availableQtyOf(item)
+                  const selQ = selectedQtyOf(item)
+                  const isFullyPaid = !isCancelled && availQ <= 0
+                  const isPartiallyPaid = paidQ > 0 && availQ > 0
+                  const isSelected = selQ > 0
+                  // Adet seçici yalnız 1'den fazla ödenmemiş adet olan (ikram/iptal olmayan) kalemlerde.
+                  const showStepper = splitMode && !isCancelled && !isFullyPaid && !item.is_complimentary && availQ > 1
 
                   return (
                     <div
                       key={item.id}
-                      onClick={() => splitMode && !isCancelled && toggleItem(item.id)}
+                      onClick={() => splitMode && !isCancelled && !isFullyPaid && toggleItem(item)}
                       className={`
                         flex justify-between items-center py-2.5 px-2 rounded-md transition-all
                         border border-transparent
-                        ${splitMode && !isLocallyPaid && !isCancelled ? 'cursor-pointer' : ''}
-                        ${isLocallyPaid
+                        ${splitMode && !isFullyPaid && !isCancelled ? 'cursor-pointer' : ''}
+                        ${isFullyPaid
                           ? 'opacity-40 bg-muted/20'
                           : isCancelled
                             ? 'opacity-30 bg-muted/10'
@@ -340,10 +381,10 @@ export function PaymentModal({
                         }
                       `}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         {splitMode && (
                           <span className={`shrink-0 transition-colors ${isSelected ? 'text-primary' : 'text-muted-foreground/40'}`}>
-                            {isLocallyPaid
+                            {isFullyPaid
                               ? <CheckSquare className="h-4 w-4 text-green-600" />
                               : isCancelled
                                 ? <Square className="h-4 w-4 opacity-20" />
@@ -354,14 +395,14 @@ export function PaymentModal({
                           </span>
                         )}
 
-                        <div className="flex flex-col">
+                        <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             {!isCancelled && (
                               <span className="font-semibold tabular-nums text-xs text-muted-foreground min-w-[20px]">
                                 {item.quantity}x
                               </span>
                             )}
-                            <span className={`text-sm font-medium ${isLocallyPaid || isCancelled ? 'line-through' : ''}`}>
+                            <span className={`text-sm font-medium ${isFullyPaid || isCancelled ? 'line-through' : ''}`}>
                               {item.product_name_tr}
                             </span>
                             {item.is_complimentary && !isCancelled && (
@@ -374,10 +415,16 @@ export function PaymentModal({
                                 İptal
                               </Badge>
                             )}
-                            {isLocallyPaid && (
+                            {isFullyPaid && (
                               <span className="text-[10px] text-green-700 font-bold uppercase flex items-center gap-0.5">
                                 <CheckCircle2 className="h-3 w-3" />
                                 {t('splitItemPaid')}
+                              </span>
+                            )}
+                            {isPartiallyPaid && splitMode && (
+                              <span className="text-[10px] text-green-700 font-bold uppercase flex items-center gap-0.5">
+                                <CheckCircle2 className="h-3 w-3" />
+                                {t('splitItemPaidPartial', { paid: paidQ, total: item.quantity })}
                               </span>
                             )}
                           </div>
@@ -385,6 +432,41 @@ export function PaymentModal({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
+                        {/* Adet seçici (+/−) — kalem birden fazla adet içeriyorsa */}
+                        {showStepper && (
+                          <div
+                            className="flex items-center gap-0.5 rounded-full border border-border/60 bg-background px-1 py-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
+                              onClick={(e) => { e.stopPropagation(); decItem(item) }}
+                              disabled={selQ <= 0}
+                              aria-label={tCommon('decrease')}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="min-w-[34px] text-center text-xs font-bold tabular-nums">
+                              {selQ}
+                              <span className="text-muted-foreground/60">/{availQ}</span>
+                            </span>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
+                              onClick={(e) => { e.stopPropagation(); incItem(item) }}
+                              disabled={selQ >= availQ}
+                              aria-label={tCommon('increase')}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+
                         {!splitMode && !isCancelled && (
                           <Button
                             size="icon"
@@ -403,7 +485,7 @@ export function PaymentModal({
 
                         <div className="flex flex-col items-end">
                           <span className={`text-sm tracking-tight tabular-nums font-semibold ${
-                            item.is_complimentary || isLocallyPaid || isCancelled
+                            item.is_complimentary || isFullyPaid || isCancelled
                               ? 'line-through text-muted-foreground'
                               : isSelected && splitMode
                                 ? 'text-primary'
@@ -411,10 +493,11 @@ export function PaymentModal({
                           }`}>
                             ₺{Number(item.total_price).toFixed(2)}
                           </span>
-                          {/* Split modda indirimli tutar göster */}
-                          {splitMode && isSelected && !item.is_complimentary && !isLocallyPaid && !isCancelled && effectiveDiscountPct > 0 && (
+                          {/* Split modda seçili adetlerin (indirimli) tutarı */}
+                          {splitMode && isSelected && !item.is_complimentary && !isFullyPaid && !isCancelled && (
                             <span className="text-[11px] text-primary font-semibold tabular-nums">
-                              ₺{(Number(item.total_price) * (1 - effectiveDiscountPct / 100)).toFixed(2)}
+                              {selQ < item.quantity ? `${selQ}× · ` : ''}
+                              ₺{(itemUnitPrice(item) * (1 - effectiveDiscountPct / 100) * selQ).toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -462,11 +545,11 @@ export function PaymentModal({
                 ))}
 
                 {/* Split mod: seçili kalemlerin ara toplam + indirimli toplam */}
-                {splitMode && selectedItemIds.size > 0 && (
+                {splitMode && selectedUnitCount > 0 && (
                   <div className="flex justify-between items-center text-[13px] text-primary pt-1 border-t border-border/30">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Users className="h-3 w-3" />
-                      {t('itemsSelected', { count: selectedItemIds.size })}
+                      {t('itemsSelected', { count: selectedUnitCount })}
                     </span>
                     <span className="font-bold tabular-nums">₺{effectiveSplitAmount.toFixed(2)}</span>
                   </div>
@@ -608,7 +691,7 @@ export function PaymentModal({
                         : 'border-border/40 bg-muted/20 text-muted-foreground'
                     }`}>
                       <span className="text-sm font-medium mr-1.5 opacity-60">₺</span>
-                      {selectedItemIds.size === 0 ? (
+                      {selectedUnitCount === 0 ? (
                         <span className="text-sm font-normal text-muted-foreground">{t('splitNoSelection')}</span>
                       ) : (
                         <span>{effectiveSplitAmount.toFixed(2)}</span>
@@ -699,7 +782,7 @@ export function PaymentModal({
                   disabled={paymentMutation.isPending || !canPay}
                 >
                   {splitMode
-                    ? selectedItemIds.size > 0
+                    ? selectedUnitCount > 0
                       ? `${t('splitPayFor')} (₺${effectiveSplitAmount.toFixed(2)})`
                       : t('splitNoSelection')
                     : parseFloat(amount) >= remaining

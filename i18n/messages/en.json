@@ -38,7 +38,9 @@
     "optional": "optional",
     "today": "Today",
     "prevDay": "Previous Day",
-    "nextDay": "Next Day"
+    "nextDay": "Next Day",
+    "increase": "Increase",
+    "decrease": "Decrease"
   },
   "auth": {
     "login": "Login",
@@ -391,6 +393,7 @@
     "splitSelectedCount": "{count} items selected",
     "splitPayFor": "Pay for Selected",
     "splitItemPaid": "Paid",
+    "splitItemPaidPartial": "{paid}/{total} paid",
     "splitNoSelection": "Select items to pay",
     "splitAllItemsPaid": "All items paid",
     "itemsSelected": "{count} items selected",

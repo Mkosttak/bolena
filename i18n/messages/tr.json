@@ -38,7 +38,9 @@
     "optional": "opsiyonel",
     "today": "Bugün",
     "prevDay": "Önceki Gün",
-    "nextDay": "Sonraki Gün"
+    "nextDay": "Sonraki Gün",
+    "increase": "Artır",
+    "decrease": "Azalt"
   },
   "auth": {
     "login": "Giriş Yap",
@@ -394,6 +396,7 @@
     "splitSelectedCount": "{count} kalem seçili",
     "splitPayFor": "Seçilenleri Öde",
     "splitItemPaid": "Ödendi",
+    "splitItemPaidPartial": "{paid}/{total} ödendi",
     "splitNoSelection": "Ödeme için kalem seçin",
     "splitAllItemsPaid": "Tüm kalemler ödendi",
     "itemsSelected": "{count} kalem seçili",
