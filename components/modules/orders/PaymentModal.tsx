@@ -14,8 +14,6 @@ import {
   ChevronDown,
   ChevronUp,
   Users,
-  Square,
-  CheckSquare,
   Plus,
   Minus,
 } from 'lucide-react'
@@ -151,12 +149,6 @@ export function PaymentModal({
       else next.set(item.id, clamped)
       return next
     })
-  }
-
-  // Satıra tıklayınca: seçiliyse tamamen bırak, değilse kalan tüm adedi seç.
-  function toggleItem(item: OrderItem) {
-    if (item.quantity === 0 || availableQtyOf(item) <= 0) return
-    setItemQty(item, selectedQtyOf(item) > 0 ? 0 : availableQtyOf(item))
   }
 
   const incItem = (item: OrderItem) => setItemQty(item, selectedQtyOf(item) + 1)
@@ -358,17 +350,15 @@ export function PaymentModal({
                   const isFullyPaid = !isCancelled && availQ <= 0
                   const isPartiallyPaid = paidQ > 0 && availQ > 0
                   const isSelected = selQ > 0
-                  // Adet seçici yalnız 1'den fazla ödenmemiş adet olan (ikram/iptal olmayan) kalemlerde.
-                  const showStepper = splitMode && !isCancelled && !isFullyPaid && !item.is_complimentary && availQ > 1
+                  // Stepper split modda, iptal edilmemiş ve tam ödenmemiş her kalemde gösterilir.
+                  const showStepper = splitMode && !isCancelled && !isFullyPaid && !item.is_complimentary
 
                   return (
                     <div
                       key={item.id}
-                      onClick={() => splitMode && !isCancelled && !isFullyPaid && toggleItem(item)}
                       className={`
                         flex justify-between items-center py-2.5 px-2 rounded-md transition-all
                         border border-transparent
-                        ${splitMode && !isFullyPaid && !isCancelled ? 'cursor-pointer' : ''}
                         ${isFullyPaid
                           ? 'opacity-40 bg-muted/20'
                           : isCancelled
@@ -376,24 +366,12 @@ export function PaymentModal({
                             : isSelected && splitMode
                               ? 'bg-primary/8 border-primary/30 shadow-sm'
                               : splitMode
-                                ? 'hover:bg-muted/30 hover:border-border/50'
+                                ? ''
                                 : 'hover:bg-muted/20 border-b border-border/30 last:border-0'
                         }
                       `}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        {splitMode && (
-                          <span className={`shrink-0 transition-colors ${isSelected ? 'text-primary' : 'text-muted-foreground/40'}`}>
-                            {isFullyPaid
-                              ? <CheckSquare className="h-4 w-4 text-green-600" />
-                              : isCancelled
-                                ? <Square className="h-4 w-4 opacity-20" />
-                                : isSelected
-                                  ? <CheckSquare className="h-4 w-4" />
-                                  : <Square className="h-4 w-4" />
-                            }
-                          </span>
-                        )}
 
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -432,18 +410,15 @@ export function PaymentModal({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        {/* Adet seçici (+/−) — kalem birden fazla adet içeriyorsa */}
+                        {/* Adet seçici (+/−) — split modda tüm aktif/ödenmemiş kalemler */}
                         {showStepper && (
-                          <div
-                            className="flex items-center gap-0.5 rounded-full border border-border/60 bg-background px-1 py-0.5"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <div className="flex items-center gap-0.5 rounded-full border border-border/60 bg-background px-1 py-0.5">
                             <Button
                               type="button"
                               size="icon"
                               variant="ghost"
                               className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
-                              onClick={(e) => { e.stopPropagation(); decItem(item) }}
+                              onClick={() => decItem(item)}
                               disabled={selQ <= 0}
                               aria-label={tCommon('decrease')}
                             >
@@ -458,7 +433,7 @@ export function PaymentModal({
                               size="icon"
                               variant="ghost"
                               className="h-6 w-6 rounded-full hover:bg-secondary text-foreground disabled:opacity-30"
-                              onClick={(e) => { e.stopPropagation(); incItem(item) }}
+                              onClick={() => incItem(item)}
                               disabled={selQ >= availQ}
                               aria-label={tCommon('increase')}
                             >
