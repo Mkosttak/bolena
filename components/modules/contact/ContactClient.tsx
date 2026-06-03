@@ -158,7 +158,7 @@ export function ContactClient({ locale }: ContactClientProps) {
           </div>
 
           <div className={`absolute inset-0 overflow-y-auto p-6 lg:p-12 flex flex-col justify-center transition-all duration-700 ${activePanel === 0 ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-12 pointer-events-none'}`}>
-            <h2 className="font-heading text-4xl lg:text-5xl text-[#1B3C2A] tracking-tight mb-3">{t('heroTitle')}</h2>
+            <h1 className="font-heading text-4xl lg:text-5xl text-[#1B3C2A] tracking-tight mb-3">{t('heroTitle')}</h1>
             <p className="text-[#1B3C2A]/60 max-w-md text-sm lg:text-base mb-10 lg:mb-12">{t('heroSubtitle')}</p>
 
             <div className="flex flex-col gap-8 lg:gap-10">

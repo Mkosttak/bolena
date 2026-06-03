@@ -76,7 +76,9 @@ export function LocalBusinessJsonLd({ locale, siteUrl }: LocalBusinessJsonLdProp
       'Pasta',
       'Desserts',
     ],
-    cuisineType: 'Gluten-Free',
+    // NOT: `cuisineType` schema.org'da geçerli bir özellik değil (validator hatası
+    // veriyordu). Glutensiz mutfak sinyali zaten `servesCuisine` + `knowsAbout`
+    // ile veriliyor.
     menu: `${siteUrl}/${locale}/menu`,
     acceptsReservations: 'True',
     priceRange: '$$',
@@ -86,7 +88,9 @@ export function LocalBusinessJsonLd({ locale, siteUrl }: LocalBusinessJsonLdProp
     sameAs: [
       'https://www.instagram.com/bolenaglutensizcafe',
     ],
-    inLanguage: isEn ? 'en-US' : 'tr-TR',
+    // NOT: `inLanguage` Restaurant/CafeOrCoffeeShop türünde tanınmıyor (validator
+    // uyarısı). Üst seviyeden kaldırıldı; potentialAction → EntryPoint'te geçerli
+    // olduğu için orada korunuyor.
     areaServed: [
       { '@type': 'City', name: 'Ankara' },
       { '@type': 'AdministrativeArea', name: 'Çankaya' },
