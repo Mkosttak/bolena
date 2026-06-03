@@ -8,20 +8,40 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 // ISR — saatte bir yenilenir
 export const revalidate = 3600
 
+// Her sayfa için tr/en + x-default hreflang kümesi — sitemap'te alternates
+// vermek Google'ın dil eşleşmesini güçlendirir (denetimdeki hreflang
+// bulgularını destekler).
+function langAlternates(path: string) {
+  return {
+    languages: {
+      tr: `${BASE_URL}/tr${path}`,
+      en: `${BASE_URL}/en${path}`,
+      'x-default': `${BASE_URL}/tr${path}`,
+    },
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
-  // Static sayfalar — her locale için
-  const staticEntries: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}/tr`,         lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
-    { url: `${BASE_URL}/en`,         lastModified: now, changeFrequency: 'weekly',  priority: 1.0 },
-    { url: `${BASE_URL}/tr/menu`,    lastModified: now, changeFrequency: 'weekly',  priority: 0.9 },
-    { url: `${BASE_URL}/en/menu`,    lastModified: now, changeFrequency: 'weekly',  priority: 0.9 },
-    { url: `${BASE_URL}/tr/blog`,    lastModified: now, changeFrequency: 'daily',   priority: 0.8 },
-    { url: `${BASE_URL}/en/blog`,    lastModified: now, changeFrequency: 'daily',   priority: 0.8 },
-    { url: `${BASE_URL}/tr/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE_URL}/en/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+  // Static sayfalar — her locale + hreflang alternates
+  const STATIC_PATHS = [
+    { path: '', changeFrequency: 'weekly' as const, priority: 1.0 },
+    { path: '/menu', changeFrequency: 'weekly' as const, priority: 0.9 },
+    { path: '/blog', changeFrequency: 'daily' as const, priority: 0.8 },
+    { path: '/contact', changeFrequency: 'monthly' as const, priority: 0.7 },
   ]
+
+  const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.flatMap(
+    ({ path, changeFrequency, priority }) =>
+      (['tr', 'en'] as const).map((loc) => ({
+        url: `${BASE_URL}/${loc}${path}`,
+        lastModified: now,
+        changeFrequency,
+        priority,
+        alternates: langAlternates(path),
+      }))
+  )
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return staticEntries
@@ -40,20 +60,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .limit(1000)
 
     if (posts) {
-      blogEntries = posts.flatMap((post: { slug: string; updated_at: string; published_at: string | null }) => [
-        {
-          url: `${BASE_URL}/tr/blog/${post.slug}`,
-          lastModified: new Date(post.updated_at ?? post.published_at ?? now),
-          changeFrequency: 'monthly' as const,
-          priority: 0.6,
-        },
-        {
-          url: `${BASE_URL}/en/blog/${post.slug}`,
-          lastModified: new Date(post.updated_at ?? post.published_at ?? now),
-          changeFrequency: 'monthly' as const,
-          priority: 0.6,
-        },
-      ])
+      blogEntries = posts.flatMap((post: { slug: string; updated_at: string; published_at: string | null }) => {
+        const lastModified = new Date(post.updated_at ?? post.published_at ?? now)
+        const alternates = langAlternates(`/blog/${post.slug}`)
+        return [
+          {
+            url: `${BASE_URL}/tr/blog/${post.slug}`,
+            lastModified,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+            alternates,
+          },
+          {
+            url: `${BASE_URL}/en/blog/${post.slug}`,
+            lastModified,
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+            alternates,
+          },
+        ]
+      })
     }
   } catch {
     // DB erişilemezse static entries döner

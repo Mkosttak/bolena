@@ -15,7 +15,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.bolenaglutensiz
 
 const META: Record<'tr' | 'en', { title: string; description: string; keywords: string[] }> = {
   tr: {
-    title: 'Glutensiz Menü — Pizza, Hamburger, Kahvaltı | Bolena Cafe Ankara',
+    title: 'Glutensiz Menü — Pizza, Burger, Kahvaltı | Bolena Ankara',
     description: 'Ankara Yaşamkent\'te %100 glutensiz menü: glutensiz pizza, hamburger, makarna, kahvaltı, bowl ve tatlılar. Çölyak güvenli, sertifikalı mutfak.',
     keywords: [
       'glutensiz menü',
