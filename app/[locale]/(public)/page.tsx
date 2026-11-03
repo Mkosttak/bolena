@@ -9,6 +9,8 @@ import { SiteFooter } from '@/components/shared/SiteFooter'
 import { HomeLanding } from '@/components/modules/home/HomeLanding'
 import { LocalBusinessJsonLd } from '@/components/shared/LocalBusinessJsonLd'
 import { FaqJsonLd, BOLENA_FAQ } from '@/components/shared/FaqJsonLd'
+import { TemporaryClosureDialog } from '@/components/modules/home/TemporaryClosureDialog'
+import { TEMPORARY_CLOSURE_ENABLED } from '@/lib/site-closure'
 
 export const revalidate = 60
 
@@ -113,6 +115,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <HomeLanding locale={locale} openNow={openNow} todayHoursLabel={todayHoursLabel} />
       </main>
       <SiteFooter locale={locale} />
+      {TEMPORARY_CLOSURE_ENABLED && <TemporaryClosureDialog />}
     </div>
   )
 }

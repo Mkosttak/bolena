@@ -5,8 +5,10 @@ import { PublicNavbar } from '@/components/shared/PublicNavbar'
 import { SiteFooter } from '@/components/shared/SiteFooter'
 import { MenuDisplay } from '@/components/modules/menu/MenuDisplay'
 import { MenuHero } from '@/components/modules/menu/MenuHero'
+import { MenuClosureNotice } from '@/components/modules/menu/MenuClosureNotice'
 import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 import { MenuJsonLd } from '@/components/shared/MenuJsonLd'
+import { TEMPORARY_CLOSURE_ENABLED } from '@/lib/site-closure'
 import type { Category, MenuCampaign, Product } from '@/types'
 
 export const revalidate = 1800
@@ -47,11 +49,22 @@ interface MenuPageProps {
 
 export async function generateMetadata({ params }: MenuPageProps): Promise<Metadata> {
   const { locale } = await params
-  const meta = META[locale as 'tr' | 'en'] ?? META.tr
+  const baseMeta = META[locale as 'tr' | 'en'] ?? META.tr
+  let meta = baseMeta
+  if (TEMPORARY_CLOSURE_ENABLED) {
+    // Ara süresince menü içeriği yayında değil — başlık/açıklama gerçeği yansıtmalı.
+    const tClosure = await getTranslations({ locale, namespace: 'closure' })
+    meta = {
+      ...baseMeta,
+      title: tClosure('metaMenuTitle'),
+      description: tClosure('metaMenuDescription'),
+      keywords: [],
+    }
+  }
   return {
     title: meta.title,
     description: meta.description,
-    keywords: meta.keywords,
+    ...(meta.keywords.length > 0 ? { keywords: meta.keywords } : {}),
     alternates: {
       canonical: `${SITE_URL}/${locale}/menu`,
       languages: {
@@ -89,6 +102,39 @@ export default async function MenuPage({ params }: MenuPageProps) {
   const { locale } = await params
   const tNav = await getTranslations('nav')
   const tMenu = await getTranslations('menu')
+
+  if (TEMPORARY_CLOSURE_ENABLED) {
+    const tClosure = await getTranslations('closure')
+    const isEnLocale = locale === 'en'
+    return (
+      <div className="min-h-screen flex flex-col bg-background selection:bg-primary/20">
+        <BreadcrumbJsonLd
+          items={[
+            { name: isEnLocale ? 'Home' : 'Ana Sayfa', url: `${SITE_URL}/${locale}` },
+            { name: isEnLocale ? 'Menu' : 'Menü', url: `${SITE_URL}/${locale}/menu` },
+          ]}
+        />
+        <PublicNavbar
+          locale={locale}
+          menuLabel={tNav('menu')}
+          contactLabel={tNav('contact')}
+          blogLabel={tNav('blog')}
+        />
+        <MenuHero
+          locale={locale}
+          title={tClosure('menuHeroTitle')}
+          subtitle={tClosure('menuHeroSubtitle')}
+          eyebrowText={tClosure('menuHeroEyebrow')}
+          badges={[tClosure('menuBadge1'), tClosure('menuBadge2'), tClosure('menuBadge3')]}
+        />
+        <main className="flex-1 relative z-20 bg-[#FAF8F2] -mt-8 rounded-t-[32px]">
+          <MenuClosureNotice locale={locale} />
+        </main>
+        <SiteFooter locale={locale} />
+      </div>
+    )
+  }
+
   const supabase = await createClient()
 
   const today = new Date().toISOString().slice(0, 10)
