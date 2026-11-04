@@ -12,6 +12,7 @@ import {
   fetchWorkingHoursExceptions,
 } from '@/lib/queries/working-hours.queries'
 import { INSTAGRAM_URL } from '@/lib/constants/social'
+import { TEMPORARY_CLOSURE_ENABLED } from '@/lib/site-closure'
 import { useState } from 'react'
 
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const
@@ -61,16 +62,19 @@ interface ContactClientProps {
 export function ContactClient({ locale }: ContactClientProps) {
   const t = useTranslations('contact')
   const tNav = useTranslations('nav')
+  const tClosure = useTranslations('closure')
   const activeLocale = useLocale()
 
   const [activePanel, setActivePanel] = useState<number>(0)
 
-  // Cache çok agresif değil — admin değişiklik yapınca ~30sn içinde yansır
+  // Cache çok agresif değil — admin değişiklik yapınca ~30sn içinde yansır.
+  // Geçici ara süresince saatler gösterilmediği için sorgular çalışmaz.
   const { data: weeklyHours = [], isLoading: hoursLoading } = useQuery({
     queryKey: workingHoursKeys.weekly(),
     queryFn: fetchWeeklyHours,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
+    enabled: !TEMPORARY_CLOSURE_ENABLED,
   })
 
   const { data: exceptions = [] } = useQuery({
@@ -78,6 +82,7 @@ export function ContactClient({ locale }: ContactClientProps) {
     queryFn: fetchWorkingHoursExceptions,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
+    enabled: !TEMPORARY_CLOSURE_ENABLED,
   })
 
   const now = new Date()
@@ -159,7 +164,9 @@ export function ContactClient({ locale }: ContactClientProps) {
 
           <div className={`absolute inset-0 overflow-y-auto p-6 lg:p-12 flex flex-col justify-center transition-all duration-700 ${activePanel === 0 ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-12 pointer-events-none'}`}>
             <h1 className="font-heading text-4xl lg:text-5xl text-[#1B3C2A] tracking-tight mb-3">{t('heroTitle')}</h1>
-            <p className="text-[#1B3C2A]/60 max-w-md text-sm lg:text-base mb-10 lg:mb-12">{t('heroSubtitle')}</p>
+            <p className="text-[#1B3C2A]/60 max-w-md text-sm lg:text-base mb-10 lg:mb-12">
+              {TEMPORARY_CLOSURE_ENABLED ? tClosure('contactHeroSubtitle') : t('heroSubtitle')}
+            </p>
 
             <div className="flex flex-col gap-8 lg:gap-10">
               <a href={`tel:${t('phoneValue').replace(/\s/g, '')}`} className="group/link flex items-center gap-4 lg:gap-5 w-fit">
@@ -217,7 +224,26 @@ export function ContactClient({ locale }: ContactClientProps) {
             <h2 className="font-heading text-4xl lg:text-5xl text-[#1B3C2A] tracking-tight mb-6 lg:mb-8">{t('workingHours')}</h2>
 
             <div className="flex flex-col w-full max-w-xl">
-              {hoursLoading ? (
+              {TEMPORARY_CLOSURE_ENABLED ? (
+                <div className="rounded-3xl border border-[#1B3C2A]/10 bg-white/70 p-6 lg:p-8">
+                  <span className="mb-4 block h-0.5 w-10 rounded-full bg-[#c4841a]" aria-hidden />
+                  <h3 className="font-heading text-xl lg:text-2xl text-[#1B3C2A] mb-3">
+                    {tClosure('hoursNoticeTitle')}
+                  </h3>
+                  <p className="text-sm lg:text-base leading-relaxed text-[#1B3C2A]/70">
+                    {tClosure('hoursNoticeBody')}
+                  </p>
+                  <a
+                    href={INSTAGRAM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-5 inline-flex text-sm font-medium text-[#1B3C2A] underline decoration-[#c4841a]/60 underline-offset-4 hover:text-[#c4841a]"
+                  >
+                    {tClosure('popupFollow')}
+                  </a>
+                </div>
+              ) : hoursLoading ? (
                 Array.from({ length: 7 }).map((_, i) => (
                   <div key={i} className="flex items-end justify-between py-3 lg:py-4 border-b border-[#1B3C2A]/10">
                     <Skeleton className="h-4 lg:h-5 w-20 lg:w-24 bg-[#1B3C2A]/10" />

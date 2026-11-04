@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
+import { TEMPORARY_CLOSURE_ENABLED } from '@/lib/site-closure'
 import { ContactClient } from '@/components/modules/contact/ContactClient'
 import { BreadcrumbJsonLd } from '@/components/shared/BreadcrumbJsonLd'
 
@@ -38,7 +40,18 @@ interface ContactPageProps {
 
 export async function generateMetadata({ params }: ContactPageProps): Promise<Metadata> {
   const { locale } = await params
-  const meta = META[locale as 'tr' | 'en'] ?? META.tr
+  const base = META[locale as 'tr' | 'en'] ?? META.tr
+  let meta = base
+  if (TEMPORARY_CLOSURE_ENABLED) {
+    const t = await getTranslations({ locale, namespace: 'closure' })
+    meta = {
+      ...base,
+      title: t('metaContactTitle'),
+      description: t('metaContactDescription'),
+      // Çalışma saatlerine yönelik anahtar kelimeler ara süresince yanıltıcı olur.
+      keywords: base.keywords.filter((k) => !/çalışma saatleri|hours/i.test(k)),
+    }
+  }
   return {
     title: meta.title,
     description: meta.description,

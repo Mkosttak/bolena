@@ -7,6 +7,7 @@
 - **İstek:** Cafe kalıcı kapanmadı, ara veriyor. Ana sayfada duyuru pop-up'ı; public menü yerine açıklama.
 - **Çözüm:** [lib/site-closure.ts](lib/site-closure.ts) tek bayrak (`TEMPORARY_CLOSURE_ENABLED`). `true` iken ana sayfada [TemporaryClosureDialog](components/modules/home/TemporaryClosureDialog.tsx) (oturum başına bir kez, sessionStorage) açılır; `/menu` sayfası DB sorgusu ve ürün JSON-LD'si olmadan [MenuClosureNotice](components/modules/menu/MenuClosureNotice.tsx) gösterir, başlık/description closure metniyle değişir. Metinler: `closure` bölümü (tr+en).
 - **Yeniden açılış:** bayrağı `false` yap + deploy. Menü kodu/verisi silinmedi.
+- **İletişim sayfası (2026-11-04):** aynı bayrakla [ContactClient](components/modules/contact/ContactClient.tsx) "Çalışma Saatleri" panelinde gün listesi yerine ara açıklaması gösterir, saat sorguları çalışmaz; "kapımız herkese açık" alt başlığı ve sayfa title/description (saat vurgusu kaldırıldı) closure metinleriyle değişir. Test: `__tests__/components/contact/ContactClosureHours.test.tsx`.
 - **Dokunulmayanlar (karar bekliyor):** ana sayfa "Şu an açık/kapalı" rozeti ve çalışma saati, "Rezervasyon Yap" / online sipariş bölümü, LocalBusinessJsonLd + `/api/ai-content` + `llms.txt` içindeki saat/menü bilgileri, WhatsApp butonunun menü metni.
 - **Testler:** `typecheck` ✅ · `eslint` ✅ · `vitest` ✅ 35 dosya / 406 test (yeni: `__tests__/components/home/TemporaryClosureDialog.test.tsx`).
 
